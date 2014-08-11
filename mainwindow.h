@@ -3,8 +3,8 @@
 
 #include <QString>
 #include <QMainWindow>
-#include "ip_connection.h"
-#include "encoder.h"
+
+#include "controller.h"
 
 namespace Ui {
 class MainWindow;
@@ -17,11 +17,6 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
-
-    Encoder *motor1;
-    Encoder *motor2;
-    Encoder *motor3;
-    Encoder *motor4;
 
 private slots:
     void on_goButton_1_clicked();
@@ -37,13 +32,10 @@ private slots:
     void on_goButton_4_clicked();
 
 private:
-    QString data_to_send;
-    IP_Connection *PCB;
     Ui::MainWindow *ui;
+    Controller *hardware;
 
-    void Calibrate(int, int, int);
     void SetValidators();
-    QString GenerateCoordinate(QString, QString);
 };
 
 #endif // MAINWINDOW_H
