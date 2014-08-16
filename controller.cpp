@@ -56,7 +56,7 @@ void Controller::SetMotorCoordinate(int motorID, const QString &mm, const QStrin
             QString::number(motorID+1)
             + "_"
             + GenerateCoordinate(mm, um)
-            + "f"
+            + "R"
             + "_steps2mm="
             + QString::number(motors[motorID]->GetSteps2mm());
 
@@ -98,4 +98,33 @@ void Controller::ResetMotorsData()
     for (int i = 0; i < N_motors; ++i) {
         motors[i]->ResetSteps2mm();
     }
+}
+
+void Controller::Reset(int motorID)
+{
+//    QByteArray response;
+//    QString data_to_send = "move_motor" +
+//            QString::number(motorID+1)
+//            + "_"
+//            + GenerateCoordinate(mm, um)
+//            + "r"
+//            + "_steps2mm="
+//            + QString::number(motors[motorID]->GetSteps2mm());
+
+//    qDebug() << data_to_send;
+//    PCB->PCB_SendData(data_to_send);
+//    response = PCB->PCB_ReceiveData();
+////    qDebug() << response;
+
+//    data_to_send = "Get_coordinate";
+//    PCB->PCB_SendData(data_to_send);
+//    response = PCB->PCB_ReceiveData();
+////    qDebug() << response;
+//    motors[motorID]->Update(response);
+//    qDebug() << motors[motorID]->GetPosition();
+}
+
+void Controller::ResetAll()
+{
+
 }

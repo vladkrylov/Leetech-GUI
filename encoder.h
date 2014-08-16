@@ -1,6 +1,8 @@
 #ifndef ENCODER_H
 #define ENCODER_H
 
+#include <stdint.h>
+
 #include <QString>
 #include <QByteArray>
 #include <QDebug>
@@ -14,6 +16,7 @@ private:
     uint16_t position; // in 0.488um
     uint8_t steps2mm;
     bool OffsetCompensationFinished;
+    uint16_t origin;
 
 
 public:

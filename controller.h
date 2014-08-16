@@ -19,6 +19,8 @@ public:
     void SetIPAddress(const QString &ipaddress);
     void ResetMotorsData();
     void SetMotorCoordinate(int motorID, const QString &mm, const QString &um);
+    void Reset(int motorID);
+    void ResetAll();
 
 private:
     IP_Connection *PCB;

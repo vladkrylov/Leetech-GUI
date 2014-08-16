@@ -4,6 +4,7 @@
 #
 #-------------------------------------------------
 
+QT       += widgets
 QT       += core gui
 QT       += network
 
@@ -15,11 +16,13 @@ SOURCES += main.cpp\
         mainwindow.cpp \
     ip_connection.cpp \
     encoder.cpp \
-    controller.cpp
+    controller.cpp \
+    tests.cpp
 
 HEADERS  += mainwindow.h \
     ip_connection.h \
     encoder.h \
-    controller.h
+    controller.h \
+    tests.h
 
 FORMS    += mainwindow.ui

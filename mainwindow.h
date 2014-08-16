@@ -2,7 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QString>
-#include <QMainWindow>
+#include <QtWidgets>
 
 #include "controller.h"
 
