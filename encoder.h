@@ -23,8 +23,12 @@ public:
     Encoder();
 
     void Update(QByteArray);
+    void UpdateOrigin(QByteArray);
+
     int GetPosition();
     uint8_t GetSteps2mm();
+    uint16_t GetOrigin();
+
     void ResetSteps2mm();
 };
 

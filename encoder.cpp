@@ -16,6 +16,11 @@ void Encoder::Update(QByteArray dataFromEncoder)
     position += steps2mm * 4096;
 }
 
+void Encoder::UpdateOrigin(QByteArray dataFromEncoder)
+{
+    origin = ((uint8_t)dataFromEncoder[0]) | (((uint8_t)dataFromEncoder[1])<<8);
+}
+
 int Encoder::GetPosition()
 {
     return position * 2000/4095;
@@ -29,4 +34,9 @@ uint8_t Encoder::GetSteps2mm()
 void Encoder::ResetSteps2mm()
 {
     steps2mm = 0;
+}
+
+uint16_t Encoder::GetOrigin()
+{
+    return origin;
 }

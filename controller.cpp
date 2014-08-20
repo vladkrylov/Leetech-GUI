@@ -11,6 +11,7 @@ Controller::Controller(QObject *parent) :
     for (int i = 0; i < N_motors; ++i) {
         motors[i] = new Encoder();
     }
+    TestObject = new Tests(PCB);
 }
 
 Controller::~Controller()
@@ -20,6 +21,7 @@ Controller::~Controller()
         delete motors[i];
     }
     delete [] motors;
+    delete TestObject;
 }
 
 QString Controller::GenerateCoordinate(const QString &mm, const QString &um)
@@ -56,7 +58,7 @@ void Controller::SetMotorCoordinate(int motorID, const QString &mm, const QStrin
             QString::number(motorID+1)
             + "_"
             + GenerateCoordinate(mm, um)
-            + "R"
+            + "m"
             + "_steps2mm="
             + QString::number(motors[motorID]->GetSteps2mm());
 
@@ -102,29 +104,81 @@ void Controller::ResetMotorsData()
 
 void Controller::Reset(int motorID)
 {
-//    QByteArray response;
-//    QString data_to_send = "move_motor" +
-//            QString::number(motorID+1)
-//            + "_"
-//            + GenerateCoordinate(mm, um)
-//            + "r"
-//            + "_steps2mm="
-//            + QString::number(motors[motorID]->GetSteps2mm());
+    QByteArray response;
+    QString data_to_send = "move_motor" +
+            QString::number(motorID+1)
+            + "_00000"
+            + "r"
+            + "_steps2mm="
+            + QString::number(motors[motorID]->GetSteps2mm());
 
-//    qDebug() << data_to_send;
-//    PCB->PCB_SendData(data_to_send);
-//    response = PCB->PCB_ReceiveData();
-////    qDebug() << response;
+    qDebug() << data_to_send;
+    PCB->PCB_SendData(data_to_send);
+    response = PCB->PCB_ReceiveData();
+//    qDebug() << response;
 
-//    data_to_send = "Get_coordinate";
-//    PCB->PCB_SendData(data_to_send);
-//    response = PCB->PCB_ReceiveData();
-////    qDebug() << response;
-//    motors[motorID]->Update(response);
-//    qDebug() << motors[motorID]->GetPosition();
+    data_to_send = "Get_coordinate";
+    PCB->PCB_SendData(data_to_send);
+    response = PCB->PCB_ReceiveData();
+//    qDebug() << response;
+    motors[motorID]->UpdateOrigin(response);
+    qDebug() << motors[motorID]->GetOrigin();
 }
 
 void Controller::ResetAll()
 {
+    QByteArray response;
+    QString data_to_send = QString("move_motors")
+            + "_00000"
+            + "R"
+            + "_steps2mm=0";
 
+    qDebug() << data_to_send;
+    PCB->PCB_SendData(data_to_send);
+    response = PCB->PCB_ReceiveData();
+//    qDebug() << response;
+
+    data_to_send = "Get_coordinate";
+    PCB->PCB_SendData(data_to_send);
+    response = PCB->PCB_ReceiveData();
+//    qDebug() << response;
+    for (int i = 0; i < N_motors; ++i) {
+        motors[i]->UpdateOrigin(response.mid(2*i, 2));
+        qDebug() << motors[i]->GetOrigin();
+    }
 }
+
+//void Controller::Test(int motorID)
+//{
+//    QString data_to_send = QString("move_motor")
+//            + QString::number(motorID+1)
+//            + "_00000"
+//            + "t"
+//            + "_steps2mm=0";
+
+//    qDebug() << data_to_send;
+//    PCB->PCB_SendData(data_to_send);
+//    QString data_to_send = QString("test_motor")
+//            + QString::number(motorID+1)
+//            + "_00000"
+//            + "t"
+//            + "_steps2mm=0";
+
+//    qDebug() << data_to_send;
+//    PCB->PCB_SendData(data_to_send);
+//}
+
+//void Controller::TestPulsesForOscilloscope(int motorID)
+//{
+//    QString data_to_send = QString("move_motor")
+//            + QString::number(motorID+1)
+//            + "_00000"
+//            + "z"
+//            + "_steps2mm=0";
+
+//    qDebug() << data_to_send;
+//    PCB->PCB_SendData(data_to_send);
+//}
+
+
+

@@ -5,6 +5,9 @@
 
 #include "ip_connection.h"
 #include "encoder.h"
+#include "tests.h"
+
+class Tests;
 
 class Controller : public QObject
 {
@@ -12,6 +15,8 @@ class Controller : public QObject
 public:
     explicit Controller(QObject *parent = 0);
     ~Controller();
+
+    Tests *TestObject;
 
     int IsConnected();
     int Connect();
@@ -25,6 +30,7 @@ public:
 private:
     IP_Connection *PCB;
     Encoder **motors;
+
 
     QString GenerateCoordinate(const QString &mm, const QString &um);
 

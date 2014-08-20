@@ -31,6 +31,20 @@ private slots:
 
     void on_goButton_4_clicked();
 
+    void on_MotorReset_1_clicked();
+
+    void on_MotorReset_2_clicked();
+
+    void on_MotorReset_3_clicked();
+
+    void on_MotorReset_4_clicked();
+
+    void on_MotorReset_All_clicked();
+
+    void on_TestButton_clicked();
+
+    void on_TestButton_2_clicked();
+
 private:
     Ui::MainWindow *ui;
     Controller *hardware;

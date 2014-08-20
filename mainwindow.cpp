@@ -96,3 +96,61 @@ void MainWindow::on_pushButton_clicked()
     hardware->ResetMotorsData();
 }
 
+
+void MainWindow::on_MotorReset_1_clicked()
+{
+    hardware->Reset(0);
+}
+
+void MainWindow::on_MotorReset_2_clicked()
+{
+    hardware->Reset(1);
+}
+
+void MainWindow::on_MotorReset_3_clicked()
+{
+    hardware->Reset(2);
+}
+
+void MainWindow::on_MotorReset_4_clicked()
+{
+    hardware->Reset(3);
+}
+
+void MainWindow::on_MotorReset_All_clicked()
+{
+    hardware->ResetAll();
+}
+
+void MainWindow::on_TestButton_clicked()
+{
+    int motorID = 0;
+    if (ui->Motor1_radioButton->isChecked()) {
+        motorID = 0;
+    } else if (ui->Motor2_radioButton->isChecked()) {
+        motorID = 1;
+    } else if (ui->Motor3_radioButton->isChecked()) {
+        motorID = 2;
+    } else if (ui->Motor4_radioButton->isChecked()) {
+        motorID = 3;
+    }
+
+    hardware->TestObject->Test(motorID);
+}
+
+
+void MainWindow::on_TestButton_2_clicked()
+{
+    int motorID = 0;
+    if (ui->Motor1_radioButton->isChecked()) {
+        motorID = 0;
+    } else if (ui->Motor2_radioButton->isChecked()) {
+        motorID = 1;
+    } else if (ui->Motor3_radioButton->isChecked()) {
+        motorID = 2;
+    } else if (ui->Motor4_radioButton->isChecked()) {
+        motorID = 3;
+    }
+
+    hardware->TestObject->TestPulsesForOscilloscope(motorID);
+}
