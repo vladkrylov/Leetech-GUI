@@ -45,11 +45,21 @@ private slots:
 
     void on_TestButton_2_clicked();
 
+    void on_PulsesButton_clicked();
+
+    void on_PeriodSpinBox_valueChanged(const QString &arg1);
+
+    void on_WidthSpinBox_valueChanged(const QString &arg1);
+
+    void on_TestForceButton_clicked();
+
 private:
     Ui::MainWindow *ui;
     Controller *hardware;
 
     void SetValidators();
+    int ValidatePulsesWidth(float width_us);
+    int ValidatePulsesPeriod(float period_us);
 };
 
 #endif // MAINWINDOW_H

@@ -4,19 +4,23 @@
 #include <QObject>
 #include "controller.h"
 
+class Controller;
+
 class Tests : public QObject
 {
     Q_OBJECT
 public:
     IP_Connection *PCB;
+    Controller *control;
 
-    explicit Tests(IP_Connection *testPCB, QObject *parent = 0);
+    explicit Tests(Controller *c, IP_Connection *testPCB, QObject *parent = 0);
 
     void Test(int motorID);
-    void TestPulsesForOscilloscope(int motorID);
+    void TestPulsesForOscilloscope();
+    void TestForce(int numOfRepeats, int timePerMoving, int motorID);
 
 private:
-
+    void Delay(int t);
 
 signals:
 

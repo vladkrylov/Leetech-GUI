@@ -4,6 +4,10 @@
 #include <QFile>
 #include <QTextStream>
 
+const float usPerTimerTick = 0.025;
+const float MAX_PULSE_WIDTH_US = 4.5;
+const float MAX_PULSE_PERIOD_US = 24.5;
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
@@ -11,6 +15,9 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
     hardware = new Controller();
     SetValidators();
+
+    emit ui->PeriodSpinBox->valueChanged(ui->PeriodSpinBox->text());
+    emit ui->WidthSpinBox->valueChanged(ui->WidthSpinBox->text());
 }
 
 MainWindow::~MainWindow()
@@ -34,6 +41,22 @@ void MainWindow::SetValidators()
     ui->dist_2m->setValidator( new QIntValidator(min_mm, max_mm, this) );
     ui->dist_3m->setValidator( new QIntValidator(min_mm, max_mm, this) );
     ui->dist_4m->setValidator( new QIntValidator(min_mm, max_mm, this) );
+}
+
+int MainWindow::ValidatePulsesWidth(float width_us)
+{
+    if (width_us > MAX_PULSE_WIDTH_US) {
+        return 0;
+    }
+    return 1;
+}
+
+int MainWindow::ValidatePulsesPeriod(float period_us)
+{
+    if (period_us > MAX_PULSE_PERIOD_US) {
+        return 0;
+    }
+    return 1;
 }
 
 void MainWindow::on_goButton_1_clicked()
@@ -141,6 +164,41 @@ void MainWindow::on_TestButton_clicked()
 
 void MainWindow::on_TestButton_2_clicked()
 {
+    hardware->TestObject->TestPulsesForOscilloscope();
+}
+
+void MainWindow::on_PulsesButton_clicked()
+{
+    hardware->SetPulses(ui->WidthSpinBox->text(),
+              ui->PeriodSpinBox->text());
+}
+
+void MainWindow::on_PeriodSpinBox_valueChanged(const QString &arg1)
+{
+    float t = usPerTimerTick * arg1.toInt();
+
+    if (ValidatePulsesPeriod(t)) {
+        ui->PulsesPeriodUS->setText("= " + QString::number(t) + " us");
+    } else {
+        ui->PeriodSpinBox->setValue(int(MAX_PULSE_PERIOD_US/usPerTimerTick));
+        ui->PulsesPeriodUS->setText("= " + QString::number(MAX_PULSE_PERIOD_US) + " us");
+    }
+}
+
+void MainWindow::on_WidthSpinBox_valueChanged(const QString &arg1)
+{
+    float w = usPerTimerTick * arg1.toInt();
+
+    if (ValidatePulsesWidth(w)) {
+        ui->PulsesWidthUS->setText("= " + QString::number(w) + " us");
+    } else {
+        ui->WidthSpinBox->setValue(int(MAX_PULSE_WIDTH_US/usPerTimerTick));
+        ui->PulsesWidthUS->setText("= " + QString::number(MAX_PULSE_WIDTH_US) + " us");
+    }
+}
+
+void MainWindow::on_TestForceButton_clicked()
+{
     int motorID = 0;
     if (ui->Motor1_radioButton->isChecked()) {
         motorID = 0;
@@ -152,5 +210,8 @@ void MainWindow::on_TestButton_2_clicked()
         motorID = 3;
     }
 
-    hardware->TestObject->TestPulsesForOscilloscope(motorID);
+    int numOfRepeats = ui->NumOfRepeats->text().toInt();
+    int timePerMoving = ui->TimeForMoving->text().toInt();
+
+    hardware->TestObject->TestForce(numOfRepeats, timePerMoving, motorID);
 }

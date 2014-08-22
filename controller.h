@@ -26,6 +26,7 @@ public:
     void SetMotorCoordinate(int motorID, const QString &mm, const QString &um);
     void Reset(int motorID);
     void ResetAll();
+    void SetPulses(const QString &width, const QString &period);
 
 private:
     IP_Connection *PCB;

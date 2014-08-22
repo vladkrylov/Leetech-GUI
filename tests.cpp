@@ -1,33 +1,49 @@
 #include "tests.h"
-#include "ip_connection.h"
 
-Tests::Tests(IP_Connection *testPCB, QObject *parent):
+#include "controller.h"
+#include "ip_connection.h"
+#include <QThread>
+
+Tests::Tests(Controller *c, IP_Connection *testPCB, QObject *parent):
     QObject(parent)
 {
     PCB = testPCB;
+    control = c;
 }
 
 void Tests::Test(int motorID)
 {
-    QString data_to_send = QString("move_motor")
-            + QString::number(motorID+1)
-            + "_00000"
-            + "t"
-            + "_steps2mm=0";
+    QString data_to_send = QString("test_motor")
+            + QString::number(motorID+1);
+
+//    qDebug() << data_to_send;
+    PCB->PCB_SendData(data_to_send);
+}
+
+void Tests::TestPulsesForOscilloscope()
+{
+    QString data_to_send = QString("test_pulses");
 
     qDebug() << data_to_send;
     PCB->PCB_SendData(data_to_send);
 }
 
-void Tests::TestPulsesForOscilloscope(int motorID)
+void Tests::TestForce(int numOfRepeats, int timePerMoving, int motorID)
 {
-    QString data_to_send = QString("move_motor")
-            + QString::number(motorID+1)
-            + "_00000"
-            + "z"
-            + "_steps2mm=0";
+    int period = 0;
+    int width = 0;
 
-    qDebug() << data_to_send;
-    PCB->PCB_SendData(data_to_send);
+    width = 120;
+    period = 245;
+
+    for (; period < 280; period++) {
+        qDebug() << period;
+        control->SetPulses(QString::number(width), QString::number(period));
+
+        QThread::msleep(250);
+
+        Test(motorID);
+        QThread::msleep(1500);
+    }
 }
 
