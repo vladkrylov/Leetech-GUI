@@ -2,9 +2,13 @@
 #define TESTS_H
 
 #include <QObject>
+#include <QTest>
+#include <QTimer>
+
 #include "controller.h"
 
 class Controller;
+class IP_Connection;
 
 class Tests : public QObject
 {
@@ -17,15 +21,18 @@ public:
 
     void Test(int motorID);
     void TestPulsesForOscilloscope();
-    void TestForce(int numOfRepeats, int timePerMoving, int motorID);
+    void TestForce(int width, int begin, int end, int motorID);
+    void StopForseTest();
+    void TestLWIP(int numerOfRetries);
 
 private:
+    int stopForseTest;
     void Delay(int t);
 
 signals:
 
 public slots:
-
+    void PrintBoardResponse();
 };
 
 #endif // TESTS_H

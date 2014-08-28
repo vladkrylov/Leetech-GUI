@@ -17,13 +17,15 @@ private:
     uint8_t steps2mm;
     bool OffsetCompensationFinished;
     uint16_t origin;
+    uint16_t steps_to_mm(uint16_t dataInStepsUnits);
 
 
 public:
     Encoder();
 
     void Update(QByteArray);
-    void UpdateOrigin(QByteArray);
+    void UpdateCoordinate(QByteArray coordData);
+    void UpdateOrigin(QByteArray coordData);
 
     int GetPosition();
     uint8_t GetSteps2mm();

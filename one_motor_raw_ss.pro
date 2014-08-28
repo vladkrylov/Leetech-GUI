@@ -7,6 +7,7 @@
 QT       += widgets
 QT       += core gui
 QT       += network
+QT       += testlib
 
 TARGET = one_motor_raw
 TEMPLATE = app

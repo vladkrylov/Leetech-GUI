@@ -17,7 +17,7 @@ void IP_Connection::IP_Init()
     port = 80;
     Delay_waitForConnected = 3000;
     Delay_waitForBytesWritten = 500;
-    Delay_waitForReadyRead = 1500;
+    Delay_waitForReadyRead = 3500;
     _Connected = false;
 }
 
@@ -25,6 +25,9 @@ bool IP_Connection::PCB_Connect()
 {
     socket->connectToHost(IP_Address, 80);
     _Connected = socket->waitForConnected(Delay_waitForConnected);
+    qDebug() << "Connected = "<< _Connected;
+    socket->setSocketOption(QAbstractSocket::KeepAliveOption, 1);
+    qDebug() <<"KeepAlive option ="<<socket->socketOption(QAbstractSocket::KeepAliveOption);
     return _Connected;
 }
 

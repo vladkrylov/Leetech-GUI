@@ -7,6 +7,9 @@
 #include <QByteArray>
 #include <QTcpSocket>
 #include <QAbstractSocket>
+#include "tests.h"
+
+class Tests;
 
 class IP_Connection : public QObject
 {
@@ -18,6 +21,7 @@ public:
 signals:
 
 public slots:
+    bool PCB_Connect();
 
 private:
     QString IP_Address;
@@ -33,7 +37,8 @@ private:
     void IP_Init();
 
 public:
-    bool PCB_Connect();
+    friend Tests;
+
     void PCB_Disconnect();
     void PCB_SendData(QString);
     QByteArray PCB_ReceiveData();

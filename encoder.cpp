@@ -1,29 +1,62 @@
 #include "encoder.h"
+#include <QString>
 
 Encoder::Encoder()
 {
-    rawData = "";\
+    rawData = "";
     steps2mm = 0;
+
+    // TODO - initialization from configuration file
+    position = 0;
+    origin = 0;
+}
+
+uint16_t Encoder::steps_to_mm(uint16_t dataInStepsUnits)
+{
+    return dataInStepsUnits * 2000 / 4096;
 }
 
 void Encoder::Update(QByteArray dataFromEncoder)
 {
-    rawData = dataFromEncoder;
-    position = ((uint8_t)rawData[0])<<4 | (((uint8_t)rawData[1])>>4);
+    if (QString(dataFromEncoder).mid(0, 9) == "response_"){
+        rawData = dataFromEncoder;
+        position = ((uint8_t)rawData[9])<<4 | (((uint8_t)rawData[10])>>4);
 
-    steps2mm = (uint8_t)rawData[5];
+        steps2mm = (uint8_t)rawData[14];
 
-    position += steps2mm * 4096;
+        if ((steps2mm == 0) && (position < origin)) {
+            origin = position;
+            position = 0;
+        } else {
+            position += -origin;
+        }
+    }
 }
 
-void Encoder::UpdateOrigin(QByteArray dataFromEncoder)
+void Encoder::UpdateCoordinate(QByteArray coordData)
 {
-    origin = ((uint8_t)dataFromEncoder[0]) | (((uint8_t)dataFromEncoder[1])<<8);
+    if (QString(coordData).mid(0, 9) == "response_"){
+        position = ((uint8_t)coordData[9])<<8 | ((uint8_t)coordData[10]);
+        steps2mm = (uint8_t)coordData[11];
+
+        if ((steps2mm == 0) && (position < origin)) {
+            origin = position;
+            position = 0;
+        } else {
+            position += -origin;
+        }
+    }
+}
+
+void Encoder::UpdateOrigin(QByteArray coordData)
+{
+//    origin = ((uint8_t)coordData[0]) | (((uint8_t)coordData[1])<<8);
+    origin = ((uint8_t)coordData[9])<<8 | ((uint8_t)coordData[10]);
 }
 
 int Encoder::GetPosition()
 {
-    return position * 2000/4095;
+    return steps_to_mm(position);
 }
 
 uint8_t Encoder::GetSteps2mm()
@@ -38,5 +71,5 @@ void Encoder::ResetSteps2mm()
 
 uint16_t Encoder::GetOrigin()
 {
-    return origin;
+    return steps_to_mm(origin);
 }

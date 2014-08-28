@@ -62,7 +62,7 @@ int MainWindow::ValidatePulsesPeriod(float period_us)
 void MainWindow::on_goButton_1_clicked()
 {
     ui->goButton_1->setEnabled(false);
-    hardware->SetMotorCoordinate(2, ui->dist_1m->text(),
+    hardware->SetMotorCoordinate(0, ui->dist_1m->text(),
                                     ui->dist_1->text());
     ui->goButton_1->setEnabled(true);
 }
@@ -78,7 +78,7 @@ void MainWindow::on_goButton_2_clicked()
 void MainWindow::on_goButton_3_clicked()
 {
     ui->goButton_3->setEnabled(false);
-    hardware->SetMotorCoordinate(0, ui->dist_3m->text(),
+    hardware->SetMotorCoordinate(2, ui->dist_3m->text(),
                                     ui->dist_3->text());
     ui->goButton_3->setEnabled(true);
 }
@@ -210,8 +210,35 @@ void MainWindow::on_TestForceButton_clicked()
         motorID = 3;
     }
 
-    int numOfRepeats = ui->NumOfRepeats->text().toInt();
-    int timePerMoving = ui->TimeForMoving->text().toInt();
+    int width = ui->WidthSpinBox->text().toInt();
+    int begin = ui->TestBeginField->text().toInt();
+    int end = ui->TestEndField->text().toInt();
 
-    hardware->TestObject->TestForce(numOfRepeats, timePerMoving, motorID);
+    hardware->TestObject->TestForce(width, begin, end, motorID);
+}
+
+void MainWindow::on_StopForceTestButton_clicked()
+{
+    hardware->TestObject->StopForseTest();
+}
+
+void MainWindow::on_GetCoordinateButton_clicked()
+{
+    int motorID = 0;
+    if (ui->Motor1_radioButton->isChecked()) {
+        motorID = 0;
+    } else if (ui->Motor2_radioButton->isChecked()) {
+        motorID = 1;
+    } else if (ui->Motor3_radioButton->isChecked()) {
+        motorID = 2;
+    } else if (ui->Motor4_radioButton->isChecked()) {
+        motorID = 3;
+    }
+
+    hardware->GetMotorCoordinate(motorID);
+}
+
+void MainWindow::on_LWIP_bug_clicked()
+{
+    hardware->TestObject->TestLWIP(100);
 }

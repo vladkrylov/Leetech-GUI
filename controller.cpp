@@ -24,54 +24,70 @@ Controller::~Controller()
     delete TestObject;
 }
 
-QString Controller::GenerateCoordinate(const QString &mm, const QString &um)
+QString Controller::GenerateCoordinate(const QString &mm, const QString &um, int motorID)
 {
-    QString res, mm_res, um_res;
-    // mm_res processing
-    if (mm.length() == 0) {
-        mm_res = "00";
-    } else if (mm.length() == 1) {
-        mm_res = "0" + mm;
-    } else {
-        mm_res = mm;
+    int coord = 1000*mm.toInt() + um.toInt() + motors[motorID]->GetOrigin();
+    QString res = QString::number(coord);
+    while (res.length() < 5) {
+        res.prepend('0');
     }
-
-    // um_res processing
-    if (um.length() == 0) {
-        um_res = "000";
-    } else if (um.length() == 1) {
-        um_res = "00" + um;
-    } else if (um.length() == 2) {
-        um_res = "0" + um;
-    } else {
-        um_res = um;
-    }
-
-    res = mm_res + um_res;
     return res;
+}
+
+int Controller::ValidateResponse(const QByteArray &response)
+{
+    QString validator = "response_";
+    return !(QString::compare(response.mid(0,9), validator));
+}
+
+QByteArray Controller::TalkToBoard(const QString &sendPhrase)
+{
+    QByteArray response;
+    int counter = 0;
+
+    qDebug() << endl << sendPhrase;
+    PCB->PCB_SendData(sendPhrase);
+    response = PCB->PCB_ReceiveData();
+//    qDebug() << response;
+
+    PCB->PCB_SendData("Get_coordinate");
+    response = PCB->PCB_ReceiveData();
+    qDebug() << response;
+
+    while (!ValidateResponse(response)) {
+        if (counter > 2) break;
+        PCB->PCB_SendData("Get_coordinate");
+        response = PCB->PCB_ReceiveData();
+        qDebug() << response;
+        counter++;
+    }
+
+    return response;
 }
 
 void Controller::SetMotorCoordinate(int motorID, const QString &mm, const QString &um)
 {
-    QByteArray response;
     QString data_to_send = "move_motor" +
             QString::number(motorID+1)
             + "_"
-            + GenerateCoordinate(mm, um)
+            + GenerateCoordinate(mm, um, motorID)
             + "m"
             + "_steps2mm="
             + QString::number(motors[motorID]->GetSteps2mm());
+    QByteArray response = TalkToBoard(data_to_send);
+    motors[motorID]->UpdateCoordinate(response);
+    qDebug() << endl << motors[motorID]->GetPosition() <<"\t"<< motors[motorID]->GetSteps2mm();
+}
 
-    qDebug() << data_to_send;
-    PCB->PCB_SendData(data_to_send);
-    response = PCB->PCB_ReceiveData();
-//    qDebug() << response;
+int Controller::GetMotorCoordinate(int motorID)
+{
+    QString data_to_send = "getc_motor"
+            + QString::number(motorID+1)
+            + "_steps2mm="
+            + QString::number(motors[motorID]->GetSteps2mm());
 
-    data_to_send = "Get_coordinate";
-    PCB->PCB_SendData(data_to_send);
-    response = PCB->PCB_ReceiveData();
-//    qDebug() << response;
-    motors[motorID]->Update(response);
+    QByteArray response = TalkToBoard(data_to_send);
+    motors[motorID]->UpdateCoordinate(response);
     qDebug() << motors[motorID]->GetPosition();
 }
 
@@ -104,38 +120,20 @@ void Controller::ResetMotorsData()
 
 void Controller::Reset(int motorID)
 {
-    QByteArray response;
     QString data_to_send = "reset_motor" +
             QString::number(motorID+1)
             + "_steps2mm="
             + QString::number(motors[motorID]->GetSteps2mm());
-
-    qDebug() << data_to_send;
-    PCB->PCB_SendData(data_to_send);
-    response = PCB->PCB_ReceiveData();
-//    qDebug() << response;
-
-    data_to_send = "Get_coordinate";
-    PCB->PCB_SendData(data_to_send);
-    response = PCB->PCB_ReceiveData();
-//    qDebug() << response;
+    QByteArray response = TalkToBoard(data_to_send);
     motors[motorID]->UpdateOrigin(response);
+    motors[motorID]->ResetSteps2mm();
     qDebug() << motors[motorID]->GetOrigin();
 }
 
 void Controller::ResetAll()
 {
-    QByteArray response;
     QString data_to_send = QString("reset_all");
-
-    qDebug() << data_to_send;
-    PCB->PCB_SendData(data_to_send);
-    response = PCB->PCB_ReceiveData();
-    data_to_send = "Get_coordinate";
-    PCB->PCB_SendData(data_to_send);
-    response = PCB->PCB_ReceiveData();
-    qDebug() << "Responce: " << response;
-
+    QByteArray response = TalkToBoard(data_to_send);
     for (int i = 0; i < N_motors; ++i) {
         motors[i]->UpdateOrigin(response.mid(2*i, 2));
         qDebug() << motors[i]->GetOrigin();
@@ -147,7 +145,6 @@ void Controller::SetPulses(const QString &width, const QString &period)
     QString data_to_send = QString("set_pulses:")
             + "w=" + width
             + ";T=" + period;
-//    qDebug() << data_to_send;
     PCB->PCB_SendData(data_to_send);
 }
 

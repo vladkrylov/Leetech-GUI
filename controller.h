@@ -8,6 +8,7 @@
 #include "tests.h"
 
 class Tests;
+class IP_Connection;
 
 class Controller : public QObject
 {
@@ -24,16 +25,18 @@ public:
     void SetIPAddress(const QString &ipaddress);
     void ResetMotorsData();
     void SetMotorCoordinate(int motorID, const QString &mm, const QString &um);
+    int GetMotorCoordinate(int motorID);
     void Reset(int motorID);
     void ResetAll();
     void SetPulses(const QString &width, const QString &period);
+    QByteArray TalkToBoard(const QString &sendPhrase);
 
 private:
     IP_Connection *PCB;
     Encoder **motors;
+    int ValidateResponse(const QByteArray &response);
 
-
-    QString GenerateCoordinate(const QString &mm, const QString &um);
+    QString GenerateCoordinate(const QString &mm, const QString &um, int motorID);
 
 signals:
 

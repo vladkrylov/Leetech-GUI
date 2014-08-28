@@ -53,6 +53,12 @@ private slots:
 
     void on_TestForceButton_clicked();
 
+    void on_StopForceTestButton_clicked();
+
+    void on_GetCoordinateButton_clicked();
+
+    void on_LWIP_bug_clicked();
+
 private:
     Ui::MainWindow *ui;
     Controller *hardware;
