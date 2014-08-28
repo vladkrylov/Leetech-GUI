@@ -11,6 +11,12 @@ Controller::Controller(QObject *parent) :
     for (int i = 0; i < N_motors; ++i) {
         motors[i] = new Encoder();
     }
+
+    connect(motors[0], SIGNAL(MotorCoordinateUpdated(uint16_t )), this, SIGNAL(Motor1CoordinateChanged(uint16_t )));
+    connect(motors[1], SIGNAL(MotorCoordinateUpdated(uint16_t )), this, SIGNAL(Motor2CoordinateChanged(uint16_t )));
+    connect(motors[2], SIGNAL(MotorCoordinateUpdated(uint16_t )), this, SIGNAL(Motor3CoordinateChanged(uint16_t )));
+    connect(motors[3], SIGNAL(MotorCoordinateUpdated(uint16_t )), this, SIGNAL(Motor4CoordinateChanged(uint16_t )));
+
     TestObject = new Tests(this, PCB);
 }
 
@@ -24,9 +30,10 @@ Controller::~Controller()
     delete TestObject;
 }
 
-QString Controller::GenerateCoordinate(const QString &mm, const QString &um, int motorID)
+QString Controller::GenerateCoordinate(const QString &coord_mm, int motorID)
 {
-    int coord = 1000*mm.toInt() + um.toInt() + motors[motorID]->GetOrigin();
+    QString copyCoord = coord_mm;
+    int coord = copyCoord.replace(QString(","), QString(".")).toFloat() * 1000 + motors[motorID]->GetOrigin();
     QString res = QString::number(coord);
     while (res.length() < 5) {
         res.prepend('0');
@@ -65,12 +72,12 @@ QByteArray Controller::TalkToBoard(const QString &sendPhrase)
     return response;
 }
 
-void Controller::SetMotorCoordinate(int motorID, const QString &mm, const QString &um)
+void Controller::SetMotorCoordinate(int motorID, const QString &coord_mm)
 {
     QString data_to_send = "move_motor" +
             QString::number(motorID+1)
             + "_"
-            + GenerateCoordinate(mm, um, motorID)
+            + GenerateCoordinate(coord_mm, motorID)
             + "m"
             + "_steps2mm="
             + QString::number(motors[motorID]->GetSteps2mm());
@@ -79,7 +86,7 @@ void Controller::SetMotorCoordinate(int motorID, const QString &mm, const QStrin
     qDebug() << endl << motors[motorID]->GetPosition() <<"\t"<< motors[motorID]->GetSteps2mm();
 }
 
-int Controller::GetMotorCoordinate(int motorID)
+void Controller::GetMotorCoordinate(int motorID)
 {
     QString data_to_send = "getc_motor"
             + QString::number(motorID+1)

@@ -19,17 +19,7 @@ public:
     ~MainWindow();
 
 private slots:
-    void on_goButton_1_clicked();
-
     void on_ConnectButton_clicked();
-
-    void on_pushButton_clicked();
-
-    void on_goButton_2_clicked();
-
-    void on_goButton_3_clicked();
-
-    void on_goButton_4_clicked();
 
     void on_MotorReset_1_clicked();
 
@@ -59,13 +49,29 @@ private slots:
 
     void on_LWIP_bug_clicked();
 
+    void on_GoButton_clicked();
+
+    void on_CoordinateLineEdit_textChanged(const QString &arg1);
+
+    void UpdateMotor1(uint16_t);
+    void UpdateMotor2(uint16_t);
+    void UpdateMotor3(uint16_t);
+    void UpdateMotor4(uint16_t);
+
+    void on_ResetOnePushButton_clicked();
+
+    void on_ResetAllPushButton_clicked();
+
 private:
     Ui::MainWindow *ui;
     Controller *hardware;
+    QDoubleValidator *coordValidator;
 
     void SetValidators();
     int ValidatePulsesWidth(float width_us);
     int ValidatePulsesPeriod(float period_us);
+    int ChooseMotor();
+    QString CoordToShow(uint16_t coordinate);
 };
 
 #endif // MAINWINDOW_H

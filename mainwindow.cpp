@@ -18,29 +18,24 @@ MainWindow::MainWindow(QWidget *parent) :
 
     emit ui->PeriodSpinBox->valueChanged(ui->PeriodSpinBox->text());
     emit ui->WidthSpinBox->valueChanged(ui->WidthSpinBox->text());
+
+    connect(hardware, SIGNAL(Motor1CoordinateChanged(uint16_t)), this, SLOT(UpdateMotor1(uint16_t)));
+    connect(hardware, SIGNAL(Motor2CoordinateChanged(uint16_t)), this, SLOT(UpdateMotor2(uint16_t)));
+    connect(hardware, SIGNAL(Motor3CoordinateChanged(uint16_t)), this, SLOT(UpdateMotor3(uint16_t)));
+    connect(hardware, SIGNAL(Motor4CoordinateChanged(uint16_t)), this, SLOT(UpdateMotor4(uint16_t)));
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
     delete hardware;
+    delete coordValidator;
 }
 
 void MainWindow::SetValidators()
 {
-    int min_um = 0;
-    int max_um = 999;
-    ui->dist_1->setValidator( new QIntValidator(min_um, max_um, this) );
-    ui->dist_2->setValidator( new QIntValidator(min_um, max_um, this) );
-    ui->dist_3->setValidator( new QIntValidator(min_um, max_um, this) );
-    ui->dist_4->setValidator( new QIntValidator(min_um, max_um, this) );
-
-    int min_mm = 0;
-    int max_mm = 14;
-    ui->dist_1m->setValidator( new QIntValidator(min_mm, max_mm, this) );
-    ui->dist_2m->setValidator( new QIntValidator(min_mm, max_mm, this) );
-    ui->dist_3m->setValidator( new QIntValidator(min_mm, max_mm, this) );
-    ui->dist_4m->setValidator( new QIntValidator(min_mm, max_mm, this) );
+    coordValidator = new QDoubleValidator( 0, 14.999, 2, this );
+    ui->CoordinateLineEdit->setValidator(coordValidator);
 }
 
 int MainWindow::ValidatePulsesWidth(float width_us)
@@ -59,36 +54,26 @@ int MainWindow::ValidatePulsesPeriod(float period_us)
     return 1;
 }
 
-void MainWindow::on_goButton_1_clicked()
+int MainWindow::ChooseMotor()
 {
-    ui->goButton_1->setEnabled(false);
-    hardware->SetMotorCoordinate(0, ui->dist_1m->text(),
-                                    ui->dist_1->text());
-    ui->goButton_1->setEnabled(true);
+    int motorID = 0;
+    if (ui->radioButton_1->isChecked()) {
+        motorID = 0;
+    } else if (ui->radioButton_2->isChecked()) {
+        motorID = 1;
+    } else if (ui->radioButton_3->isChecked()) {
+        motorID = 2;
+    } else if (ui->radioButton_4->isChecked()) {
+        motorID = 3;
+    }
+    return motorID;
 }
 
-void MainWindow::on_goButton_2_clicked()
+void MainWindow::on_GoButton_clicked()
 {
-    ui->goButton_2->setEnabled(false);
-    hardware->SetMotorCoordinate(1, ui->dist_2m->text(),
-                                    ui->dist_2->text());
-    ui->goButton_2->setEnabled(true);
-}
-
-void MainWindow::on_goButton_3_clicked()
-{
-    ui->goButton_3->setEnabled(false);
-    hardware->SetMotorCoordinate(2, ui->dist_3m->text(),
-                                    ui->dist_3->text());
-    ui->goButton_3->setEnabled(true);
-}
-
-void MainWindow::on_goButton_4_clicked()
-{
-    ui->goButton_4->setEnabled(false);
-    hardware->SetMotorCoordinate(3, ui->dist_4m->text(),
-                                    ui->dist_4->text());
-    ui->goButton_4->setEnabled(true);
+    int motorID = ChooseMotor();
+    QString crd = ui->CoordinateLineEdit->text();
+    hardware->SetMotorCoordinate(motorID, crd);
 }
 
 void MainWindow::on_ConnectButton_clicked()
@@ -112,13 +97,6 @@ void MainWindow::on_ConnectButton_clicked()
     }
     ui->ConnectButton->setEnabled(true);
 }
-
-
-void MainWindow::on_pushButton_clicked()
-{
-    hardware->ResetMotorsData();
-}
-
 
 void MainWindow::on_MotorReset_1_clicked()
 {
@@ -241,4 +219,54 @@ void MainWindow::on_GetCoordinateButton_clicked()
 void MainWindow::on_LWIP_bug_clicked()
 {
     hardware->TestObject->TestLWIP(100);
+}
+
+void MainWindow::on_CoordinateLineEdit_textChanged(const QString &arg1)
+{
+    if (arg1.toFloat() > 14.99) {
+        ui->CoordinateLineEdit->setText("14,99");
+    }
+}
+
+QString MainWindow::CoordToShow(uint16_t coordinate)
+{
+    QString textCoord = QString::number( coordinate/1000. );
+    int end;
+    if (textCoord.length() == 1) {
+        end = 1;
+    } else {
+        end = textCoord.length() - 1;
+    }
+    return textCoord.mid( 0, end );
+}
+
+void MainWindow::UpdateMotor1(uint16_t c)
+{
+    ui->DisplayCoordinate1->setText(CoordToShow(c));
+}
+
+void MainWindow::UpdateMotor2(uint16_t c)
+{
+    ui->DisplayCoordinate2->setText(CoordToShow(c));
+}
+
+void MainWindow::UpdateMotor3(uint16_t c)
+{
+    ui->DisplayCoordinate3->setText(CoordToShow(c));
+}
+
+void MainWindow::UpdateMotor4(uint16_t c)
+{
+    ui->DisplayCoordinate4->setText(CoordToShow(c));
+}
+
+void MainWindow::on_ResetOnePushButton_clicked()
+{
+    int motorID = ChooseMotor();
+    hardware->Reset(motorID);
+}
+
+void MainWindow::on_ResetAllPushButton_clicked()
+{
+    hardware->ResetAll();
 }

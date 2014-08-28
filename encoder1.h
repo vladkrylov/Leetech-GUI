@@ -21,6 +21,7 @@ private:
     uint16_t origin;
     uint16_t steps_to_mm(uint16_t dataInStepsUnits);
 
+
 public:
     explicit Encoder(QObject *parent = 0);
     ~Encoder();
@@ -37,8 +38,6 @@ public:
 
 signals:
     void MotorCoordinateUpdated(uint16_t);
-public slots:
-
 };
 
 #endif // ENCODER_H

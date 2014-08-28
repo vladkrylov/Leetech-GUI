@@ -24,8 +24,8 @@ public:
     void Disconnect();
     void SetIPAddress(const QString &ipaddress);
     void ResetMotorsData();
-    void SetMotorCoordinate(int motorID, const QString &mm, const QString &um);
-    int GetMotorCoordinate(int motorID);
+    void SetMotorCoordinate(int motorID, const QString &coord_mm);
+    void GetMotorCoordinate(int motorID);
     void Reset(int motorID);
     void ResetAll();
     void SetPulses(const QString &width, const QString &period);
@@ -36,10 +36,13 @@ private:
     Encoder **motors;
     int ValidateResponse(const QByteArray &response);
 
-    QString GenerateCoordinate(const QString &mm, const QString &um, int motorID);
+    QString GenerateCoordinate(const QString &coord_mm, int motorID);
 
 signals:
-
+    void Motor1CoordinateChanged(uint16_t );
+    void Motor2CoordinateChanged(uint16_t );
+    void Motor3CoordinateChanged(uint16_t );
+    void Motor4CoordinateChanged(uint16_t );
 public slots:
 
 };

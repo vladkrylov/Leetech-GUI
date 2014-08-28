@@ -16,14 +16,14 @@ TEMPLATE = app
 SOURCES += main.cpp\
         mainwindow.cpp \
     ip_connection.cpp \
-    encoder.cpp \
     controller.cpp \
-    tests.cpp
+    tests.cpp \
+    encoder.cpp
 
 HEADERS  += mainwindow.h \
     ip_connection.h \
-    encoder.h \
     controller.h \
-    tests.h
+    tests.h \
+    encoder.h
 
 FORMS    += mainwindow.ui

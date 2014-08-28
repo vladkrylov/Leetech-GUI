@@ -1,4 +1,5 @@
 #include "encoder.h"
+#include <QString>
 
 Encoder::Encoder(QObject *parent) :
     QObject(parent)
@@ -50,7 +51,7 @@ void Encoder::UpdateCoordinate(QByteArray coordData)
         } else {
             position += -origin;
         }
-        emit MotorCoordinateUpdated(GetPosition());
+        emit MotorCoordinateUpdated(position);
     }
 }
 
@@ -58,7 +59,6 @@ void Encoder::UpdateOrigin(QByteArray coordData)
 {
 //    origin = ((uint8_t)coordData[0]) | (((uint8_t)coordData[1])<<8);
     origin = ((uint8_t)coordData[9])<<8 | ((uint8_t)coordData[10]);
-    emit MotorCoordinateUpdated(0);
 }
 
 int Encoder::GetPosition()
@@ -81,4 +81,4 @@ uint16_t Encoder::GetOrigin()
     return steps_to_mm(origin);
 }
 
-
+void Encoder::MotorCoordinateUpdated(uint16_t) {}
