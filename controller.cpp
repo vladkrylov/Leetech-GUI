@@ -62,7 +62,7 @@ QByteArray Controller::TalkToBoard(const QString &sendPhrase)
     qDebug() << response;
 
     while (!ValidateResponse(response)) {
-        if (counter > 2) break;
+        if (counter >= 0) break;
         PCB->PCB_SendData("Get_coordinate");
         response = PCB->PCB_ReceiveData();
         qDebug() << response;

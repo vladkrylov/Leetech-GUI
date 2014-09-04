@@ -21,16 +21,6 @@ public:
 private slots:
     void on_ConnectButton_clicked();
 
-    void on_MotorReset_1_clicked();
-
-    void on_MotorReset_2_clicked();
-
-    void on_MotorReset_3_clicked();
-
-    void on_MotorReset_4_clicked();
-
-    void on_MotorReset_All_clicked();
-
     void on_TestButton_clicked();
 
     void on_TestButton_2_clicked();
@@ -61,6 +51,8 @@ private slots:
     void on_ResetOnePushButton_clicked();
 
     void on_ResetAllPushButton_clicked();
+
+    void on_UpdateCoordinatesButton_clicked();
 
 private:
     Ui::MainWindow *ui;

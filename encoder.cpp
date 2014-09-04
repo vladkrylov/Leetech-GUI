@@ -50,15 +50,23 @@ void Encoder::UpdateCoordinate(QByteArray coordData)
         } else {
             position += -origin;
         }
-        emit MotorCoordinateUpdated(GetPosition());
+    } else {
+        position = -1;
+        steps2mm = 0;
     }
+    emit MotorCoordinateUpdated(GetPosition());
 }
 
 void Encoder::UpdateOrigin(QByteArray coordData)
 {
-//    origin = ((uint8_t)coordData[0]) | (((uint8_t)coordData[1])<<8);
-    origin = ((uint8_t)coordData[9])<<8 | ((uint8_t)coordData[10]);
-    emit MotorCoordinateUpdated(0);
+    if (QString(coordData).mid(0, 9) == "response_"){
+        origin = ((uint8_t)coordData[9])<<8 | ((uint8_t)coordData[10]);
+        position = 0;
+    } else {
+        origin = 0;
+        position = -1;
+    }
+    emit MotorCoordinateUpdated(position);
 }
 
 int Encoder::GetPosition()

@@ -16,8 +16,8 @@ void IP_Connection::IP_Init()
     socket = new QTcpSocket(this);
     port = 80;
     Delay_waitForConnected = 3000;
-    Delay_waitForBytesWritten = 500;
-    Delay_waitForReadyRead = 3500;
+    Delay_waitForBytesWritten = 4000;
+    Delay_waitForReadyRead = 500;
     _Connected = false;
 }
 

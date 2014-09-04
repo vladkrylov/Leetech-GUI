@@ -98,31 +98,6 @@ void MainWindow::on_ConnectButton_clicked()
     ui->ConnectButton->setEnabled(true);
 }
 
-void MainWindow::on_MotorReset_1_clicked()
-{
-    hardware->Reset(0);
-}
-
-void MainWindow::on_MotorReset_2_clicked()
-{
-    hardware->Reset(1);
-}
-
-void MainWindow::on_MotorReset_3_clicked()
-{
-    hardware->Reset(2);
-}
-
-void MainWindow::on_MotorReset_4_clicked()
-{
-    hardware->Reset(3);
-}
-
-void MainWindow::on_MotorReset_All_clicked()
-{
-    hardware->ResetAll();
-}
-
 void MainWindow::on_TestButton_clicked()
 {
     int motorID = 0;
@@ -231,13 +206,13 @@ void MainWindow::on_CoordinateLineEdit_textChanged(const QString &arg1)
 QString MainWindow::CoordToShow(uint16_t coordinate)
 {
     QString textCoord = QString::number( coordinate/1000. );
-    int end;
-    if (textCoord.length() == 1) {
-        end = 1;
-    } else {
-        end = textCoord.length() - 1;
-    }
-    return textCoord.mid( 0, end );
+//    int end;
+//    if (textCoord.length() == 1) {
+//        end = 1;
+//    } else {
+//        end = textCoord.length() - 1;
+//    }
+    return textCoord/*.mid( 0, end )*/;
 }
 
 void MainWindow::UpdateMotor1(uint16_t c)
@@ -269,4 +244,10 @@ void MainWindow::on_ResetOnePushButton_clicked()
 void MainWindow::on_ResetAllPushButton_clicked()
 {
     hardware->ResetAll();
+}
+
+void MainWindow::on_UpdateCoordinatesButton_clicked()
+{
+    int motorID = ChooseMotor();
+    hardware->GetMotorCoordinate(motorID);
 }
