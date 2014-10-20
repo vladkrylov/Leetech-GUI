@@ -28,14 +28,14 @@ void Tests::TestPulsesForOscilloscope()
     PCB->PCB_SendData(data_to_send);
 }
 
-void Tests::TestForce(int width, int begin, int end, int motorID)
+void Tests::TestForce(int width, int begin, int end, int setID, int motorID)
 {
     stopForseTest = 0;
     for (int period = begin; period <= end; period++) {
         if (stopForseTest) break;
 
         qDebug() << period;
-        control->SetPulses(QString::number(width), QString::number(period));
+        control->SetPulses(setID, QString::number(width), QString::number(period));
 
         QTest::qWait(250);
 
@@ -61,7 +61,7 @@ void Tests::TestLWIP(int numerOfRetries)
     QString response;
     for (int i = 0; i < numerOfRetries; ++i) {
         response = control->TalkToBoard("move_motor1_00000m_steps2mm=110");
-        if (response.mid(0, 9) == "response_"){
+        if (response.mid(0, 9) == "response_") {
             success++;
         }
     }

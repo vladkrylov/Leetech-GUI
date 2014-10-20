@@ -63,6 +63,7 @@ private:
     int ValidatePulsesWidth(float width_us);
     int ValidatePulsesPeriod(float period_us);
     int ChooseMotor();
+    int ChooseCollimatorSet();
     QString CoordToShow(uint16_t coordinate);
 };
 

@@ -18,12 +18,14 @@ SOURCES += main.cpp\
     ip_connection.cpp \
     controller.cpp \
     tests.cpp \
-    encoder.cpp
+    encoder.cpp \
+    collimatorsset.cpp
 
 HEADERS  += mainwindow.h \
     ip_connection.h \
     controller.h \
     tests.h \
-    encoder.h
+    encoder.h \
+    collimatorsset.h
 
 FORMS    += mainwindow.ui

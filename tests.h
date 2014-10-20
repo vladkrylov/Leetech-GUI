@@ -21,7 +21,7 @@ public:
 
     void Test(int motorID);
     void TestPulsesForOscilloscope();
-    void TestForce(int width, int begin, int end, int motorID);
+    void TestForce(int width, int begin, int end, int setID, int motorID);
     void StopForseTest();
     void TestLWIP(int numerOfRetries);
 

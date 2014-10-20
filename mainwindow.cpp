@@ -69,11 +69,25 @@ int MainWindow::ChooseMotor()
     return motorID;
 }
 
+int MainWindow::ChooseCollimatorSet()
+{
+    int setID = 0;
+    if (ui->SelectEntranceRadio->isChecked()) {
+        setID = 0;
+    } else if (ui->SelectExit1Radio->isChecked()) {
+        setID = 1;
+    } else if (ui->SelectExit2Radio->isChecked()) {
+        setID = 2;
+    } else {
+        setID = -1;
+    }
+    return setID;
+}
+
 void MainWindow::on_GoButton_clicked()
 {
-    int motorID = ChooseMotor();
     QString crd = ui->CoordinateLineEdit->text();
-    hardware->SetMotorCoordinate(motorID, crd);
+    hardware->SetMotorCoordinate(ChooseCollimatorSet(), ChooseMotor(), crd);
 }
 
 void MainWindow::on_ConnectButton_clicked()
@@ -100,20 +114,8 @@ void MainWindow::on_ConnectButton_clicked()
 
 void MainWindow::on_TestButton_clicked()
 {
-    int motorID = 0;
-    if (ui->Motor1_radioButton->isChecked()) {
-        motorID = 0;
-    } else if (ui->Motor2_radioButton->isChecked()) {
-        motorID = 1;
-    } else if (ui->Motor3_radioButton->isChecked()) {
-        motorID = 2;
-    } else if (ui->Motor4_radioButton->isChecked()) {
-        motorID = 3;
-    }
-
-    hardware->TestObject->Test(motorID);
+    hardware->TestObject->Test(ChooseMotor());
 }
-
 
 void MainWindow::on_TestButton_2_clicked()
 {
@@ -122,8 +124,10 @@ void MainWindow::on_TestButton_2_clicked()
 
 void MainWindow::on_PulsesButton_clicked()
 {
-    hardware->SetPulses(ui->WidthSpinBox->text(),
-              ui->PeriodSpinBox->text());
+    hardware->SetPulses(ChooseCollimatorSet(),
+                        ui->WidthSpinBox->text(),
+                        ui->PeriodSpinBox->text()
+                        );
 }
 
 void MainWindow::on_PeriodSpinBox_valueChanged(const QString &arg1)
@@ -152,22 +156,11 @@ void MainWindow::on_WidthSpinBox_valueChanged(const QString &arg1)
 
 void MainWindow::on_TestForceButton_clicked()
 {
-    int motorID = 0;
-    if (ui->Motor1_radioButton->isChecked()) {
-        motorID = 0;
-    } else if (ui->Motor2_radioButton->isChecked()) {
-        motorID = 1;
-    } else if (ui->Motor3_radioButton->isChecked()) {
-        motorID = 2;
-    } else if (ui->Motor4_radioButton->isChecked()) {
-        motorID = 3;
-    }
-
     int width = ui->WidthSpinBox->text().toInt();
     int begin = ui->TestBeginField->text().toInt();
     int end = ui->TestEndField->text().toInt();
 
-    hardware->TestObject->TestForce(width, begin, end, motorID);
+    hardware->TestObject->TestForce(width, begin, end, ChooseCollimatorSet(), ChooseMotor());
 }
 
 void MainWindow::on_StopForceTestButton_clicked()
@@ -177,18 +170,7 @@ void MainWindow::on_StopForceTestButton_clicked()
 
 void MainWindow::on_GetCoordinateButton_clicked()
 {
-    int motorID = 0;
-    if (ui->Motor1_radioButton->isChecked()) {
-        motorID = 0;
-    } else if (ui->Motor2_radioButton->isChecked()) {
-        motorID = 1;
-    } else if (ui->Motor3_radioButton->isChecked()) {
-        motorID = 2;
-    } else if (ui->Motor4_radioButton->isChecked()) {
-        motorID = 3;
-    }
-
-    hardware->GetMotorCoordinate(motorID);
+    hardware->GetMotorCoordinate(ChooseCollimatorSet(), ChooseMotor());
 }
 
 void MainWindow::on_LWIP_bug_clicked()
@@ -206,12 +188,6 @@ void MainWindow::on_CoordinateLineEdit_textChanged(const QString &arg1)
 QString MainWindow::CoordToShow(uint16_t coordinate)
 {
     QString textCoord = QString::number( coordinate/1000. );
-//    int end;
-//    if (textCoord.length() == 1) {
-//        end = 1;
-//    } else {
-//        end = textCoord.length() - 1;
-//    }
     return textCoord/*.mid( 0, end )*/;
 }
 
@@ -237,17 +213,15 @@ void MainWindow::UpdateMotor4(uint16_t c)
 
 void MainWindow::on_ResetOnePushButton_clicked()
 {
-    int motorID = ChooseMotor();
-    hardware->Reset(motorID);
+    hardware->Reset(ChooseCollimatorSet(), ChooseMotor());
 }
 
 void MainWindow::on_ResetAllPushButton_clicked()
 {
-    hardware->ResetAll();
+    hardware->ResetAll(ChooseCollimatorSet());
 }
 
 void MainWindow::on_UpdateCoordinatesButton_clicked()
 {
-    int motorID = ChooseMotor();
-    hardware->GetMotorCoordinate(motorID);
+    hardware->GetMotorCoordinate(ChooseCollimatorSet(), ChooseMotor());
 }
