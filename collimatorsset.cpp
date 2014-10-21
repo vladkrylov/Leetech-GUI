@@ -3,19 +3,15 @@
 
 const int N_motors = 4;
 
-CollimatorsSet::CollimatorsSet(QObject *parent) :
+CollimatorsSet::CollimatorsSet(int setID, QObject *parent) :
     QObject(parent)
 {
-
+    id = setID;
     motors = new Encoder*[N_motors];
     for (int i = 0; i < N_motors; ++i) {
-        motors[i] = new Encoder();
+        motors[i] = new Encoder(i);
+        connect(motors[i], SIGNAL(MotorCoordinateUpdated(int, uint16_t)), this, SLOT(MotorCoordinateChangedSlot(int,uint16_t )));
     }
-
-    connect(motors[0], SIGNAL(MotorCoordinateUpdated(uint16_t )), this, SIGNAL(Motor1CoordinateChanged(uint16_t )));
-    connect(motors[1], SIGNAL(MotorCoordinateUpdated(uint16_t )), this, SIGNAL(Motor2CoordinateChanged(uint16_t )));
-    connect(motors[2], SIGNAL(MotorCoordinateUpdated(uint16_t )), this, SIGNAL(Motor3CoordinateChanged(uint16_t )));
-    connect(motors[3], SIGNAL(MotorCoordinateUpdated(uint16_t )), this, SIGNAL(Motor4CoordinateChanged(uint16_t )));
 }
 
 CollimatorsSet::~CollimatorsSet()
@@ -24,6 +20,16 @@ CollimatorsSet::~CollimatorsSet()
         delete motors[i];
     }
     delete [] motors;
+}
+
+int CollimatorsSet::GetID()
+{
+    return id;
+}
+
+void CollimatorsSet::MotorCoordinateChangedSlot(int motorID, uint16_t newCoordinate)
+{
+    emit MotorCoordinateChanged(GetID(), motorID, newCoordinate);
 }
 
 uint16_t CollimatorsSet::GetMotorOrigin(int motorID)

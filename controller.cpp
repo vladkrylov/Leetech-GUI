@@ -11,7 +11,8 @@ Controller::Controller(QObject *parent) :
 
     colSets = new CollimatorsSet*[N_sets];
     for (int i = 0; i < N_sets; ++i) {
-        colSets[i] = new CollimatorsSet();
+        colSets[i] = new CollimatorsSet(i);
+        connect(colSets[i], SIGNAL(MotorCoordinateChanged(int,int,uint16_t)), this, SIGNAL(MotorCoordinateChanged(int,int,uint16_t)));
     }
 }
 

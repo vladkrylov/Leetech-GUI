@@ -19,10 +19,7 @@ MainWindow::MainWindow(QWidget *parent) :
     emit ui->PeriodSpinBox->valueChanged(ui->PeriodSpinBox->text());
     emit ui->WidthSpinBox->valueChanged(ui->WidthSpinBox->text());
 
-    connect(hardware, SIGNAL(Motor1CoordinateChanged(uint16_t)), this, SLOT(UpdateMotor1(uint16_t)));
-    connect(hardware, SIGNAL(Motor2CoordinateChanged(uint16_t)), this, SLOT(UpdateMotor2(uint16_t)));
-    connect(hardware, SIGNAL(Motor3CoordinateChanged(uint16_t)), this, SLOT(UpdateMotor3(uint16_t)));
-    connect(hardware, SIGNAL(Motor4CoordinateChanged(uint16_t)), this, SLOT(UpdateMotor4(uint16_t)));
+    connect(hardware, SIGNAL(MotorCoordinateChanged(int,int,uint16_t)), this, SLOT(MotorCoordinateChanged(int,int,uint16_t)));
 }
 
 MainWindow::~MainWindow()
@@ -78,8 +75,6 @@ int MainWindow::ChooseCollimatorSet()
         setID = 1;
     } else if (ui->SelectExit2Radio->isChecked()) {
         setID = 2;
-    } else {
-        setID = -1;
     }
     return setID;
 }
@@ -191,26 +186,6 @@ QString MainWindow::CoordToShow(uint16_t coordinate)
     return textCoord/*.mid( 0, end )*/;
 }
 
-void MainWindow::UpdateMotor1(uint16_t c)
-{
-    ui->DisplayCoordinate1->setText(CoordToShow(c));
-}
-
-void MainWindow::UpdateMotor2(uint16_t c)
-{
-    ui->DisplayCoordinate2->setText(CoordToShow(c));
-}
-
-void MainWindow::UpdateMotor3(uint16_t c)
-{
-    ui->DisplayCoordinate3->setText(CoordToShow(c));
-}
-
-void MainWindow::UpdateMotor4(uint16_t c)
-{
-    ui->DisplayCoordinate4->setText(CoordToShow(c));
-}
-
 void MainWindow::on_ResetOnePushButton_clicked()
 {
     hardware->Reset(ChooseCollimatorSet(), ChooseMotor());
@@ -224,4 +199,29 @@ void MainWindow::on_ResetAllPushButton_clicked()
 void MainWindow::on_UpdateCoordinatesButton_clicked()
 {
     hardware->GetMotorCoordinate(ChooseCollimatorSet(), ChooseMotor());
+}
+
+void MainWindow::MotorCoordinateChanged(int setID, int motorID, uint16_t newCoordinate)
+{
+    if (setID == ChooseCollimatorSet()) {
+        if (motorID == 0) {
+            ui->DisplayCoordinate1->setText(CoordToShow(newCoordinate));
+        } else if (motorID == 1) {
+            ui->DisplayCoordinate2->setText(CoordToShow(newCoordinate));
+        } else if (motorID == 2) {
+            ui->DisplayCoordinate3->setText(CoordToShow(newCoordinate));
+        } else if (motorID == 3) {
+            ui->DisplayCoordinate4->setText(CoordToShow(newCoordinate));
+        }
+    }
+}
+
+void MainWindow::on_SelectEntranceRadio_clicked()
+{
+    qDebug() << "Entrance has been chosen";
+}
+
+void MainWindow::on_SelectExit1Radio_clicked()
+{
+    qDebug() << "Exit 1 has been chosen";
 }

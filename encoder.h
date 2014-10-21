@@ -14,6 +14,8 @@ class Encoder : public QObject
 {
     Q_OBJECT
 private:
+    int id;
+
     QByteArray rawData;
     uint16_t position; // in 0.488um
     uint8_t steps2mm;
@@ -22,8 +24,10 @@ private:
     uint16_t steps_to_mm(uint16_t dataInStepsUnits);
 
 public:
-    explicit Encoder(QObject *parent = 0);
+    explicit Encoder(int motorID, QObject *parent = 0);
     ~Encoder();
+
+    int GetID();
 
     void Update(QByteArray);
     void UpdateCoordinate(QByteArray coordData);
@@ -36,7 +40,7 @@ public:
     void ResetSteps2mm();
 
 signals:
-    void MotorCoordinateUpdated(uint16_t);
+    void MotorCoordinateUpdated(int motorID, uint16_t newCoordinate);
 public slots:
 
 };

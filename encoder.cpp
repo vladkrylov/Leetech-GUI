@@ -1,8 +1,9 @@
 #include "encoder.h"
 
-Encoder::Encoder(QObject *parent) :
+Encoder::Encoder(int motorID, QObject *parent) :
     QObject(parent)
 {
+    id = motorID;
     rawData = "";
     steps2mm = 0;
 
@@ -14,6 +15,11 @@ Encoder::Encoder(QObject *parent) :
 Encoder::~Encoder()
 {
 
+}
+
+int Encoder::GetID()
+{
+    return id;
 }
 
 uint16_t Encoder::steps_to_mm(uint16_t dataInStepsUnits)
@@ -54,7 +60,7 @@ void Encoder::UpdateCoordinate(QByteArray coordData)
         position = -1;
         steps2mm = 0;
     }
-    emit MotorCoordinateUpdated(GetPosition());
+    emit MotorCoordinateUpdated(GetID(), GetPosition());
 }
 
 void Encoder::UpdateOrigin(QByteArray coordData)
@@ -66,7 +72,7 @@ void Encoder::UpdateOrigin(QByteArray coordData)
         origin = 0;
         position = -1;
     }
-    emit MotorCoordinateUpdated(position);
+    emit MotorCoordinateUpdated(GetID(), position);
 }
 
 int Encoder::GetPosition()

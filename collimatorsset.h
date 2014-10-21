@@ -9,8 +9,10 @@ class CollimatorsSet : public QObject
 {
     Q_OBJECT
 public:
-    explicit CollimatorsSet(QObject *parent = 0);
+    explicit CollimatorsSet(int setID, QObject *parent = 0);
     ~CollimatorsSet();
+
+    int GetID();
 
     void UpdateCoordinate(int motorID, QByteArray response);
     void UpdateOrigin(int motorID, QByteArray response);
@@ -24,14 +26,15 @@ public:
     void ResetSteps2mm(int motorID);
 
 private:
+    int id;
     Encoder **motors;
     QString GenerateCoordinate(const QString &coord_mm, int motorID);
 
+private slots:
+    void MotorCoordinateChangedSlot(int motorID, uint16_t newCoordinate);
+
 signals:
-    void Motor1CoordinateChanged(uint16_t );
-    void Motor2CoordinateChanged(uint16_t );
-    void Motor3CoordinateChanged(uint16_t );
-    void Motor4CoordinateChanged(uint16_t );
+    void MotorCoordinateChanged(int setID, int motorID, uint16_t newCoordinate);
 
 public slots:
 

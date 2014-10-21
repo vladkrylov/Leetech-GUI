@@ -19,6 +19,8 @@ public:
     ~MainWindow();
 
 private slots:
+    void MotorCoordinateChanged(int setID, int motorID, uint16_t newCoordinate);
+
     void on_ConnectButton_clicked();
 
     void on_TestButton_clicked();
@@ -43,16 +45,13 @@ private slots:
 
     void on_CoordinateLineEdit_textChanged(const QString &arg1);
 
-    void UpdateMotor1(uint16_t);
-    void UpdateMotor2(uint16_t);
-    void UpdateMotor3(uint16_t);
-    void UpdateMotor4(uint16_t);
-
     void on_ResetOnePushButton_clicked();
 
     void on_ResetAllPushButton_clicked();
 
     void on_UpdateCoordinatesButton_clicked();
+
+    void on_SelectEntranceRadio_clicked();
 
 private:
     Ui::MainWindow *ui;
