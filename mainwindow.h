@@ -53,6 +53,8 @@ private slots:
 
     void on_SelectEntranceRadio_clicked();
 
+    void on_SelectExit1Radio_clicked();
+
 private:
     Ui::MainWindow *ui;
     Controller *hardware;
