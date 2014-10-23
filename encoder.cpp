@@ -75,7 +75,7 @@ void Encoder::UpdateOrigin(QByteArray coordData)
     emit MotorCoordinateUpdated(GetID(), position);
 }
 
-int Encoder::GetPosition()
+uint16_t Encoder::GetPosition()
 {
     return steps_to_mm(position);
 }

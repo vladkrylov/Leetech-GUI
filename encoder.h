@@ -33,7 +33,7 @@ public:
     void UpdateCoordinate(QByteArray coordData);
     void UpdateOrigin(QByteArray coordData);
 
-    int GetPosition();
+    uint16_t GetPosition();
     uint8_t GetSteps2mm();
     uint16_t GetOrigin();
 

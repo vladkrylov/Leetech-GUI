@@ -29,9 +29,13 @@ public:
     void ResetMotorsData(int setID);
     void SetMotorCoordinate(int setID, int motorID, const QString &coord_mm);
     void GetMotorCoordinate(int setID, int motorID);
+
     void Reset(int setID, int motorID);
     void ResetAll(int setID);
+
     void SetPulses(int setID, const QString &width, const QString &period);
+
+    uint16_t ShowMotorCoordinate(int setID, int motorID);
 
 private:
     IP_Connection *PCB;

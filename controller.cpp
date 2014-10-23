@@ -162,3 +162,8 @@ void Controller::SetPulses(int setID, const QString &width, const QString &perio
             ;
     PCB->PCB_SendData(data_to_send);
 }
+
+uint16_t Controller::ShowMotorCoordinate(int setID, int motorID)
+{
+    return colSets[setID]->GetPosition(motorID);
+}

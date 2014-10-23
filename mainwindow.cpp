@@ -218,10 +218,18 @@ void MainWindow::MotorCoordinateChanged(int setID, int motorID, uint16_t newCoor
 
 void MainWindow::on_SelectEntranceRadio_clicked()
 {
+    int setID = ChooseCollimatorSet();
+    for (int motorID = 0; motorID < 4; ++motorID) {
+        MotorCoordinateChanged(setID, motorID, hardware->ShowMotorCoordinate(setID, motorID));
+    }
     qDebug() << "Entrance has been chosen";
 }
 
 void MainWindow::on_SelectExit1Radio_clicked()
 {
+    int setID = ChooseCollimatorSet();
+    for (int motorID = 0; motorID < 4; ++motorID) {
+        MotorCoordinateChanged(setID, motorID, hardware->ShowMotorCoordinate(setID, motorID));
+    }
     qDebug() << "Exit 1 has been chosen";
 }
