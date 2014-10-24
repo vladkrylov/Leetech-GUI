@@ -35,7 +35,7 @@ void Tests::TestForce(int width, int begin, int end, int setID, int motorID)
         if (stopForseTest) break;
 
         qDebug() << period;
-        control->SetPulses(setID, QString::number(width), QString::number(period));
+        control->SetPulses(setID, motorID, QString::number(width), QString::number(period));
 
         QTest::qWait(250);
 

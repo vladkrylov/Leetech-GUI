@@ -152,13 +152,15 @@ void Controller::ResetAll(int setID)
     colSets[setID]->UpdateAllOrigins(response);
 }
 
-void Controller::SetPulses(int setID, const QString &width, const QString &period)
+void Controller::SetPulses(int setID, int motorID, const QString &width, const QString &period)
 {
     QString data_to_send = QString("set_pulses:")
             + "w=" + width
             + ";T=" + period
             + "_setID="
             + QString::number(setID)
+            + "_motorID="
+            + QString::number(motorID)
             ;
     PCB->PCB_SendData(data_to_send);
 }

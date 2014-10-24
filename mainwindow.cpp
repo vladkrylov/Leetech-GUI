@@ -120,6 +120,7 @@ void MainWindow::on_TestButton_2_clicked()
 void MainWindow::on_PulsesButton_clicked()
 {
     hardware->SetPulses(ChooseCollimatorSet(),
+                        ChooseMotor(),
                         ui->WidthSpinBox->text(),
                         ui->PeriodSpinBox->text()
                         );
