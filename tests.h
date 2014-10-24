@@ -19,7 +19,7 @@ public:
 
     explicit Tests(Controller *c, IP_Connection *testPCB, QObject *parent = 0);
 
-    void Test(int motorID);
+    void Test(int setID, int motorID);
     void TestPulsesForOscilloscope();
     void TestForce(int width, int begin, int end, int setID, int motorID);
     void StopForseTest();

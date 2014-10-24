@@ -11,10 +11,12 @@ Tests::Tests(Controller *c, IP_Connection *testPCB, QObject *parent):
 //    connect(PCB->socket, SIGNAL(readyRead()), this, SLOT(PrintBoardResponse()));
 }
 
-void Tests::Test(int motorID)
+void Tests::Test(int setID, int motorID)
 {
     QString data_to_send = QString("test_motor")
-            + QString::number(motorID+1);
+            + QString::number(motorID+1)
+            + "_setID="
+            + QString::number(setID);
 
 //    qDebug() << data_to_send;
     PCB->PCB_SendData(data_to_send);
@@ -39,7 +41,7 @@ void Tests::TestForce(int width, int begin, int end, int setID, int motorID)
 
         QTest::qWait(250);
 
-        Test(motorID);
+        Test(setID, motorID);
         QTest::qWait(5000);
     }
 }

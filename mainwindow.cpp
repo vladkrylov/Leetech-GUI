@@ -109,7 +109,7 @@ void MainWindow::on_ConnectButton_clicked()
 
 void MainWindow::on_TestButton_clicked()
 {
-    hardware->TestObject->Test(ChooseMotor());
+    hardware->TestObject->Test(ChooseCollimatorSet(), ChooseMotor());
 }
 
 void MainWindow::on_TestButton_2_clicked()
