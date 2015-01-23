@@ -17,7 +17,7 @@ void IP_Connection::IP_Init()
     port = 80;
     Delay_waitForConnected = 3000;
     Delay_waitForBytesWritten = 4000;
-    Delay_waitForReadyRead = 500;
+    Delay_waitForReadyRead = 2000;
     _Connected = false;
 }
 
