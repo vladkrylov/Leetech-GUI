@@ -496,6 +496,9 @@
                <property name="enabled">
                 <bool>false</bool>
                </property>
+               <property name="text">
+                <string>5,441</string>
+               </property>
               </widget>
              </item>
              <item>
@@ -520,6 +523,9 @@
               <widget class="QLineEdit" name="DisplayCoordinate2">
                <property name="enabled">
                 <bool>false</bool>
+               </property>
+               <property name="text">
+                <string>7,87</string>
                </property>
               </widget>
              </item>
@@ -546,6 +552,9 @@
                <property name="enabled">
                 <bool>false</bool>
                </property>
+               <property name="text">
+                <string>5,219</string>
+               </property>
               </widget>
              </item>
              <item>
@@ -570,6 +579,9 @@
               <widget class="QLineEdit" name="DisplayCoordinate4">
                <property name="enabled">
                 <bool>false</bool>
+               </property>
+               <property name="text">
+                <string>4,617</string>
                </property>
               </widget>
              </item>
@@ -798,7 +810,7 @@
       </widget>
       <widget class="QWidget" name="tab_3">
        <attribute name="title">
-        <string>Exit 1</string>
+        <string/>
        </attribute>
        <widget class="QGroupBox" name="MoveGroupBox_2">
         <property name="geometry">
@@ -1064,7 +1076,7 @@
       </widget>
       <widget class="QWidget" name="tab_2">
        <attribute name="title">
-        <string>Tests</string>
+        <string/>
        </attribute>
        <widget class="QGroupBox" name="TestMotorSelectBox">
         <property name="geometry">

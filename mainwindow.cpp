@@ -20,6 +20,7 @@ MainWindow::MainWindow(QWidget *parent) :
     emit ui->WidthSpinBox->valueChanged(ui->WidthSpinBox->text());
 
     connect(hardware, SIGNAL(MotorCoordinateChanged(int,int,uint16_t)), this, SLOT(MotorCoordinateChanged(int,int,uint16_t)));
+    on_SelectEntranceRadio_clicked();
 }
 
 MainWindow::~MainWindow()
