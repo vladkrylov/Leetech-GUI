@@ -43,8 +43,11 @@ private:
     QString GenerateCoordinate(const QString &coord_mm, int setID, int motorID);
     int ValidateResponse(const QByteArray &response);
 
+
 signals:
     void MotorCoordinateChanged(int setID, int motorID, uint16_t newCoordinate);
+    void Connected();
+    void Disconnected();
 
 public slots:
 

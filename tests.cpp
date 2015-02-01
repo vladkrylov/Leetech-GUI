@@ -2,6 +2,9 @@
 #include "controller.h"
 #include "ip_connection.h"
 
+#include <QFileInfo>
+#include <QThread>
+
 Tests::Tests(Controller *c, IP_Connection *testPCB, QObject *parent):
     QObject(parent)
 {
@@ -70,4 +73,48 @@ void Tests::TestLWIP(int numerOfRetries)
     qDebug() << endl <<"Bug ratio ="<< 100.*(numerOfRetries - success)/numerOfRetries <<"%";
 }
 
+void Tests::CollectData(int setID, int motorID, QString period)
+{
+    QFileInfo *info = new QFileInfo("D:\\Leetech\\Slave\\DebugLogs\\MatlabSignalFile.log");
+    QDateTime lastMod = info->lastModified();
+    QDateTime modified;
+
+    for(int pulseWidth = 110; pulseWidth >= 50; pulseWidth -= 10) {
+        control->SetPulses(setID, motorID, QString::number(pulseWidth), period);
+        QThread::msleep(200);
+        for(double destination = 3.; destination <= 12.; destination += 1.) {
+            control->Reset(setID, motorID);
+            QThread::msleep(200);
+            control->SetMotorCoordinate(setID, motorID, QString::number(destination));
+            QThread::msleep(200);
+
+            while(1) {
+                info->refresh();
+                QThread::msleep(500);
+                modified = info->lastModified();
+                if (modified > lastMod) {
+                    lastMod = modified;
+                    break;
+                }
+            }
+        }
+    }
+}
+
+void Tests::WaitForMotorData()
+{
+    QFileInfo *info = new QFileInfo("D:\\Leetech\\Slave\\DebugLogs\\MatlabSignalFile.log");
+    QDateTime lastMod = info->lastModified();
+    QDateTime modified;
+    bool received = false;
+    while(received == false) {
+        info->refresh();
+        QThread::msleep(100);
+        modified = info->lastModified();
+        if (modified > lastMod) {
+            received = true;
+        }
+    }
+    delete info;
+}
 

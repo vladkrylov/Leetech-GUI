@@ -14,6 +14,8 @@ Controller::Controller(QObject *parent) :
         colSets[i] = new CollimatorsSet(i);
         connect(colSets[i], SIGNAL(MotorCoordinateChanged(int,int,uint16_t)), this, SIGNAL(MotorCoordinateChanged(int,int,uint16_t)));
     }
+    connect(PCB, SIGNAL(Connected()), this, SIGNAL(Connected()));
+    connect(PCB, SIGNAL(Disconnected()), this, SIGNAL(Disconnected()));
 }
 
 Controller::~Controller()
@@ -57,7 +59,6 @@ QString Controller::GenerateCoordinate(const QString &coord_mm, int setID, int m
 {
     QString copyCoord = coord_mm;
     int coord = copyCoord.replace(QString(","), QString(".")).toFloat() * 1000 + colSets[setID]->GetMotorOrigin(motorID);
-//            motors[motorID]->GetOrigin();
     QString res = QString::number(coord);
     while (res.length() < 5) {
         res.prepend('0');
@@ -73,17 +74,14 @@ QByteArray Controller::TalkToBoard(const QString &sendPhrase)
     qDebug() << endl << sendPhrase;
     PCB->PCB_SendData(sendPhrase);
     response = PCB->PCB_ReceiveData();
-//    qDebug() << response;
 
-    PCB->PCB_SendData("Get_coordinate");
-    response = PCB->PCB_ReceiveData();
-    qDebug() << response;
+//    PCB->PCB_SendData("Get_coordinate");
+//    response = PCB->PCB_ReceiveData();
 
     while (!ValidateResponse(response)) {
         if (counter >= 0) break;
         PCB->PCB_SendData("Get_coordinate");
         response = PCB->PCB_ReceiveData();
-        qDebug() << response;
         counter++;
     }
 
@@ -119,7 +117,6 @@ void Controller::GetMotorCoordinate(int setID, int motorID)
 
     QByteArray response = TalkToBoard(data_to_send);
     colSets[setID]->UpdateCoordinate(motorID, response);
-    qDebug() << colSets[setID]->GetPosition(motorID);
 }
 
 void Controller::ResetMotorsData(int setID)

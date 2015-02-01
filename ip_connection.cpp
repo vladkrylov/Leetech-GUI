@@ -4,6 +4,11 @@ IP_Connection::IP_Connection(QObject *parent) :
     QObject(parent)
 {
     IP_Init();
+
+    connect(socket, SIGNAL(connected()), this, SIGNAL(Connected()));
+    connect(socket, SIGNAL(disconnected()), this, SIGNAL(Disconnected()));
+    connect(socket, SIGNAL(disconnected()), this, SLOT(sdisconnected()));
+    connect(socket, SIGNAL(readyRead()), this, SLOT(readyRead()));
 }
 
 IP_Connection::~IP_Connection()
@@ -15,9 +20,9 @@ void IP_Connection::IP_Init()
 {
     socket = new QTcpSocket(this);
     port = 80;
-    Delay_waitForConnected = 3000;
-    Delay_waitForBytesWritten = 4000;
-    Delay_waitForReadyRead = 2000;
+    Delay_waitForConnected = 1000;
+    Delay_waitForBytesWritten = 1000;
+    Delay_waitForReadyRead = 150;
     _Connected = false;
 }
 
@@ -25,8 +30,6 @@ bool IP_Connection::PCB_Connect()
 {
     socket->connectToHost(IP_Address, 80);
     _Connected = socket->waitForConnected(Delay_waitForConnected);
-    qDebug() << "Connected = "<< _Connected;
-
     return _Connected;
 }
 
@@ -70,3 +73,15 @@ bool IP_Connection::IsConnected()
     return _Connected;
 }
 
+void IP_Connection::readyRead()
+{
+//    qDebug() << "Some data has been received.";
+//    QByteArray response;
+//    response = socket->readAll();
+//    qDebug() << response << endl;
+}
+
+void IP_Connection::sdisconnected()
+{
+    _Connected = false;
+}

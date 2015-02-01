@@ -24,10 +24,13 @@ public:
     void TestForce(int width, int begin, int end, int setID, int motorID);
     void StopForseTest();
     void TestLWIP(int numerOfRetries);
+    void CollectData(int setID, int motorID, QString period);
 
 private:
     int stopForseTest;
     void Delay(int t);
+
+    void WaitForMotorData();
 
 signals:
 
