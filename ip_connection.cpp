@@ -76,9 +76,9 @@ bool IP_Connection::IsConnected()
 void IP_Connection::readyRead()
 {
 //    qDebug() << "Some data has been received.";
-//    QByteArray response;
-//    response = socket->readAll();
-//    qDebug() << response << endl;
+    QByteArray response;
+    response = socket->readAll();
+    qDebug() << response << endl;
 }
 
 void IP_Connection::sdisconnected()
