@@ -9,7 +9,7 @@ Trajectory::Trajectory(QObject *parent) :
     length = 0;
     state = UNKNOWN;
     indicators = QStringList() << "times" << "usignal" << "coords";
-    filename = "t.yaml";
+    indicators << "set_id=" << "motor_id=" << "dest=" << "prec=";
 }
 
 Trajectory::~Trajectory()
@@ -26,6 +26,33 @@ uint16_t Trajectory::Convert2_8to16(char msb, char lsb)
 
 void Trajectory::AddData(const QString indicator, QByteArray newData)
 {
+    if (indicator == "set_id=") {
+        uint8_t setIDn = (uint8_t)newData.at(0);
+        switch (setIDn) {
+        case 0:
+            setID = "Entrance";
+            break;
+        case 1:
+            setID = "Exit1";
+            break;
+        case 2:
+            setID = "Exit2";
+            break;
+        default:
+            setID = "Unknown";
+            break;
+        }
+        return;
+    }
+    if (indicator == "motor_id=") {
+        motorID = (uint8_t)newData.at(0);
+        return;
+    }
+    if (indicator == "dest=") {
+        destination = Convert2_8to16(newData.at(0), newData.at(1));
+        return;
+    }
+    // check for trajectory arrays
     int len2 = newData.size()/2;
 
     // we expect the new Data of even size because every trajectory array element
@@ -92,9 +119,16 @@ int Trajectory::AllDataReceived()
             (state & COORDINATES_RECEIVED));
 }
 
-void Trajectory::WriteToFile(QString filename)
+void Trajectory::WriteToFile()
 {
     if (AllDataReceived()) {
+        QString filename = setID
+                        + QString::number(motorID)
+                        + "_U="
+                        + QString::number(uSignal[0])
+                        + "_dest="
+                        + QString::number(coordinates[length-1])
+                        + ".yaml";
         QFile file(filename);
         file.open(QIODevice::WriteOnly | QIODevice::Text);
         QTextStream ya(&file);

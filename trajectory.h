@@ -20,12 +20,14 @@ private:
     } state_t;
     uint8_t state;
 
+    QString setID;
+    uint8_t motorID;
+    uint16_t destination;
+
     int length;
     uint16_t *times;
     uint16_t *uSignal;
     uint16_t *coordinates;
-
-    QString filename;
 
     uint16_t Convert2_8to16(char msb, char lsb);
     void SetArray(uint16_t *array, QByteArray *newData);
@@ -40,7 +42,7 @@ public:
 
     void AddData(const QString indicator, QByteArray newData);
 
-    void WriteToFile(QString filename);
+    void WriteToFile();
 
 signals:
 

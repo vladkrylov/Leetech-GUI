@@ -197,7 +197,7 @@ void Controller::dataReceived()
     }
 
     if (trajectoryFragmentReceived) {
-        traj->WriteToFile("out.yaml");
+        traj->WriteToFile();
     }
 }
 
