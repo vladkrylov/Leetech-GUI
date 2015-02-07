@@ -9,6 +9,8 @@ Controller::Controller(QObject *parent) :
     PCB = new IP_Connection();
     TestObject = new Tests(this, PCB);
 
+    traj = new Trajectory();
+
     colSets = new CollimatorsSet*[N_sets];
     for (int i = 0; i < N_sets; ++i) {
         colSets[i] = new CollimatorsSet(i);
@@ -16,12 +18,15 @@ Controller::Controller(QObject *parent) :
     }
     connect(PCB, SIGNAL(Connected()), this, SIGNAL(Connected()));
     connect(PCB, SIGNAL(Disconnected()), this, SIGNAL(Disconnected()));
+    connect(PCB, SIGNAL(dataReceived()), this, SLOT(dataReceived()));
 }
 
 Controller::~Controller()
 {
     delete PCB;
     delete TestObject;
+
+    delete traj;
 
     for (int i = 0; i < N_sets; ++i) {
         delete colSets[i];
@@ -92,13 +97,14 @@ void Controller::SetMotorCoordinate(int setID, int motorID, const QString &coord
 {
     QString data_to_send = "move_motor"
             + QString::number(motorID+1)
-            + "_"
+            + "_tocoord="
             + GenerateCoordinate(coord_mm, setID, motorID)
             + "m"
             + "_steps2mm="
             + QString::number(colSets[setID]->GetSteps2mm(motorID))
             + "_setID="
             + QString::number(setID)
+            + "_getTrajectory=1"
             ;
     QByteArray response = TalkToBoard(data_to_send);
     colSets[setID]->UpdateCoordinate(motorID, response);
@@ -166,3 +172,49 @@ uint16_t Controller::ShowMotorCoordinate(int setID, int motorID)
 {
     return colSets[setID]->GetPosition(motorID);
 }
+
+void Controller::dataReceived()
+{
+    QByteArray response;
+    response = InitResponse();
+//    response = PCB->readAll();
+    int trajectoryFragmentReceived = 0;
+
+    foreach (const QString &str1, traj->indicators) {
+        int p1 = response.indexOf(str1);
+        int p2 = response.size();
+        if (p1 != -1) {
+            trajectoryFragmentReceived = 1;
+            foreach (const QString &str2, traj->indicators) if (str2 != str1) {
+                int newp2 = response.indexOf(str2);
+                if ((newp2 != -1) && (newp2 < p2) && (newp2 > p1)) {
+                    p2 = newp2;
+                    break;
+                }
+            }
+            traj->AddData(str1, response.mid(p1+str1.length(), p2-p1-str1.length()));
+        }
+    }
+
+    if (trajectoryFragmentReceived) {
+        traj->WriteToFile("out.yaml");
+    }
+}
+
+QByteArray Controller::InitResponse()
+{
+    QByteArray res = "times";
+    for (int i=0; i<1000; i++) {
+        res.append((char)i);
+    }
+    res.append("usignal");
+    for (int i=0; i<1000; i++) {
+        res.append((char)2*i);
+    }
+    res.append("coords");
+    for (int i=0; i<1000; i++) {
+        res.append((char)3*i);
+    }
+    return res;
+}
+

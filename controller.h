@@ -7,6 +7,7 @@
 #include "ip_connection.h"
 #include "tests.h"
 #include "collimatorsset.h"
+#include "trajectory.h"
 
 class Tests;
 class IP_Connection;
@@ -42,7 +43,9 @@ private:
     CollimatorsSet **colSets;
     QString GenerateCoordinate(const QString &coord_mm, int setID, int motorID);
     int ValidateResponse(const QByteArray &response);
+    QByteArray InitResponse();
 
+    Trajectory *traj;
 
 signals:
     void MotorCoordinateChanged(int setID, int motorID, uint16_t newCoordinate);
@@ -50,7 +53,7 @@ signals:
     void Disconnected();
 
 public slots:
-
+    void dataReceived();
 };
 
 #endif // CONTROLLER_H

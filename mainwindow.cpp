@@ -121,7 +121,8 @@ void MainWindow::Disconnected()
 void MainWindow::on_TestButton_clicked()
 {
 //    hardware->TestObject->Test(ChooseCollimatorSet(), ChooseMotor());
-    hardware->TestObject->CollectData(ChooseCollimatorSet(), ChooseMotor(), ui->PeriodSpinBox->text());
+//    hardware->TestObject->CollectData(ChooseCollimatorSet(), ChooseMotor(), ui->PeriodSpinBox->text());
+    hardware->dataReceived();
 }
 
 void MainWindow::on_PulsesButton_clicked()

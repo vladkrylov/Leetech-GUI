@@ -8,7 +8,7 @@ IP_Connection::IP_Connection(QObject *parent) :
     connect(socket, SIGNAL(connected()), this, SIGNAL(Connected()));
     connect(socket, SIGNAL(disconnected()), this, SIGNAL(Disconnected()));
     connect(socket, SIGNAL(disconnected()), this, SLOT(sdisconnected()));
-    connect(socket, SIGNAL(readyRead()), this, SLOT(readyRead()));
+    connect(socket, SIGNAL(readyRead()), this, SIGNAL(dataReceived()));
 }
 
 IP_Connection::~IP_Connection()
@@ -73,15 +73,20 @@ bool IP_Connection::IsConnected()
     return _Connected;
 }
 
-void IP_Connection::readyRead()
-{
-//    qDebug() << "Some data has been received.";
-    QByteArray response;
-    response = socket->readAll();
-    qDebug() << response << endl;
-}
+//void IP_Connection::readyRead()
+//{
+////    qDebug() << "Some data has been received.";
+//    QByteArray response;
+//    response = socket->readAll();
+//    qDebug() << response << endl;
+//}
 
 void IP_Connection::sdisconnected()
 {
     _Connected = false;
+}
+
+QByteArray IP_Connection::readAll()
+{
+    return socket->readAll();
 }
