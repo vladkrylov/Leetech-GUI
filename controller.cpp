@@ -176,15 +176,13 @@ uint16_t Controller::ShowMotorCoordinate(int setID, int motorID)
 void Controller::dataReceived()
 {
     QByteArray response;
-    response = InitResponse();
-//    response = PCB->readAll();
-    int trajectoryFragmentReceived = 0;
+//    response = InitResponse();
+    response = PCB->readAll();
 
     foreach (const QString &str1, traj->indicators) {
         int p1 = response.indexOf(str1);
         int p2 = response.size();
         if (p1 != -1) {
-            trajectoryFragmentReceived = 1;
             foreach (const QString &str2, traj->indicators) if (str2 != str1) {
                 int newp2 = response.indexOf(str2);
                 if ((newp2 != -1) && (newp2 < p2) && (newp2 > p1)) {
@@ -196,7 +194,7 @@ void Controller::dataReceived()
         }
     }
 
-    if (trajectoryFragmentReceived) {
+    if (traj->AllDataReceived()) {
         traj->WriteToFile();
     }
 }

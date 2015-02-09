@@ -33,7 +33,7 @@ private:
     void SetArray(uint16_t *array, QByteArray *newData);
     void CleanArrays();
 
-    int AllDataReceived();
+
 public:
     explicit Trajectory(QObject *parent = 0);
     ~Trajectory();
@@ -41,6 +41,7 @@ public:
     QStringList indicators;
 
     void AddData(const QString indicator, QByteArray newData);
+    int AllDataReceived();
 
     void WriteToFile();
 
