@@ -187,10 +187,10 @@ void Controller::dataReceived()
                 int newp2 = response.indexOf(str2);
                 if ((newp2 != -1) && (newp2 < p2) && (newp2 > p1)) {
                     p2 = newp2;
-                    break;
+//                    break;
                 }
             }
-            traj->AddData(str1, response.mid(p1+str1.length(), p2-p1-str1.length()));
+            traj->AddData(str1, response.mid(p1+str1.length()+1, p2-p1-str1.length()-1));
         }
     }
 

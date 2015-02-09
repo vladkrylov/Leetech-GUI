@@ -127,7 +127,7 @@ void Trajectory::WriteToFile()
                         + "_U="
                         + QString::number(uSignal[0])
                         + "_dest="
-                        + QString::number(coordinates[length-1])
+                        + QString::number(destination)
                         + ".yaml";
         QFile file(filename);
         file.open(QIODevice::WriteOnly | QIODevice::Text);
