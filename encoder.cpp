@@ -27,10 +27,10 @@ uint16_t Encoder::steps_to_mm(uint16_t dataInStepsUnits)
     return dataInStepsUnits * 2000 / 4096;
 }
 
-void Encoder::Update(QByteArray dataFromEncoder)
+void Encoder::Update(QByteArray dataFromMaster)
 {
-    if (QString(dataFromEncoder).mid(0, 9) == "response_"){
-        rawData = dataFromEncoder;
+    if (QString(dataFromMaster).mid(0, 9) == "response_"){
+        rawData = dataFromMaster;
         position = ((uint8_t)rawData[9])<<4 | (((uint8_t)rawData[10])>>4);
 
         steps2mm = (uint8_t)rawData[14];
@@ -44,34 +44,27 @@ void Encoder::Update(QByteArray dataFromEncoder)
     }
 }
 
-void Encoder::UpdateCoordinate(QByteArray coordData)
+void Encoder::UpdateCoordinate(uint16_t coord)
 {
-    if (QString(coordData).mid(0, 9) == "response_"){
-        position = ((uint8_t)coordData[9])<<8 | ((uint8_t)coordData[10]);
-        steps2mm = (uint8_t)coordData[11];
+    position = coord;
+    steps2mm = position/4096;
 
-        if ((steps2mm == 0) && (position < origin)) {
-            origin = position;
-            position = 0;
-        } else {
-            position += -origin;
-        }
+    if (position < origin) {
+        origin = position;
+        position = 0;
     } else {
-        position = -1;
-        steps2mm = 0;
+        position -= origin;
     }
+
     emit MotorCoordinateUpdated(GetID(), GetPosition());
 }
 
-void Encoder::UpdateOrigin(QByteArray coordData)
+void Encoder::UpdateOrigin(uint16_t coord)
 {
-    if (QString(coordData).mid(0, 9) == "response_"){
-        origin = ((uint8_t)coordData[9])<<8 | ((uint8_t)coordData[10]);
-        position = 0;
-    } else {
-        origin = 0;
-        position = -1;
-    }
+    origin = coord;
+    position = 0;
+    steps2mm = 0;
+
     emit MotorCoordinateUpdated(GetID(), position);
 }
 

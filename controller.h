@@ -26,7 +26,7 @@ public:
     void Disconnect();
     void SetIPAddress(const QString &ipaddress);
 
-    QByteArray TalkToBoard(const QString &sendPhrase);
+    void TalkToBoard(const QString &sendPhrase);
     void ResetMotorsData(int setID);
     void SetMotorCoordinate(int setID, int motorID, const QString &coord_mm);
     void GetMotorCoordinate(int setID, int motorID);

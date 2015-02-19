@@ -107,9 +107,9 @@ void Trajectory::CleanArrays()
     state = UNKNOWN;
     length = 0;
 
-    delete times;
-    delete uSignal;
-    delete coordinates;
+    delete[] times;
+    delete[] uSignal;
+    delete[] coordinates;
 }
 
 int Trajectory::AllDataReceived()

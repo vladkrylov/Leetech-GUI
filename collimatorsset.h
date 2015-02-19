@@ -14,8 +14,7 @@ public:
 
     int GetID();
 
-    void UpdateCoordinate(int motorID, QByteArray response);
-    void UpdateOrigin(int motorID, QByteArray response);
+    void Update(QByteArray response);
     void UpdateAllOrigins(QByteArray response);
 
     int GetPosition(int motorID);

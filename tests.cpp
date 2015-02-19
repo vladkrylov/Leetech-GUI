@@ -60,18 +60,6 @@ void Tests::PrintBoardResponse()
     qDebug() << resp;
 }
 
-void Tests::TestLWIP(int numerOfRetries)
-{
-    int success = 0;
-    QString response;
-    for (int i = 0; i < numerOfRetries; ++i) {
-        response = control->TalkToBoard("move_motor1_00000m_steps2mm=110");
-        if (response.mid(0, 9) == "response_") {
-            success++;
-        }
-    }
-    qDebug() << endl <<"Bug ratio ="<< 100.*(numerOfRetries - success)/numerOfRetries <<"%";
-}
 
 void Tests::CollectData(int setID, int motorID, QString period)
 {

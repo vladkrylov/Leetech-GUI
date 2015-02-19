@@ -71,26 +71,10 @@ QString Controller::GenerateCoordinate(const QString &coord_mm, int setID, int m
     return res;
 }
 
-QByteArray Controller::TalkToBoard(const QString &sendPhrase)
+void Controller::TalkToBoard(const QString &sendPhrase)
 {
-    QByteArray response;
-    int counter = 0;
-
     qDebug() << endl << sendPhrase;
     PCB->PCB_SendData(sendPhrase);
-    response = PCB->PCB_ReceiveData();
-
-//    PCB->PCB_SendData("Get_coordinate");
-//    response = PCB->PCB_ReceiveData();
-
-    while (!ValidateResponse(response)) {
-        if (counter >= 0) break;
-        PCB->PCB_SendData("Get_coordinate");
-        response = PCB->PCB_ReceiveData();
-        counter++;
-    }
-
-    return response;
 }
 
 void Controller::SetMotorCoordinate(int setID, int motorID, const QString &coord_mm)
@@ -104,11 +88,9 @@ void Controller::SetMotorCoordinate(int setID, int motorID, const QString &coord
             + QString::number(colSets[setID]->GetSteps2mm(motorID))
             + "_setID="
             + QString::number(setID)
-            + "_getTrajectory=1"
+//            + "_getTrajectory=1"
             ;
-    QByteArray response = TalkToBoard(data_to_send);
-    colSets[setID]->UpdateCoordinate(motorID, response);
-    qDebug() << endl << colSets[setID]->GetPosition(motorID) <<"\t"<< colSets[setID]->GetSteps2mm(motorID);
+    TalkToBoard(data_to_send);
 }
 
 void Controller::GetMotorCoordinate(int setID, int motorID)
@@ -121,8 +103,7 @@ void Controller::GetMotorCoordinate(int setID, int motorID)
             + QString::number(setID)
             ;
 
-    QByteArray response = TalkToBoard(data_to_send);
-    colSets[setID]->UpdateCoordinate(motorID, response);
+    TalkToBoard(data_to_send);
 }
 
 void Controller::ResetMotorsData(int setID)
@@ -139,10 +120,7 @@ void Controller::Reset(int setID, int motorID)
             + "_setID="
             + QString::number(setID)
             ;
-    QByteArray response = TalkToBoard(data_to_send);
-    colSets[setID]->UpdateOrigin(motorID, response);
-    colSets[setID]->ResetSteps2mm(motorID);
-    qDebug() << colSets[setID]->GetMotorOrigin(motorID);
+    TalkToBoard(data_to_send);
 }
 
 void Controller::ResetAll(int setID)
@@ -151,8 +129,7 @@ void Controller::ResetAll(int setID)
                             + "_setID="
                             + QString::number(setID)
                             ;
-    QByteArray response = TalkToBoard(data_to_send);
-    colSets[setID]->UpdateAllOrigins(response);
+    TalkToBoard(data_to_send);
 }
 
 void Controller::SetPulses(int setID, int motorID, const QString &width, const QString &period)
@@ -176,26 +153,41 @@ uint16_t Controller::ShowMotorCoordinate(int setID, int motorID)
 void Controller::dataReceived()
 {
     QByteArray response;
+//    for testing purposes
 //    response = InitResponse();
     response = PCB->readAll();
 
-    foreach (const QString &str1, traj->indicators) {
-        int p1 = response.indexOf(str1);
-        int p2 = response.size();
-        if (p1 != -1) {
-            foreach (const QString &str2, traj->indicators) if (str2 != str1) {
-                int newp2 = response.indexOf(str2);
-                if ((newp2 != -1) && (newp2 < p2) && (newp2 > p1)) {
-                    p2 = newp2;
-//                    break;
-                }
-            }
-            traj->AddData(str1, response.mid(p1+str1.length()+1, p2-p1-str1.length()-1));
-        }
-    }
+    // check for sigle coordinate received
+    if (response.contains("response_")) {
+        int setID;
+        QString setIdIndicator = "set_id=";
 
-    if (traj->AllDataReceived()) {
-        traj->WriteToFile();
+        int p1 = response.indexOf(setIdIndicator);
+        if (p1 != -1) {
+            setID = uint8_t(response.at(p1 + setIdIndicator.length()));
+            if ((setID < 0) && (setID > N_sets)) return;
+        } else return;
+
+        colSets[setID]->Update(response);
+    } else {
+        // check for trajectory data
+        foreach (const QString &str1, traj->indicators) {
+            int p1 = response.indexOf(str1);
+            int p2 = response.size();
+            if (p1 != -1) {
+                foreach (const QString &str2, traj->indicators) if (str2 != str1) {
+                    int newp2 = response.indexOf(str2);
+                    if ((newp2 != -1) && (newp2 < p2) && (newp2 > p1)) {
+                        p2 = newp2;
+                    }
+                }
+                traj->AddData(str1, response.mid(p1+str1.length()+1, p2-p1-str1.length()-1));
+            }
+        }
+
+        if (traj->AllDataReceived()) {
+            traj->WriteToFile();
+        }
     }
 }
 
