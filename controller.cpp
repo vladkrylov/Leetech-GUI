@@ -89,6 +89,7 @@ void Controller::SetMotorCoordinate(int setID, int motorID, const QString &coord
             + "_setID="
             + QString::number(setID)
 //            + "_getTrajectory=1"
+            + "_______________"
             ;
     TalkToBoard(data_to_send);
 }
@@ -101,6 +102,7 @@ void Controller::GetMotorCoordinate(int setID, int motorID)
             + QString::number(colSets[setID]->GetSteps2mm(motorID))
             + "_setID="
             + QString::number(setID)
+            + "_______________"
             ;
 
     TalkToBoard(data_to_send);
@@ -119,6 +121,7 @@ void Controller::Reset(int setID, int motorID)
             + QString::number(colSets[setID]->GetSteps2mm(motorID))
             + "_setID="
             + QString::number(setID)
+            + "_______________"
             ;
     TalkToBoard(data_to_send);
 }
@@ -141,6 +144,7 @@ void Controller::SetPulses(int setID, int motorID, const QString &width, const Q
             + QString::number(setID)
             + "_motorID="
             + QString::number(motorID)
+            + "_______________"
             ;
     PCB->PCB_SendData(data_to_send);
 }
