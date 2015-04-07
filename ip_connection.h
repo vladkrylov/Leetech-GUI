@@ -19,9 +19,9 @@ public:
     ~IP_Connection();
 
 signals:
-
-public slots:
-    bool PCB_Connect();
+    void Connected();
+    void Disconnected();
+    void dataReceived();
 
 private:
     QString IP_Address;
@@ -36,15 +36,21 @@ private:
 
     void IP_Init();
 
+private slots:
+    void sdisconnected();
+
 public:
     friend Tests;
 
+    bool IsConnected();
+    bool PCB_Connect();
     void PCB_Disconnect();
+
     void PCB_SendData(QString);
     QByteArray PCB_ReceiveData();
-
     void SetIPAddress(QString);
-    bool IsConnected();
+    QByteArray readAll();
+
 };
 
 #endif // IP_CONNECTION_H

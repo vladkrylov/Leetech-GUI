@@ -29,9 +29,9 @@ public:
 
     int GetID();
 
-    void Update(QByteArray);
-    void UpdateCoordinate(QByteArray coordData);
-    void UpdateOrigin(QByteArray coordData);
+    void Update(QByteArray dataFromMaster);
+    void UpdateCoordinate(uint16_t coord);
+    void UpdateOrigin(uint16_t coord);
 
     uint16_t GetPosition();
     uint8_t GetSteps2mm();

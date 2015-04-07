@@ -59,21 +59,37 @@ void CollimatorsSet::ResetSteps2mm(int motorID)
     motors[motorID]->ResetSteps2mm();
 }
 
-void CollimatorsSet::UpdateCoordinate(int motorID, QByteArray response)
+void CollimatorsSet::Update(QByteArray response)
 {
-    motors[motorID]->UpdateCoordinate(response);
-}
+    QString motorIdIndicator = "motor_id=";
+    QString coordIndicator = "coord=";
+    uint8_t motorID;
+    uint16_t coord;
 
-void CollimatorsSet::UpdateOrigin(int motorID, QByteArray response)
-{
-    motors[motorID]->UpdateOrigin(response);
+    int p1 = response.indexOf(motorIdIndicator);
+    if (p1 != -1) {
+        motorID = uint8_t(response.at(p1 + motorIdIndicator.length())) - 1;
+        if (motorID > N_motors) return;
+    } else return;
+
+    p1 = response.indexOf(coordIndicator);
+    if (p1 != -1) {
+         coord = (uint8_t(response.at(p1 + coordIndicator.length())))<<8 |
+                 (uint8_t(response.at(p1 + coordIndicator.length() + 1)));
+    } else return;
+
+    if (response.contains("reset")) {
+        motors[motorID]->UpdateOrigin(coord);
+    } else {
+        motors[motorID]->UpdateCoordinate(coord);
+    }
 }
 
 void CollimatorsSet::UpdateAllOrigins(QByteArray response)
 {
-    for (int i = 0; i < N_motors; ++i) {
-        motors[i]->UpdateOrigin(response.mid(2*i, 2));
-        qDebug() << motors[i]->GetOrigin();
-    }
+//    for (int i = 0; i < N_motors; ++i) {
+//        motors[i]->UpdateOrigin(response.mid(2*i, 2));
+//        qDebug() << motors[i]->GetOrigin();
+//    }
 }
 

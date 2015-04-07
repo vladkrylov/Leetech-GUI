@@ -25,7 +25,7 @@ private slots:
 
     void on_TestButton_clicked();
 
-    void on_TestButton_2_clicked();
+//    void on_TestButton_2_clicked();
 
     void on_PulsesButton_clicked();
 
@@ -33,13 +33,13 @@ private slots:
 
     void on_WidthSpinBox_valueChanged(const QString &arg1);
 
-    void on_TestForceButton_clicked();
+//    void on_TestForceButton_clicked();
 
-    void on_StopForceTestButton_clicked();
+//    void on_StopForceTestButton_clicked();
 
-    void on_GetCoordinateButton_clicked();
+//    void on_GetCoordinateButton_clicked();
 
-    void on_LWIP_bug_clicked();
+//    void on_LWIP_bug_clicked();
 
     void on_GoButton_clicked();
 
@@ -55,6 +55,9 @@ private slots:
 
     void on_SelectExit1Radio_clicked();
 
+    void Connected();
+    void Disconnected();
+
 private:
     Ui::MainWindow *ui;
     Controller *hardware;
@@ -66,6 +69,7 @@ private:
     int ChooseMotor();
     int ChooseCollimatorSet();
     QString CoordToShow(uint16_t coordinate);
+    void UnknownCoordinate(int setID, int motorID);
 };
 
 #endif // MAINWINDOW_H

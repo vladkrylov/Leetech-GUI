@@ -19,13 +19,15 @@ SOURCES += main.cpp\
     controller.cpp \
     tests.cpp \
     encoder.cpp \
-    collimatorsset.cpp
+    collimatorsset.cpp \
+    trajectory.cpp
 
 HEADERS  += mainwindow.h \
     ip_connection.h \
     controller.h \
     tests.h \
     encoder.h \
-    collimatorsset.h
+    collimatorsset.h \
+    trajectory.h
 
 FORMS    += mainwindow.ui

@@ -20,6 +20,8 @@ MainWindow::MainWindow(QWidget *parent) :
     emit ui->WidthSpinBox->valueChanged(ui->WidthSpinBox->text());
 
     connect(hardware, SIGNAL(MotorCoordinateChanged(int,int,uint16_t)), this, SLOT(MotorCoordinateChanged(int,int,uint16_t)));
+    connect(hardware, SIGNAL(Connected()), this, SLOT(Connected()));
+    connect(hardware, SIGNAL(Disconnected()), this, SLOT(Disconnected()));
     on_SelectEntranceRadio_clicked();
 }
 
@@ -82,40 +84,45 @@ int MainWindow::ChooseCollimatorSet()
 
 void MainWindow::on_GoButton_clicked()
 {
+    int set = ChooseCollimatorSet();
+    int motor = ChooseMotor();
+
+    UnknownCoordinate(set, motor);
     QString crd = ui->CoordinateLineEdit->text();
-    hardware->SetMotorCoordinate(ChooseCollimatorSet(), ChooseMotor(), crd);
+    hardware->SetMotorCoordinate(set, motor, crd);
 }
 
 void MainWindow::on_ConnectButton_clicked()
 {
-    ui->ConnectLabel->setText("   Connecting...   ");
-    ui->ConnectButton->setEnabled(false);
+//    ui->ConnectLabel->setText("   Connecting...   ");
+//    ui->ConnectButton->setEnabled(false);
 
     if (!(hardware->IsConnected())) {
         hardware->SetIPAddress(ui->IP_lineEdit->text());
-        if (hardware->Connect()) {
-            ui->ConnectLabel->setText("   Connected   ");
-            ui->ConnectButton->setText("Disconnect");
-        } else {
-            ui->ConnectLabel->setText("   Disconnected   ");
-        }
-
+        hardware->Connect();
     } else {
         hardware->Disconnect();
-        ui->ConnectLabel->setText("   Disconnected   ");
-        ui->ConnectButton->setText("Connect");
     }
     ui->ConnectButton->setEnabled(true);
 }
 
-void MainWindow::on_TestButton_clicked()
+void MainWindow::Connected()
 {
-    hardware->TestObject->Test(ChooseCollimatorSet(), ChooseMotor());
+    ui->ConnectLabel->setText("   Connected   ");
+    ui->ConnectButton->setText("Disconnect");
 }
 
-void MainWindow::on_TestButton_2_clicked()
+void MainWindow::Disconnected()
 {
-    hardware->TestObject->TestPulsesForOscilloscope();
+    ui->ConnectLabel->setText("   Disconnected   ");
+    ui->ConnectButton->setText("Connect");
+}
+
+void MainWindow::on_TestButton_clicked()
+{
+//    hardware->TestObject->Test(ChooseCollimatorSet(), ChooseMotor());
+//    hardware->TestObject->CollectData(ChooseCollimatorSet(), ChooseMotor(), ui->PeriodSpinBox->text());
+    hardware->dataReceived();
 }
 
 void MainWindow::on_PulsesButton_clicked()
@@ -151,29 +158,29 @@ void MainWindow::on_WidthSpinBox_valueChanged(const QString &arg1)
     }
 }
 
-void MainWindow::on_TestForceButton_clicked()
-{
-    int width = ui->WidthSpinBox->text().toInt();
-    int begin = ui->TestBeginField->text().toInt();
-    int end = ui->TestEndField->text().toInt();
+//void MainWindow::on_TestForceButton_clicked()
+//{
+//    int width = ui->WidthSpinBox->text().toInt();
+//    int begin = ui->TestBeginField->text().toInt();
+//    int end = ui->TestEndField->text().toInt();
 
-    hardware->TestObject->TestForce(width, begin, end, ChooseCollimatorSet(), ChooseMotor());
-}
+//    hardware->TestObject->TestForce(width, begin, end, ChooseCollimatorSet(), ChooseMotor());
+//}
 
-void MainWindow::on_StopForceTestButton_clicked()
-{
-    hardware->TestObject->StopForseTest();
-}
+//void MainWindow::on_StopForceTestButton_clicked()
+//{
+//    hardware->TestObject->StopForseTest();
+//}
 
-void MainWindow::on_GetCoordinateButton_clicked()
-{
-    hardware->GetMotorCoordinate(ChooseCollimatorSet(), ChooseMotor());
-}
+//void MainWindow::on_GetCoordinateButton_clicked()
+//{
+//    hardware->GetMotorCoordinate(ChooseCollimatorSet(), ChooseMotor());
+//}
 
-void MainWindow::on_LWIP_bug_clicked()
-{
-    hardware->TestObject->TestLWIP(100);
-}
+//void MainWindow::on_LWIP_bug_clicked()
+//{
+//    hardware->TestObject->TestLWIP(100);
+//}
 
 void MainWindow::on_CoordinateLineEdit_textChanged(const QString &arg1)
 {
@@ -190,7 +197,11 @@ QString MainWindow::CoordToShow(uint16_t coordinate)
 
 void MainWindow::on_ResetOnePushButton_clicked()
 {
-    hardware->Reset(ChooseCollimatorSet(), ChooseMotor());
+    int set = ChooseCollimatorSet();
+    int motor = ChooseMotor();
+
+    UnknownCoordinate(set, motor);
+    hardware->Reset(set, motor);
 }
 
 void MainWindow::on_ResetAllPushButton_clicked()
@@ -200,7 +211,11 @@ void MainWindow::on_ResetAllPushButton_clicked()
 
 void MainWindow::on_UpdateCoordinatesButton_clicked()
 {
-    hardware->GetMotorCoordinate(ChooseCollimatorSet(), ChooseMotor());
+    int set = ChooseCollimatorSet();
+    int motor = ChooseMotor();
+
+    UnknownCoordinate(set, motor);
+    hardware->GetMotorCoordinate(set, motor);
 }
 
 void MainWindow::MotorCoordinateChanged(int setID, int motorID, uint16_t newCoordinate)
@@ -214,6 +229,22 @@ void MainWindow::MotorCoordinateChanged(int setID, int motorID, uint16_t newCoor
             ui->DisplayCoordinate3->setText(CoordToShow(newCoordinate));
         } else if (motorID == 3) {
             ui->DisplayCoordinate4->setText(CoordToShow(newCoordinate));
+        }
+    }
+}
+
+void MainWindow::UnknownCoordinate(int setID, int motorID)
+{
+    QString unkn = "-----";
+    if (setID == ChooseCollimatorSet()) {
+        if (motorID == 0) {
+            ui->DisplayCoordinate1->setText(unkn);
+        } else if (motorID == 1) {
+            ui->DisplayCoordinate2->setText(unkn);
+        } else if (motorID == 2) {
+            ui->DisplayCoordinate3->setText(unkn);
+        } else if (motorID == 3) {
+            ui->DisplayCoordinate4->setText(unkn);
         }
     }
 }
