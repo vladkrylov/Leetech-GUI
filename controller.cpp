@@ -131,6 +131,7 @@ void Controller::ResetAll(int setID)
     QString data_to_send = QString("reset_all")
                             + "_setID="
                             + QString::number(setID)
+                            + "_______________"
                             ;
     TalkToBoard(data_to_send);
 }
