@@ -30,6 +30,7 @@ Controller::Controller(QObject *parent) :
 Controller::~Controller()
 {
     delete PCB;
+
     delete TestObject;
 
     delete traj;
