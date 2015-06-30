@@ -23,6 +23,9 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(hardware, SIGNAL(Connected()), this, SLOT(Connected()));
     connect(hardware, SIGNAL(Disconnected()), this, SLOT(Disconnected()));
     on_SelectEntranceRadio_clicked();
+
+    QStringList COMPorts = hardware->GetSerialPorts();
+    ui->COMPorts->addItems(COMPorts);
 }
 
 MainWindow::~MainWindow()
@@ -158,30 +161,6 @@ void MainWindow::on_WidthSpinBox_valueChanged(const QString &arg1)
     }
 }
 
-//void MainWindow::on_TestForceButton_clicked()
-//{
-//    int width = ui->WidthSpinBox->text().toInt();
-//    int begin = ui->TestBeginField->text().toInt();
-//    int end = ui->TestEndField->text().toInt();
-
-//    hardware->TestObject->TestForce(width, begin, end, ChooseCollimatorSet(), ChooseMotor());
-//}
-
-//void MainWindow::on_StopForceTestButton_clicked()
-//{
-//    hardware->TestObject->StopForseTest();
-//}
-
-//void MainWindow::on_GetCoordinateButton_clicked()
-//{
-//    hardware->GetMotorCoordinate(ChooseCollimatorSet(), ChooseMotor());
-//}
-
-//void MainWindow::on_LWIP_bug_clicked()
-//{
-//    hardware->TestObject->TestLWIP(100);
-//}
-
 void MainWindow::on_CoordinateLineEdit_textChanged(const QString &arg1)
 {
     if (arg1.toFloat() > 14.99) {
@@ -265,4 +244,14 @@ void MainWindow::on_SelectExit1Radio_clicked()
         MotorCoordinateChanged(setID, motorID, hardware->ShowMotorCoordinate(setID, motorID));
     }
     qDebug() << "Exit 1 has been chosen";
+}
+
+void MainWindow::on_SetVoltageButton_clicked()
+{
+
+}
+
+void MainWindow::on_HVConnectButton_clicked()
+{
+    QString name = ui->COMPorts->currentIndex();
 }

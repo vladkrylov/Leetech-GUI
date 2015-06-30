@@ -8,6 +8,7 @@ QT       += widgets
 QT       += core gui
 QT       += network
 QT       += testlib
+QT       += serialport
 
 TARGET = one_motor_raw
 TEMPLATE = app

@@ -1,11 +1,14 @@
 #include "controller.h"
+
 #include <QDebug>
+#include <QtSerialPort/QSerialPortInfo>
 
 const int N_sets = 2;
 
 Controller::Controller(QObject *parent) :
     QObject(parent)
 {
+    // Collimators -----------------------------------------
     PCB = new IP_Connection();
     TestObject = new Tests(this, PCB);
 
@@ -19,6 +22,9 @@ Controller::Controller(QObject *parent) :
     connect(PCB, SIGNAL(Connected()), this, SIGNAL(Connected()));
     connect(PCB, SIGNAL(Disconnected()), this, SIGNAL(Disconnected()));
     connect(PCB, SIGNAL(dataReceived()), this, SLOT(dataReceived()));
+
+    // High Voltage Block ----------------------------------
+    HighVoltage = new QSerialPort(this);
 }
 
 Controller::~Controller()
@@ -211,5 +217,27 @@ QByteArray Controller::InitResponse()
         res.append((char)3*i);
     }
     return res;
+}
+
+QStringList Controller::GetSerialPorts()
+{
+    QStringList COMNamesAvailable;
+    foreach (const QSerialPortInfo &info, QSerialPortInfo::availablePorts()) {
+        COMNamesAvailable << info.portName();
+    }
+//    qDebug() << QSerialPortInfo::availablePorts();
+    return COMNamesAvailable;
+}
+
+bool Controller::ConnectHV(const QString& name, int baud)
+{
+    HighVoltage->setPortName(name);
+    HighVoltage->setBaudRate(baud);
+    HighVoltage->setDataBits(QSerialPort::Data8);
+    HighVoltage->setParity(QSerialPort::NoParity);
+    HighVoltage->setStopBits(QSerialPort::OneStop);
+    HighVoltage->setFlowControl(QSerialPort::NoFlowControl);
+
+    return HighVoltage->open(QIODevice::ReadWrite);
 }
 

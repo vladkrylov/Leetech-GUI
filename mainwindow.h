@@ -25,21 +25,11 @@ private slots:
 
     void on_TestButton_clicked();
 
-//    void on_TestButton_2_clicked();
-
     void on_PulsesButton_clicked();
 
     void on_PeriodSpinBox_valueChanged(const QString &arg1);
 
     void on_WidthSpinBox_valueChanged(const QString &arg1);
-
-//    void on_TestForceButton_clicked();
-
-//    void on_StopForceTestButton_clicked();
-
-//    void on_GetCoordinateButton_clicked();
-
-//    void on_LWIP_bug_clicked();
 
     void on_GoButton_clicked();
 
@@ -57,6 +47,10 @@ private slots:
 
     void Connected();
     void Disconnected();
+
+    void on_SetVoltageButton_clicked();
+
+    void on_HVConnectButton_clicked();
 
 private:
     Ui::MainWindow *ui;

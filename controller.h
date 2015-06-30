@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 #include <QObject>
+#include <QtSerialPort/QSerialPort>
 
 #include "ip_connection.h"
 #include "tests.h"
@@ -38,9 +39,14 @@ public:
 
     uint16_t ShowMotorCoordinate(int setID, int motorID);
 
+    QStringList GetSerialPorts();
+    bool ConnectHV(const QString& name, int baud);
+
 private:
-    IP_Connection *PCB;
-    CollimatorsSet **colSets;
+    IP_Connection* PCB;
+    CollimatorsSet** colSets;
+    QSerialPort* HighVoltage;
+
     QString GenerateCoordinate(const QString &coord_mm, int setID, int motorID);
     int ValidateResponse(const QByteArray &response);
     QByteArray InitResponse();
@@ -54,6 +60,7 @@ signals:
 
 public slots:
     void dataReceived();
+
 };
 
 #endif // CONTROLLER_H
