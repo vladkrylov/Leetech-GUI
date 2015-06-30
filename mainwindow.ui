@@ -1511,7 +1511,11 @@
          <item row="2" column="0">
           <layout class="QGridLayout" name="gridLayout_8">
            <item row="2" column="0">
-            <widget class="QPlainTextEdit" name="plainTextEdit"/>
+            <widget class="QPlainTextEdit" name="COMTerminalWindow">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
+            </widget>
            </item>
            <item row="1" column="0">
             <widget class="QLabel" name="label_22">

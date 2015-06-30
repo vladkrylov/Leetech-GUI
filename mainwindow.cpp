@@ -252,7 +252,20 @@ void MainWindow::on_SetVoltageButton_clicked()
 
 void MainWindow::on_HVConnectButton_clicked()
 {
-    QString name = ui->COMPorts->currentIndex();
+    QString name = ui->COMPorts->currentText();
+    int baud = ui->BaudRate->currentText().toInt();
+
+    if (!hardware->HVConnented()) {
+        if (hardware->ConnectHV(name, baud)) {
+            ui->COMTerminalWindow->setEnabled(true);
+            ui->HVConnectButton->setText("Disconnect");
+        } else {
+            ui->COMTerminalWindow->appendPlainText("Error! Cannot connect to serial port.");
+        }
+    } else {
+        hardware->DisconnectHV();
+        ui->HVConnectButton->setText("Connect");
+    }
 }
 
 

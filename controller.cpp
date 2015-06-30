@@ -226,7 +226,6 @@ QStringList Controller::GetSerialPorts()
     foreach (const QSerialPortInfo &info, QSerialPortInfo::availablePorts()) {
         COMNamesAvailable << info.portName();
     }
-//    qDebug() << QSerialPortInfo::availablePorts();
     return COMNamesAvailable;
 }
 
@@ -241,4 +240,15 @@ bool Controller::ConnectHV(const QString& name, int baud)
 
     return HighVoltage->open(QIODevice::ReadWrite);
 }
+
+bool Controller::HVConnented()
+{
+    return HighVoltage->isOpen();
+}
+
+void Controller::DisconnectHV()
+{
+    HighVoltage->close();
+}
+
 

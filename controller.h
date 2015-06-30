@@ -41,6 +41,8 @@ public:
 
     QStringList GetSerialPorts();
     bool ConnectHV(const QString& name, int baud);
+    bool HVConnented();
+    void DisconnectHV();
 
 private:
     IP_Connection* PCB;
