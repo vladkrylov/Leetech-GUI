@@ -52,6 +52,8 @@ private slots:
 
     void on_HVConnectButton_clicked();
 
+    void on_COMRescanButton_clicked();
+
 private:
     Ui::MainWindow *ui;
     Controller *hardware;

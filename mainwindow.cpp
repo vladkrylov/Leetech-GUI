@@ -24,8 +24,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(hardware, SIGNAL(Disconnected()), this, SLOT(Disconnected()));
     on_SelectEntranceRadio_clicked();
 
-    QStringList COMPorts = hardware->GetSerialPorts();
-    ui->COMPorts->addItems(COMPorts);
+    on_COMRescanButton_clicked();
 }
 
 MainWindow::~MainWindow()
@@ -254,4 +253,19 @@ void MainWindow::on_SetVoltageButton_clicked()
 void MainWindow::on_HVConnectButton_clicked()
 {
     QString name = ui->COMPorts->currentIndex();
+}
+
+
+void MainWindow::on_COMRescanButton_clicked()
+{
+    QString portPreferred = "COM3";
+
+    ui->COMPorts->clear();
+    QStringList portsAvailable = hardware->GetSerialPorts();
+    ui->COMPorts->addItems(portsAvailable);
+
+    int index = ui->COMPorts->findText(portPreferred);
+    if (index != -1) {
+        ui->COMPorts->setCurrentIndex(index);
+    }
 }

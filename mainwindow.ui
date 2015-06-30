@@ -784,16 +784,6 @@
           </layout>
          </widget>
         </widget>
-        <zorder>MoveGroupBox</zorder>
-        <zorder>groupBox_2</zorder>
-        <zorder>layoutWidget</zorder>
-        <zorder>TestButton</zorder>
-        <zorder>PulsesBox</zorder>
-        <zorder>HVBox</zorder>
-        <zorder>HVBox</zorder>
-        <zorder>HVBox</zorder>
-        <zorder>HVBox</zorder>
-        <zorder>HVBox</zorder>
        </widget>
       </item>
      </layout>
@@ -1551,7 +1541,7 @@
                  <property name="font">
                   <font>
                    <family>Arial</family>
-                   <pointsize>9</pointsize>
+                   <pointsize>10</pointsize>
                    <weight>75</weight>
                    <italic>true</italic>
                    <bold>true</bold>
@@ -1592,6 +1582,19 @@
                 </widget>
                </item>
               </layout>
+             </item>
+             <item>
+              <spacer name="horizontalSpacer">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
              </item>
              <item>
               <layout class="QVBoxLayout" name="verticalLayout_4">
@@ -1931,12 +1934,25 @@
               </layout>
              </item>
              <item>
+              <spacer name="horizontalSpacer_8">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item>
               <layout class="QGridLayout" name="gridLayout_7">
                <item row="0" column="0">
                 <widget class="QComboBox" name="COMPorts"/>
                </item>
                <item row="0" column="1" rowspan="2">
-                <widget class="QPushButton" name="HVConnectButton_2">
+                <widget class="QPushButton" name="COMRescanButton">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
                    <horstretch>0</horstretch>
@@ -2031,18 +2047,11 @@
           </widget>
          </item>
         </layout>
-        <zorder>layoutWidget</zorder>
-        <zorder>layoutWidget</zorder>
-        <zorder>plainTextEdit</zorder>
-        <zorder>label_22</zorder>
-        <zorder>label_26</zorder>
        </widget>
       </item>
      </layout>
     </item>
    </layout>
-   <zorder>MagnetBox</zorder>
-   <zorder>MagnetBox</zorder>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
