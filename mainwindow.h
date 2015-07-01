@@ -18,6 +18,10 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
+signals:
+    void SetHV(int voltage);
+    void SetHVPolarity(QChar p);
+
 private slots:
     void MotorCoordinateChanged(int setID, int motorID, uint16_t newCoordinate);
 
@@ -53,6 +57,14 @@ private slots:
     void on_HVConnectButton_clicked();
 
     void on_COMRescanButton_clicked();
+
+    void on_SetVoltageLine_returnPressed();
+
+    void on_AlwaysNegative_clicked();
+
+    void on_HVradioPlus_clicked();
+
+    void on_HVradioMinus_clicked();
 
 private:
     Ui::MainWindow *ui;

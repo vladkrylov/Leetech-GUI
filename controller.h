@@ -5,6 +5,7 @@
 #include <QObject>
 #include <QtSerialPort/QSerialPort>
 
+
 #include "ip_connection.h"
 #include "tests.h"
 #include "collimatorsset.h"
@@ -43,25 +44,37 @@ public:
     bool ConnectHV(const QString& name, int baud);
     bool HVConnented();
     void DisconnectHV();
+    QByteArray GetHV();
+    QByteArray GetHVCurrent();
 
 private:
     IP_Connection* PCB;
-    CollimatorsSet** colSets;
-    QSerialPort* HighVoltage;
+    CollimatorsSet** colSets;    
 
     QString GenerateCoordinate(const QString &coord_mm, int setID, int motorID);
     int ValidateResponse(const QByteArray &response);
     QByteArray InitResponse();
 
-    Trajectory *traj;
+    Trajectory* traj;
+
+    QSerialPort* HighVoltage;
+    QTimer* HighVoltageTimer;
+
+private slots:
+    void UpdateHighVoltageData();
 
 signals:
     void MotorCoordinateChanged(int setID, int motorID, uint16_t newCoordinate);
     void Connected();
     void Disconnected();
 
+    void WriteToTerminal(QString data);
+    void HighVoltageDataUpdated(float voltage, float current);
+
 public slots:
     void dataReceived();
+    void SetHV(int voltage);
+    void SetHVPolarity(QChar p);
 
 };
 

@@ -25,6 +25,9 @@ MainWindow::MainWindow(QWidget *parent) :
     on_SelectEntranceRadio_clicked();
 
     on_COMRescanButton_clicked();
+    connect(this, SIGNAL(SetHV(int)), hardware, SLOT(SetHV(int)));
+    connect(this, SIGNAL(SetHVPolarity(QChar)), hardware, SLOT(SetHVPolarity(QChar)));
+    connect(hardware, SIGNAL(WriteToTerminal(QString)), ui->COMTerminalWindow, SLOT(appendPlainText(QString)));
 }
 
 MainWindow::~MainWindow()
@@ -38,6 +41,9 @@ void MainWindow::SetValidators()
 {
     coordValidator = new QDoubleValidator( 0, 14.999, 2, this );
     ui->CoordinateLineEdit->setValidator(coordValidator);
+
+    QIntValidator* highVoltageValidator = new QIntValidator(0, 3400, this);
+    ui->SetVoltageLine->setValidator(highVoltageValidator);
 }
 
 int MainWindow::ValidatePulsesWidth(float width_us)
@@ -245,11 +251,6 @@ void MainWindow::on_SelectExit1Radio_clicked()
     qDebug() << "Exit 1 has been chosen";
 }
 
-void MainWindow::on_SetVoltageButton_clicked()
-{
-
-}
-
 void MainWindow::on_HVConnectButton_clicked()
 {
     QString name = ui->COMPorts->currentText();
@@ -282,3 +283,40 @@ void MainWindow::on_COMRescanButton_clicked()
         ui->COMPorts->setCurrentIndex(index);
     }
 }
+
+void MainWindow::on_SetVoltageButton_clicked()
+{
+    on_SetVoltageLine_returnPressed();
+}
+
+void MainWindow::on_SetVoltageLine_returnPressed()
+{
+    int voltage = ui->SetVoltageLine->text().toInt();
+    emit SetHV(voltage);
+}
+
+void MainWindow::on_AlwaysNegative_clicked()
+{
+    if (ui->AlwaysNegative->isChecked()) {
+        ui->HVradioMinus->setEnabled(false);\
+        ui->HVradioPlus->setEnabled(false);
+        emit SetHVPolarity('-');
+    } else {
+        ui->HVradioMinus->setEnabled(true);\
+        ui->HVradioPlus->setEnabled(true);
+
+        if (ui->HVradioPlus->isChecked())
+            on_HVradioPlus_clicked();
+    }
+}
+
+void MainWindow::on_HVradioPlus_clicked()
+{
+    emit SetHVPolarity('+');
+}
+
+void MainWindow::on_HVradioMinus_clicked()
+{
+    emit SetHVPolarity('-');
+}
+

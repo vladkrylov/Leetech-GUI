@@ -1507,531 +1507,8 @@
         <property name="title">
          <string/>
         </property>
-        <layout class="QGridLayout" name="gridLayout_9">
-         <item row="2" column="0">
-          <layout class="QGridLayout" name="gridLayout_8">
-           <item row="2" column="0">
-            <widget class="QPlainTextEdit" name="COMTerminalWindow">
-             <property name="enabled">
-              <bool>false</bool>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="0">
-            <widget class="QLabel" name="label_22">
-             <property name="font">
-              <font>
-               <family>Arial</family>
-               <pointsize>12</pointsize>
-               <weight>75</weight>
-               <italic>true</italic>
-               <bold>true</bold>
-              </font>
-             </property>
-             <property name="text">
-              <string>Terminal</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignCenter</set>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="0">
-            <layout class="QHBoxLayout" name="horizontalLayout_12">
-             <item>
-              <layout class="QGridLayout" name="gridLayout_3">
-               <item row="0" column="0">
-                <widget class="QLabel" name="label_6">
-                 <property name="font">
-                  <font>
-                   <family>Arial</family>
-                   <pointsize>10</pointsize>
-                   <weight>75</weight>
-                   <italic>true</italic>
-                   <bold>true</bold>
-                  </font>
-                 </property>
-                 <property name="text">
-                  <string>Set Voltage</string>
-                 </property>
-                 <property name="alignment">
-                  <set>Qt::AlignCenter</set>
-                 </property>
-                </widget>
-               </item>
-               <item row="1" column="0">
-                <widget class="QLineEdit" name="SetVoltageLine"/>
-               </item>
-               <item row="1" column="1">
-                <widget class="QLabel" name="label_21">
-                 <property name="font">
-                  <font>
-                   <family>Arial</family>
-                   <pointsize>9</pointsize>
-                   <weight>75</weight>
-                   <italic>true</italic>
-                   <bold>true</bold>
-                  </font>
-                 </property>
-                 <property name="text">
-                  <string>V</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="2" column="0">
-                <widget class="QPushButton" name="SetVoltageButton">
-                 <property name="text">
-                  <string>Set</string>
-                 </property>
-                </widget>
-               </item>
-              </layout>
-             </item>
-             <item>
-              <spacer name="horizontalSpacer">
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-               <property name="sizeHint" stdset="0">
-                <size>
-                 <width>40</width>
-                 <height>20</height>
-                </size>
-               </property>
-              </spacer>
-             </item>
-             <item>
-              <layout class="QVBoxLayout" name="verticalLayout_4">
-               <item>
-                <layout class="QHBoxLayout" name="horizontalLayout_10">
-                 <item>
-                  <widget class="QLabel" name="label_8">
-                   <property name="palette">
-                    <palette>
-                     <active>
-                      <colorrole role="Text">
-                       <brush brushstyle="SolidPattern">
-                        <color alpha="255">
-                         <red>85</red>
-                         <green>0</green>
-                         <blue>0</blue>
-                        </color>
-                       </brush>
-                      </colorrole>
-                     </active>
-                     <inactive>
-                      <colorrole role="Text">
-                       <brush brushstyle="SolidPattern">
-                        <color alpha="255">
-                         <red>0</red>
-                         <green>0</green>
-                         <blue>0</blue>
-                        </color>
-                       </brush>
-                      </colorrole>
-                     </inactive>
-                     <disabled>
-                      <colorrole role="Text">
-                       <brush brushstyle="SolidPattern">
-                        <color alpha="255">
-                         <red>120</red>
-                         <green>120</green>
-                         <blue>120</blue>
-                        </color>
-                       </brush>
-                      </colorrole>
-                     </disabled>
-                    </palette>
-                   </property>
-                   <property name="font">
-                    <font>
-                     <family>Arial</family>
-                     <pointsize>12</pointsize>
-                     <weight>75</weight>
-                     <italic>true</italic>
-                     <bold>true</bold>
-                     <kerning>false</kerning>
-                    </font>
-                   </property>
-                   <property name="text">
-                    <string>Voltage</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QLineEdit" name="DisplayVoltageLine">
-                   <property name="enabled">
-                    <bool>false</bool>
-                   </property>
-                   <property name="palette">
-                    <palette>
-                     <active>
-                      <colorrole role="Text">
-                       <brush brushstyle="SolidPattern">
-                        <color alpha="255">
-                         <red>85</red>
-                         <green>0</green>
-                         <blue>0</blue>
-                        </color>
-                       </brush>
-                      </colorrole>
-                     </active>
-                     <inactive>
-                      <colorrole role="Text">
-                       <brush brushstyle="SolidPattern">
-                        <color alpha="255">
-                         <red>0</red>
-                         <green>0</green>
-                         <blue>0</blue>
-                        </color>
-                       </brush>
-                      </colorrole>
-                     </inactive>
-                     <disabled>
-                      <colorrole role="Text">
-                       <brush brushstyle="SolidPattern">
-                        <color alpha="255">
-                         <red>154</red>
-                         <green>0</green>
-                         <blue>0</blue>
-                        </color>
-                       </brush>
-                      </colorrole>
-                     </disabled>
-                    </palette>
-                   </property>
-                   <property name="font">
-                    <font>
-                     <family>Arial</family>
-                     <pointsize>12</pointsize>
-                     <weight>75</weight>
-                     <italic>true</italic>
-                     <bold>true</bold>
-                    </font>
-                   </property>
-                   <property name="text">
-                    <string/>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QLabel" name="label_20">
-                   <property name="palette">
-                    <palette>
-                     <active>
-                      <colorrole role="Text">
-                       <brush brushstyle="SolidPattern">
-                        <color alpha="255">
-                         <red>85</red>
-                         <green>0</green>
-                         <blue>0</blue>
-                        </color>
-                       </brush>
-                      </colorrole>
-                     </active>
-                     <inactive>
-                      <colorrole role="Text">
-                       <brush brushstyle="SolidPattern">
-                        <color alpha="255">
-                         <red>0</red>
-                         <green>0</green>
-                         <blue>0</blue>
-                        </color>
-                       </brush>
-                      </colorrole>
-                     </inactive>
-                     <disabled>
-                      <colorrole role="Text">
-                       <brush brushstyle="SolidPattern">
-                        <color alpha="255">
-                         <red>120</red>
-                         <green>120</green>
-                         <blue>120</blue>
-                        </color>
-                       </brush>
-                      </colorrole>
-                     </disabled>
-                    </palette>
-                   </property>
-                   <property name="font">
-                    <font>
-                     <family>Arial</family>
-                     <pointsize>12</pointsize>
-                     <weight>75</weight>
-                     <italic>true</italic>
-                     <bold>true</bold>
-                    </font>
-                   </property>
-                   <property name="text">
-                    <string>V</string>
-                   </property>
-                  </widget>
-                 </item>
-                </layout>
-               </item>
-               <item>
-                <layout class="QHBoxLayout" name="horizontalLayout_11">
-                 <item>
-                  <widget class="QLabel" name="label_18">
-                   <property name="palette">
-                    <palette>
-                     <active>
-                      <colorrole role="Text">
-                       <brush brushstyle="SolidPattern">
-                        <color alpha="255">
-                         <red>85</red>
-                         <green>0</green>
-                         <blue>0</blue>
-                        </color>
-                       </brush>
-                      </colorrole>
-                     </active>
-                     <inactive>
-                      <colorrole role="Text">
-                       <brush brushstyle="SolidPattern">
-                        <color alpha="255">
-                         <red>0</red>
-                         <green>0</green>
-                         <blue>0</blue>
-                        </color>
-                       </brush>
-                      </colorrole>
-                     </inactive>
-                     <disabled>
-                      <colorrole role="Text">
-                       <brush brushstyle="SolidPattern">
-                        <color alpha="255">
-                         <red>120</red>
-                         <green>120</green>
-                         <blue>120</blue>
-                        </color>
-                       </brush>
-                      </colorrole>
-                     </disabled>
-                    </palette>
-                   </property>
-                   <property name="font">
-                    <font>
-                     <family>Arial</family>
-                     <pointsize>12</pointsize>
-                     <weight>75</weight>
-                     <italic>true</italic>
-                     <bold>true</bold>
-                    </font>
-                   </property>
-                   <property name="text">
-                    <string>Current</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QLineEdit" name="DisplayCurrentLine">
-                   <property name="enabled">
-                    <bool>false</bool>
-                   </property>
-                   <property name="palette">
-                    <palette>
-                     <active>
-                      <colorrole role="Text">
-                       <brush brushstyle="SolidPattern">
-                        <color alpha="255">
-                         <red>106</red>
-                         <green>0</green>
-                         <blue>0</blue>
-                        </color>
-                       </brush>
-                      </colorrole>
-                     </active>
-                     <inactive>
-                      <colorrole role="Text">
-                       <brush brushstyle="SolidPattern">
-                        <color alpha="255">
-                         <red>106</red>
-                         <green>0</green>
-                         <blue>0</blue>
-                        </color>
-                       </brush>
-                      </colorrole>
-                     </inactive>
-                     <disabled>
-                      <colorrole role="Text">
-                       <brush brushstyle="SolidPattern">
-                        <color alpha="255">
-                         <red>154</red>
-                         <green>0</green>
-                         <blue>0</blue>
-                        </color>
-                       </brush>
-                      </colorrole>
-                     </disabled>
-                    </palette>
-                   </property>
-                   <property name="font">
-                    <font>
-                     <family>Arial</family>
-                     <pointsize>12</pointsize>
-                     <weight>75</weight>
-                     <italic>true</italic>
-                     <bold>true</bold>
-                    </font>
-                   </property>
-                   <property name="text">
-                    <string/>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QLabel" name="label_19">
-                   <property name="palette">
-                    <palette>
-                     <active>
-                      <colorrole role="Text">
-                       <brush brushstyle="SolidPattern">
-                        <color alpha="255">
-                         <red>85</red>
-                         <green>0</green>
-                         <blue>0</blue>
-                        </color>
-                       </brush>
-                      </colorrole>
-                     </active>
-                     <inactive>
-                      <colorrole role="Text">
-                       <brush brushstyle="SolidPattern">
-                        <color alpha="255">
-                         <red>0</red>
-                         <green>0</green>
-                         <blue>0</blue>
-                        </color>
-                       </brush>
-                      </colorrole>
-                     </inactive>
-                     <disabled>
-                      <colorrole role="Text">
-                       <brush brushstyle="SolidPattern">
-                        <color alpha="255">
-                         <red>120</red>
-                         <green>120</green>
-                         <blue>120</blue>
-                        </color>
-                       </brush>
-                      </colorrole>
-                     </disabled>
-                    </palette>
-                   </property>
-                   <property name="font">
-                    <font>
-                     <family>Arial</family>
-                     <pointsize>12</pointsize>
-                     <weight>75</weight>
-                     <italic>true</italic>
-                     <bold>true</bold>
-                    </font>
-                   </property>
-                   <property name="text">
-                    <string>A</string>
-                   </property>
-                  </widget>
-                 </item>
-                </layout>
-               </item>
-              </layout>
-             </item>
-             <item>
-              <spacer name="horizontalSpacer_8">
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-               <property name="sizeHint" stdset="0">
-                <size>
-                 <width>40</width>
-                 <height>20</height>
-                </size>
-               </property>
-              </spacer>
-             </item>
-             <item>
-              <layout class="QGridLayout" name="gridLayout_7">
-               <item row="0" column="0">
-                <widget class="QComboBox" name="COMPorts"/>
-               </item>
-               <item row="0" column="1" rowspan="2">
-                <widget class="QPushButton" name="COMRescanButton">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="text">
-                  <string>Rescan</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="1" column="0">
-                <widget class="QComboBox" name="BaudRate">
-                 <item>
-                  <property name="text">
-                   <string>9600</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>2400</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>4800</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>19200</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>38400</string>
-                  </property>
-                 </item>
-                </widget>
-               </item>
-               <item row="2" column="0" colspan="2">
-                <widget class="QPushButton" name="HVConnectButton">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Minimum" vsizetype="Maximum">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="minimumSize">
-                  <size>
-                   <width>0</width>
-                   <height>40</height>
-                  </size>
-                 </property>
-                 <property name="font">
-                  <font>
-                   <family>Arial</family>
-                   <pointsize>10</pointsize>
-                   <weight>75</weight>
-                   <italic>true</italic>
-                   <bold>true</bold>
-                  </font>
-                 </property>
-                 <property name="text">
-                  <string>Connect</string>
-                 </property>
-                </widget>
-               </item>
-              </layout>
-             </item>
-            </layout>
-           </item>
-          </layout>
-         </item>
-         <item row="1" column="0">
+        <layout class="QGridLayout" name="gridLayout_3">
+         <item row="0" column="0">
           <widget class="QLabel" name="label_26">
            <property name="font">
             <font>
@@ -2047,6 +1524,568 @@
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <layout class="QHBoxLayout" name="horizontalLayout_16">
+           <item>
+            <layout class="QVBoxLayout" name="verticalLayout_7">
+             <item>
+              <widget class="QLabel" name="label_6">
+               <property name="font">
+                <font>
+                 <family>Arial</family>
+                 <pointsize>10</pointsize>
+                 <weight>75</weight>
+                 <italic>true</italic>
+                 <bold>true</bold>
+                </font>
+               </property>
+               <property name="text">
+                <string>Set Voltage</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignCenter</set>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <layout class="QHBoxLayout" name="horizontalLayout_15">
+               <item>
+                <widget class="QLineEdit" name="SetVoltageLine"/>
+               </item>
+               <item>
+                <widget class="QLabel" name="label_21">
+                 <property name="font">
+                  <font>
+                   <family>Arial</family>
+                   <pointsize>9</pointsize>
+                   <weight>75</weight>
+                   <italic>true</italic>
+                   <bold>true</bold>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>V</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+             <item>
+              <widget class="QPushButton" name="SetVoltageButton">
+               <property name="text">
+                <string>Set</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <layout class="QVBoxLayout" name="verticalLayout_6">
+               <item>
+                <layout class="QHBoxLayout" name="horizontalLayout_12">
+                 <item>
+                  <widget class="QLabel" name="label_31">
+                   <property name="text">
+                    <string>Polarity:</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QRadioButton" name="HVradioPlus">
+                   <property name="text">
+                    <string>+</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QRadioButton" name="HVradioMinus">
+                   <property name="text">
+                    <string>-</string>
+                   </property>
+                   <property name="checked">
+                    <bool>true</bool>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+               <item>
+                <widget class="QCheckBox" name="AlwaysNegative">
+                 <property name="text">
+                  <string>Always Negative</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <spacer name="horizontalSpacer">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>40</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item>
+            <layout class="QVBoxLayout" name="verticalLayout_4">
+             <item>
+              <layout class="QHBoxLayout" name="horizontalLayout_10">
+               <item>
+                <widget class="QLabel" name="label_8">
+                 <property name="palette">
+                  <palette>
+                   <active>
+                    <colorrole role="Text">
+                     <brush brushstyle="SolidPattern">
+                      <color alpha="255">
+                       <red>85</red>
+                       <green>0</green>
+                       <blue>0</blue>
+                      </color>
+                     </brush>
+                    </colorrole>
+                   </active>
+                   <inactive>
+                    <colorrole role="Text">
+                     <brush brushstyle="SolidPattern">
+                      <color alpha="255">
+                       <red>0</red>
+                       <green>0</green>
+                       <blue>0</blue>
+                      </color>
+                     </brush>
+                    </colorrole>
+                   </inactive>
+                   <disabled>
+                    <colorrole role="Text">
+                     <brush brushstyle="SolidPattern">
+                      <color alpha="255">
+                       <red>120</red>
+                       <green>120</green>
+                       <blue>120</blue>
+                      </color>
+                     </brush>
+                    </colorrole>
+                   </disabled>
+                  </palette>
+                 </property>
+                 <property name="font">
+                  <font>
+                   <family>Arial</family>
+                   <pointsize>12</pointsize>
+                   <weight>75</weight>
+                   <italic>true</italic>
+                   <bold>true</bold>
+                   <kerning>false</kerning>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>Voltage</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QLineEdit" name="DisplayVoltageLine">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
+                 <property name="palette">
+                  <palette>
+                   <active>
+                    <colorrole role="Text">
+                     <brush brushstyle="SolidPattern">
+                      <color alpha="255">
+                       <red>85</red>
+                       <green>0</green>
+                       <blue>0</blue>
+                      </color>
+                     </brush>
+                    </colorrole>
+                   </active>
+                   <inactive>
+                    <colorrole role="Text">
+                     <brush brushstyle="SolidPattern">
+                      <color alpha="255">
+                       <red>0</red>
+                       <green>0</green>
+                       <blue>0</blue>
+                      </color>
+                     </brush>
+                    </colorrole>
+                   </inactive>
+                   <disabled>
+                    <colorrole role="Text">
+                     <brush brushstyle="SolidPattern">
+                      <color alpha="255">
+                       <red>154</red>
+                       <green>0</green>
+                       <blue>0</blue>
+                      </color>
+                     </brush>
+                    </colorrole>
+                   </disabled>
+                  </palette>
+                 </property>
+                 <property name="font">
+                  <font>
+                   <family>Arial</family>
+                   <pointsize>12</pointsize>
+                   <weight>75</weight>
+                   <italic>true</italic>
+                   <bold>true</bold>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string/>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QLabel" name="label_20">
+                 <property name="palette">
+                  <palette>
+                   <active>
+                    <colorrole role="Text">
+                     <brush brushstyle="SolidPattern">
+                      <color alpha="255">
+                       <red>85</red>
+                       <green>0</green>
+                       <blue>0</blue>
+                      </color>
+                     </brush>
+                    </colorrole>
+                   </active>
+                   <inactive>
+                    <colorrole role="Text">
+                     <brush brushstyle="SolidPattern">
+                      <color alpha="255">
+                       <red>0</red>
+                       <green>0</green>
+                       <blue>0</blue>
+                      </color>
+                     </brush>
+                    </colorrole>
+                   </inactive>
+                   <disabled>
+                    <colorrole role="Text">
+                     <brush brushstyle="SolidPattern">
+                      <color alpha="255">
+                       <red>120</red>
+                       <green>120</green>
+                       <blue>120</blue>
+                      </color>
+                     </brush>
+                    </colorrole>
+                   </disabled>
+                  </palette>
+                 </property>
+                 <property name="font">
+                  <font>
+                   <family>Arial</family>
+                   <pointsize>12</pointsize>
+                   <weight>75</weight>
+                   <italic>true</italic>
+                   <bold>true</bold>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>V</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+             <item>
+              <layout class="QHBoxLayout" name="horizontalLayout_11">
+               <item>
+                <widget class="QLabel" name="label_18">
+                 <property name="palette">
+                  <palette>
+                   <active>
+                    <colorrole role="Text">
+                     <brush brushstyle="SolidPattern">
+                      <color alpha="255">
+                       <red>85</red>
+                       <green>0</green>
+                       <blue>0</blue>
+                      </color>
+                     </brush>
+                    </colorrole>
+                   </active>
+                   <inactive>
+                    <colorrole role="Text">
+                     <brush brushstyle="SolidPattern">
+                      <color alpha="255">
+                       <red>0</red>
+                       <green>0</green>
+                       <blue>0</blue>
+                      </color>
+                     </brush>
+                    </colorrole>
+                   </inactive>
+                   <disabled>
+                    <colorrole role="Text">
+                     <brush brushstyle="SolidPattern">
+                      <color alpha="255">
+                       <red>120</red>
+                       <green>120</green>
+                       <blue>120</blue>
+                      </color>
+                     </brush>
+                    </colorrole>
+                   </disabled>
+                  </palette>
+                 </property>
+                 <property name="font">
+                  <font>
+                   <family>Arial</family>
+                   <pointsize>12</pointsize>
+                   <weight>75</weight>
+                   <italic>true</italic>
+                   <bold>true</bold>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>Current</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QLineEdit" name="DisplayCurrentLine">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
+                 <property name="palette">
+                  <palette>
+                   <active>
+                    <colorrole role="Text">
+                     <brush brushstyle="SolidPattern">
+                      <color alpha="255">
+                       <red>106</red>
+                       <green>0</green>
+                       <blue>0</blue>
+                      </color>
+                     </brush>
+                    </colorrole>
+                   </active>
+                   <inactive>
+                    <colorrole role="Text">
+                     <brush brushstyle="SolidPattern">
+                      <color alpha="255">
+                       <red>106</red>
+                       <green>0</green>
+                       <blue>0</blue>
+                      </color>
+                     </brush>
+                    </colorrole>
+                   </inactive>
+                   <disabled>
+                    <colorrole role="Text">
+                     <brush brushstyle="SolidPattern">
+                      <color alpha="255">
+                       <red>154</red>
+                       <green>0</green>
+                       <blue>0</blue>
+                      </color>
+                     </brush>
+                    </colorrole>
+                   </disabled>
+                  </palette>
+                 </property>
+                 <property name="font">
+                  <font>
+                   <family>Arial</family>
+                   <pointsize>12</pointsize>
+                   <weight>75</weight>
+                   <italic>true</italic>
+                   <bold>true</bold>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string/>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QLabel" name="label_19">
+                 <property name="palette">
+                  <palette>
+                   <active>
+                    <colorrole role="Text">
+                     <brush brushstyle="SolidPattern">
+                      <color alpha="255">
+                       <red>85</red>
+                       <green>0</green>
+                       <blue>0</blue>
+                      </color>
+                     </brush>
+                    </colorrole>
+                   </active>
+                   <inactive>
+                    <colorrole role="Text">
+                     <brush brushstyle="SolidPattern">
+                      <color alpha="255">
+                       <red>0</red>
+                       <green>0</green>
+                       <blue>0</blue>
+                      </color>
+                     </brush>
+                    </colorrole>
+                   </inactive>
+                   <disabled>
+                    <colorrole role="Text">
+                     <brush brushstyle="SolidPattern">
+                      <color alpha="255">
+                       <red>120</red>
+                       <green>120</green>
+                       <blue>120</blue>
+                      </color>
+                     </brush>
+                    </colorrole>
+                   </disabled>
+                  </palette>
+                 </property>
+                 <property name="font">
+                  <font>
+                   <family>Arial</family>
+                   <pointsize>12</pointsize>
+                   <weight>75</weight>
+                   <italic>true</italic>
+                   <bold>true</bold>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>A</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <spacer name="horizontalSpacer_8">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>40</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item>
+            <layout class="QGridLayout" name="gridLayout_7">
+             <item row="0" column="0">
+              <widget class="QComboBox" name="COMPorts"/>
+             </item>
+             <item row="0" column="1" rowspan="2">
+              <widget class="QPushButton" name="COMRescanButton">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="text">
+                <string>Rescan</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="0">
+              <widget class="QComboBox" name="BaudRate">
+               <item>
+                <property name="text">
+                 <string>9600</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>2400</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>4800</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>19200</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>38400</string>
+                </property>
+               </item>
+              </widget>
+             </item>
+             <item row="2" column="0" colspan="2">
+              <widget class="QPushButton" name="HVConnectButton">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Minimum" vsizetype="Maximum">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>40</height>
+                </size>
+               </property>
+               <property name="font">
+                <font>
+                 <family>Arial</family>
+                 <pointsize>10</pointsize>
+                 <weight>75</weight>
+                 <italic>true</italic>
+                 <bold>true</bold>
+                </font>
+               </property>
+               <property name="text">
+                <string>Connect</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+          </layout>
+         </item>
+         <item row="2" column="0">
+          <widget class="QLabel" name="label_22">
+           <property name="font">
+            <font>
+             <family>Arial</family>
+             <pointsize>12</pointsize>
+             <weight>75</weight>
+             <italic>true</italic>
+             <bold>true</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string>Terminal</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="0">
+          <widget class="QPlainTextEdit" name="COMTerminalWindow">
+           <property name="enabled">
+            <bool>false</bool>
            </property>
           </widget>
          </item>

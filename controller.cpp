@@ -25,6 +25,9 @@ Controller::Controller(QObject *parent) :
 
     // High Voltage Block ----------------------------------
     HighVoltage = new QSerialPort(this);
+    HighVoltageTimer = new QTimer(this);
+    HighVoltageTimer->setInterval(3000);
+    connect(HighVoltageTimer, SIGNAL(timeout()), this, SLOT(UpdateHighVoltageData()));
 }
 
 Controller::~Controller()
@@ -238,7 +241,14 @@ bool Controller::ConnectHV(const QString& name, int baud)
     HighVoltage->setStopBits(QSerialPort::OneStop);
     HighVoltage->setFlowControl(QSerialPort::NoFlowControl);
 
-    return HighVoltage->open(QIODevice::ReadWrite);
+    HighVoltage->open(QIODevice::ReadWrite);
+    if (HVConnented()) {
+        HighVoltageTimer->start();
+        return true;
+    } else {
+        HighVoltageTimer->stop();
+        return false;
+    }
 }
 
 bool Controller::HVConnented()
@@ -248,7 +258,58 @@ bool Controller::HVConnented()
 
 void Controller::DisconnectHV()
 {
+    HighVoltageTimer->stop();
     HighVoltage->close();
 }
 
+QByteArray Controller::GetHV()
+{
+    QByteArray dataToSend("u2");
+    HighVoltage->clear();
+    dataToSend.append("\r\n");
+    HighVoltage->write(dataToSend);
 
+    HighVoltage->waitForReadyRead(500);
+    return HighVoltage->readAll();
+}
+
+QByteArray Controller::GetHVCurrent()
+{
+    QByteArray dataToSend("i2");
+    HighVoltage->clear();
+    dataToSend.append("\r\n");
+    HighVoltage->write(dataToSend);
+
+    HighVoltage->waitForReadyRead(500);
+    return HighVoltage->readAll();
+}
+
+
+void Controller::SetHV(int voltage)
+{
+    QByteArray dataToSend("d2=");
+    dataToSend.append(QString::number(voltage));
+    dataToSend.append("\r\n");
+
+    emit WriteToTerminal(dataToSend);
+    HighVoltage->write(dataToSend);
+}
+
+void Controller::SetHVPolarity(QChar p)
+{
+    QByteArray dataToSend("p2=");
+    dataToSend.append(p);
+    dataToSend.append("\r\n");
+
+    SetHV(10);
+    emit WriteToTerminal(dataToSend);
+    HighVoltage->write(dataToSend);
+//    SetHV(0);
+}
+
+void Controller::UpdateHighVoltageData()
+{
+    qDebug() << "Updating...";
+    qDebug() << GetHV();
+    qDebug() << GetHVCurrent();
+}
