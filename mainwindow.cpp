@@ -28,6 +28,9 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(this, SIGNAL(SetHV(int)), hardware, SLOT(SetHV(int)));
     connect(this, SIGNAL(SetHVPolarity(QChar)), hardware, SLOT(SetHVPolarity(QChar)));
     connect(hardware, SIGNAL(WriteToTerminal(QString)), ui->COMTerminalWindow, SLOT(appendPlainText(QString)));
+
+    connect(hardware, SIGNAL(MagnetConnected()), this, SLOT(MagnetConnected()));
+    connect(hardware, SIGNAL(MagnetDataReceived(float,float)), this, SLOT(UpdateMagnetPanel(float,float)));
 }
 
 MainWindow::~MainWindow()
@@ -44,6 +47,12 @@ void MainWindow::SetValidators()
 
     QIntValidator* highVoltageValidator = new QIntValidator(0, 3400, this);
     ui->SetVoltageLine->setValidator(highVoltageValidator);
+
+//    QDoubleValidator* magnetVoltageValidator = new QDoubleValidator(0, 18., 2, this);
+//    ui->SetMagnetVoltageLine->setValidator(magnetVoltageValidator);
+
+//    QDoubleValidator* magnetCurrentValidator = new QDoubleValidator(0, 50., 2, this);
+//    ui->SetMagnetCurrentLine->setValidator(magnetCurrentValidator);
 }
 
 int MainWindow::ValidatePulsesWidth(float width_us)
@@ -320,3 +329,56 @@ void MainWindow::on_HVradioMinus_clicked()
     emit SetHVPolarity('-');
 }
 
+
+void MainWindow::on_MagnetConnectButton_clicked()
+{
+    if (!(hardware->IsMagnetConnected())) {
+        hardware->SetMagnetIPAddress(ui->MagnetIPLine->text());
+        hardware->ConnectMagnet();
+    }
+}
+
+void MainWindow::MagnetConnected()
+{
+    ui->MagnetConnectLabel->setText("   Connected   ");
+    ui->MagnetConnectButton->setEnabled(false);
+}
+
+void MainWindow::UpdateMagnetPanel(float u, float i)
+{
+    ui->DisplayMagnetVoltageLine->setText(QString::number(u));
+    ui->DisplayMagnetCurrentLine->setText(QString::number(i));
+}
+
+void MainWindow::on_SetMagnetVoltageButton_clicked()
+{
+    hardware->SetMagnetVoltage(ui->SetMagnetVoltageLine->text().toFloat());
+}
+
+void MainWindow::on_SetMagnetCurrentButton_clicked()
+{
+    hardware->SetMagnetCurrent(ui->SetMagnetCurrentLine->text().toFloat());
+}
+
+void MainWindow::on_SetMagnetVoltageLine_textChanged(const QString &arg1)
+{
+    if (arg1.toFloat() < 0.) ui->SetMagnetVoltageLine->setText(QString::number(0.));
+    if (arg1.toFloat() > 18.) ui->SetMagnetVoltageLine->setText(QString::number(18.));
+}
+
+void MainWindow::on_SetMagnetCurrentLine_textChanged(const QString &arg1)
+{
+    if (arg1.toFloat() < 0.) ui->SetMagnetCurrentLine->setText(QString::number(0.));
+    if (arg1.toFloat() > 50.) ui->SetMagnetCurrentLine->setText(QString::number(50.));
+}
+
+void MainWindow::on_MagnetOnOffButton_clicked()
+{
+    if (hardware->MagnetOutputStatus() == true) {
+        hardware->MagnetOutputOff();
+        ui->MagnetOnOffButton->setText("Output On");
+    } else {
+        hardware->MagnetOutputOn();
+        ui->MagnetOnOffButton->setText("Output Off");
+    }
+}

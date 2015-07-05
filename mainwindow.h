@@ -66,6 +66,22 @@ private slots:
 
     void on_HVradioMinus_clicked();
 
+    void on_MagnetConnectButton_clicked();
+
+    void MagnetConnected();
+
+    void UpdateMagnetPanel(float u, float i);
+
+    void on_SetMagnetVoltageButton_clicked();
+
+    void on_SetMagnetVoltageLine_textChanged(const QString &arg1);
+
+    void on_SetMagnetCurrentLine_textChanged(const QString &arg1);
+
+    void on_SetMagnetCurrentButton_clicked();
+
+    void on_MagnetOnOffButton_clicked();
+
 private:
     Ui::MainWindow *ui;
     Controller *hardware;

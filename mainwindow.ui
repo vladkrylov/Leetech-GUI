@@ -859,7 +859,7 @@
             </widget>
            </item>
            <item>
-            <widget class="QLabel" name="ConnectLabel_2">
+            <widget class="QLabel" name="MagnetConnectLabel">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
                <horstretch>0</horstretch>
@@ -933,6 +933,19 @@
              </property>
              <property name="text">
               <string>Connect</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="MagnetOnOffButton">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="text">
+              <string>Output On</string>
              </property>
             </widget>
            </item>
@@ -1102,6 +1115,13 @@
                </property>
                <property name="text">
                 <string>V</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="SetMagnetVoltageButton">
+               <property name="text">
+                <string>Set</string>
                </property>
               </widget>
              </item>
@@ -1337,6 +1357,13 @@
                </property>
                <property name="text">
                 <string>A</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="SetMagnetCurrentButton">
+               <property name="text">
+                <string>Set</string>
                </property>
               </widget>
              </item>
