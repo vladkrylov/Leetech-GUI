@@ -25,10 +25,6 @@ Controller::Controller(QObject *parent) :
 
     // High Voltage Block ----------------------------------
     HighVoltage = new QSerialPort(this);
-    HighVoltageTimer = new QTimer(this);
-    HighVoltageTimer->setInterval(3000);
-    connect(HighVoltageTimer, SIGNAL(timeout()), this, SLOT(UpdateHighVoltageData()));
-
 
     // Magnet Power Supply
     magnet = new QTcpSocket(this);
@@ -255,10 +251,8 @@ bool Controller::ConnectHV(const QString& name, int baud)
 
     HighVoltage->open(QIODevice::ReadWrite);
     if (HVConnented()) {
-        HighVoltageTimer->start();
         return true;
     } else {
-        HighVoltageTimer->stop();
         return false;
     }
 }
@@ -270,7 +264,6 @@ bool Controller::HVConnented()
 
 void Controller::DisconnectHV()
 {
-    HighVoltageTimer->stop();
     HighVoltage->close();
 }
 
@@ -280,9 +273,10 @@ QByteArray Controller::GetHV()
     HighVoltage->clear();
     dataToSend.append("\r\n");
     HighVoltage->write(dataToSend);
+    HighVoltage->waitForBytesWritten(3000);
 
-    HighVoltage->waitForReadyRead(500);
-    return HighVoltage->readAll();
+    HighVoltage->waitForReadyRead(3000);
+    return HighVoltage->readAll().simplified().replace(" ", "");
 }
 
 QByteArray Controller::GetHVCurrent()
@@ -291,9 +285,10 @@ QByteArray Controller::GetHVCurrent()
     HighVoltage->clear();
     dataToSend.append("\r\n");
     HighVoltage->write(dataToSend);
+    HighVoltage->waitForBytesWritten(500);
 
     HighVoltage->waitForReadyRead(500);
-    return HighVoltage->readAll();
+    return HighVoltage->readAll().simplified().replace(" ", "");
 }
 
 
@@ -321,8 +316,7 @@ void Controller::SetHVPolarity(QChar p)
 
 void Controller::UpdateHighVoltageData()
 {
-    qDebug() << "Updating...";
-    qDebug() << GetHV();
+//    qDebug() << GetHV();
     qDebug() << GetHVCurrent();
 }
 

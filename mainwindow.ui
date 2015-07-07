@@ -1715,7 +1715,7 @@
                 </widget>
                </item>
                <item>
-                <widget class="QLineEdit" name="DisplayVoltageLine">
+                <widget class="QLineEdit" name="DisplayHVVoltageLine">
                  <property name="enabled">
                   <bool>false</bool>
                  </property>
@@ -1887,7 +1887,7 @@
                 </widget>
                </item>
                <item>
-                <widget class="QLineEdit" name="DisplayCurrentLine">
+                <widget class="QLineEdit" name="DisplayHVCurrentLine">
                  <property name="enabled">
                   <bool>false</bool>
                  </property>
@@ -1998,6 +1998,13 @@
                  </property>
                  <property name="text">
                   <string>A</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="UpdateHVCurrent">
+                 <property name="text">
+                  <string>Update</string>
                  </property>
                 </widget>
                </item>

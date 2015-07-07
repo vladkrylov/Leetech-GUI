@@ -382,3 +382,8 @@ void MainWindow::on_MagnetOnOffButton_clicked()
         ui->MagnetOnOffButton->setText("Output Off");
     }
 }
+
+void MainWindow::on_UpdateHVCurrent_clicked()
+{
+    ui->DisplayHVCurrentLine->setText(hardware->GetHVCurrent());
+}

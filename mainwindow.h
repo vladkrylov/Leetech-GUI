@@ -82,6 +82,8 @@ private slots:
 
     void on_MagnetOnOffButton_clicked();
 
+    void on_UpdateHVCurrent_clicked();
+
 private:
     Ui::MainWindow *ui;
     Controller *hardware;

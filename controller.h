@@ -66,7 +66,6 @@ private:
     Trajectory* traj;
 
     QSerialPort* HighVoltage;
-    QTimer* HighVoltageTimer;
 
     QTcpSocket* magnet;
     QString magnetIP;
