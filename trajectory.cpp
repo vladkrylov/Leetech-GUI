@@ -10,6 +10,10 @@ Trajectory::Trajectory(QObject *parent) :
     state = UNKNOWN;
     indicators = QStringList() << "times" << "usignal" << "coords";
     indicators << "set_id=" << "motor_id=" << "dest=" << "prec=";
+
+    times = NULL;
+    uSignal = NULL;
+    coordinates = NULL;
 }
 
 Trajectory::~Trajectory()
@@ -107,9 +111,9 @@ void Trajectory::CleanArrays()
     state = UNKNOWN;
     length = 0;
 
-    delete[] times;
-    delete[] uSignal;
-    delete[] coordinates;
+    if (times) delete[] times;
+    if (uSignal) delete[] uSignal;
+    if (coordinates) delete[] coordinates;
 }
 
 int Trajectory::AllDataReceived()

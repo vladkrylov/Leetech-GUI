@@ -18,6 +18,10 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
+signals:
+    void SetHV(int voltage);
+    void SetHVPolarity(QChar p);
+
 private slots:
     void MotorCoordinateChanged(int setID, int motorID, uint16_t newCoordinate);
 
@@ -25,21 +29,11 @@ private slots:
 
     void on_TestButton_clicked();
 
-//    void on_TestButton_2_clicked();
-
     void on_PulsesButton_clicked();
 
     void on_PeriodSpinBox_valueChanged(const QString &arg1);
 
     void on_WidthSpinBox_valueChanged(const QString &arg1);
-
-//    void on_TestForceButton_clicked();
-
-//    void on_StopForceTestButton_clicked();
-
-//    void on_GetCoordinateButton_clicked();
-
-//    void on_LWIP_bug_clicked();
 
     void on_GoButton_clicked();
 
@@ -57,6 +51,36 @@ private slots:
 
     void Connected();
     void Disconnected();
+
+    void on_SetVoltageButton_clicked();
+
+    void on_HVConnectButton_clicked();
+
+    void on_COMRescanButton_clicked();
+
+    void on_SetVoltageLine_returnPressed();
+
+    void on_AlwaysNegative_clicked();
+
+    void on_HVradioPlus_clicked();
+
+    void on_HVradioMinus_clicked();
+
+    void on_MagnetConnectButton_clicked();
+
+    void MagnetConnected();
+
+    void UpdateMagnetPanel(float u, float i);
+
+    void on_SetMagnetVoltageButton_clicked();
+
+    void on_SetMagnetVoltageLine_textChanged(const QString &arg1);
+
+    void on_SetMagnetCurrentLine_textChanged(const QString &arg1);
+
+    void on_SetMagnetCurrentButton_clicked();
+
+    void on_MagnetOnOffButton_clicked();
 
 private:
     Ui::MainWindow *ui;

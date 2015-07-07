@@ -1,11 +1,14 @@
 #include "controller.h"
+
 #include <QDebug>
+#include <QtSerialPort/QSerialPortInfo>
 
 const int N_sets = 2;
 
 Controller::Controller(QObject *parent) :
     QObject(parent)
 {
+    // Collimators -----------------------------------------
     PCB = new IP_Connection();
     TestObject = new Tests(this, PCB);
 
@@ -19,11 +22,30 @@ Controller::Controller(QObject *parent) :
     connect(PCB, SIGNAL(Connected()), this, SIGNAL(Connected()));
     connect(PCB, SIGNAL(Disconnected()), this, SIGNAL(Disconnected()));
     connect(PCB, SIGNAL(dataReceived()), this, SLOT(dataReceived()));
+
+    // High Voltage Block ----------------------------------
+    HighVoltage = new QSerialPort(this);
+    HighVoltageTimer = new QTimer(this);
+    HighVoltageTimer->setInterval(3000);
+    connect(HighVoltageTimer, SIGNAL(timeout()), this, SLOT(UpdateHighVoltageData()));
+
+
+    // Magnet Power Supply
+    magnet = new QTcpSocket(this);
+    magnetPort = 8462;
+    connect(magnet, SIGNAL(connected()), this, SIGNAL(MagnetConnected()));
+
+
+    magnetTimer = new QTimer(this);
+    magnetTimer->setInterval(2000);
+    connect(magnet, SIGNAL(connected()), magnetTimer, SLOT(start()));
+    connect(magnetTimer, SIGNAL(timeout()), this, SLOT(UpdateMagnetData()));
 }
 
 Controller::~Controller()
 {
     delete PCB;
+
     delete TestObject;
 
     delete traj;
@@ -211,5 +233,186 @@ QByteArray Controller::InitResponse()
         res.append((char)3*i);
     }
     return res;
+}
+
+QStringList Controller::GetSerialPorts()
+{
+    QStringList COMNamesAvailable;
+    foreach (const QSerialPortInfo &info, QSerialPortInfo::availablePorts()) {
+        COMNamesAvailable << info.portName();
+    }
+    return COMNamesAvailable;
+}
+
+bool Controller::ConnectHV(const QString& name, int baud)
+{
+    HighVoltage->setPortName(name);
+    HighVoltage->setBaudRate(baud);
+    HighVoltage->setDataBits(QSerialPort::Data8);
+    HighVoltage->setParity(QSerialPort::NoParity);
+    HighVoltage->setStopBits(QSerialPort::OneStop);
+    HighVoltage->setFlowControl(QSerialPort::NoFlowControl);
+
+    HighVoltage->open(QIODevice::ReadWrite);
+    if (HVConnented()) {
+        HighVoltageTimer->start();
+        return true;
+    } else {
+        HighVoltageTimer->stop();
+        return false;
+    }
+}
+
+bool Controller::HVConnented()
+{
+    return HighVoltage->isOpen();
+}
+
+void Controller::DisconnectHV()
+{
+    HighVoltageTimer->stop();
+    HighVoltage->close();
+}
+
+QByteArray Controller::GetHV()
+{
+    QByteArray dataToSend("u2");
+    HighVoltage->clear();
+    dataToSend.append("\r\n");
+    HighVoltage->write(dataToSend);
+
+    HighVoltage->waitForReadyRead(500);
+    return HighVoltage->readAll();
+}
+
+QByteArray Controller::GetHVCurrent()
+{
+    QByteArray dataToSend("i2");
+    HighVoltage->clear();
+    dataToSend.append("\r\n");
+    HighVoltage->write(dataToSend);
+
+    HighVoltage->waitForReadyRead(500);
+    return HighVoltage->readAll();
+}
+
+
+void Controller::SetHV(int voltage)
+{
+    QByteArray dataToSend("d2=");
+    dataToSend.append(QString::number(voltage));
+    dataToSend.append("\r\n");
+
+    emit WriteToTerminal(dataToSend);
+    HighVoltage->write(dataToSend);
+}
+
+void Controller::SetHVPolarity(QChar p)
+{
+    QByteArray dataToSend("p2=");
+    dataToSend.append(p);
+    dataToSend.append("\r\n");
+
+    SetHV(10);
+    emit WriteToTerminal(dataToSend);
+    HighVoltage->write(dataToSend);
+//    SetHV(0);
+}
+
+void Controller::UpdateHighVoltageData()
+{
+    qDebug() << "Updating...";
+    qDebug() << GetHV();
+    qDebug() << GetHVCurrent();
+}
+
+bool Controller::IsMagnetConnected()
+{
+    return magnet->isOpen();
+}
+
+bool Controller::ConnectMagnet()
+{
+    magnet->connectToHost(magnetIP, magnetPort);
+    bool res = magnet->waitForConnected(1000);
+
+    return res;
+}
+
+void Controller::SetMagnetIPAddress(const QString &ipaddress)
+{
+    magnetIP = ipaddress;
+}
+
+void Controller::UpdateMagnetData()
+{
+    float u, i;
+    if (IsMagnetConnected()) {
+        // get voltage
+        magnet->write("measure:voltage?\r\n");
+        magnet->waitForBytesWritten();
+
+        magnet->waitForReadyRead();
+        QString resp = magnet->readAll();
+        u = resp.toFloat();
+
+        // get current
+        magnet->write("measure:current?\r\n");
+        magnet->waitForBytesWritten();
+
+        magnet->waitForReadyRead();
+        resp = magnet->readAll();
+        i = resp.toFloat();
+        emit MagnetDataReceived(u, i);
+    }
+}
+
+void Controller::SetMagnetVoltage(float u)
+{
+    if (IsMagnetConnected()) {
+        QString dataToSend = QString("source:voltage ") + QString::number(u) + "\r\n";
+        magnet->write(dataToSend.toUtf8().constData());
+        magnet->waitForBytesWritten();
+    }
+}
+
+void Controller::SetMagnetCurrent(float i)
+{
+    if (IsMagnetConnected()) {
+        QString dataToSend = QString("source:current ") + QString::number(i) + "\r\n";
+        magnet->write(dataToSend.toUtf8().constData());
+        magnet->waitForBytesWritten();
+    }
+}
+
+bool Controller::MagnetOutputStatus()
+{
+    QString resp;
+    bool status = false;
+    if (IsMagnetConnected()) {
+        magnet->write("output?\r\n");
+        magnet->waitForBytesWritten();
+
+        magnet->waitForReadyRead();
+        resp = magnet->readAll();
+        if (resp.toInt()) status = true;
+    }
+    return status;
+}
+
+void Controller::MagnetOutputOn()
+{
+    if (IsMagnetConnected()) {
+        magnet->write("output 1\r\n");
+        magnet->waitForBytesWritten();
+    }
+}
+
+void Controller::MagnetOutputOff()
+{
+    if (IsMagnetConnected()) {
+        magnet->write("output 0\r\n");
+        magnet->waitForBytesWritten();
+    }
 }
 
