@@ -24,10 +24,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(hardware, SIGNAL(Disconnected()), this, SLOT(Disconnected()));
     on_SelectEntranceRadio_clicked();
 
-    on_COMRescanButton_clicked();
     connect(this, SIGNAL(SetHV(int)), hardware, SLOT(SetHV(int)));
     connect(this, SIGNAL(SetHVPolarity(QChar)), hardware, SLOT(SetHVPolarity(QChar)));
-    connect(hardware, SIGNAL(WriteToTerminal(QString)), ui->COMTerminalWindow, SLOT(appendPlainText(QString)));
 
     connect(hardware, SIGNAL(MagnetConnected()), this, SLOT(MagnetConnected()));
     connect(hardware, SIGNAL(MagnetDataReceived(float,float)), this, SLOT(UpdateMagnetPanel(float,float)));
@@ -44,9 +42,6 @@ void MainWindow::SetValidators()
 {
     coordValidator = new QDoubleValidator( 0, 14.999, 2, this );
     ui->CoordinateLineEdit->setValidator(coordValidator);
-
-    QIntValidator* highVoltageValidator = new QIntValidator(0, 3400, this);
-    ui->SetVoltageLine->setValidator(highVoltageValidator);
 
 //    QDoubleValidator* magnetVoltageValidator = new QDoubleValidator(0, 18., 2, this);
 //    ui->SetMagnetVoltageLine->setValidator(magnetVoltageValidator);
@@ -260,76 +255,6 @@ void MainWindow::on_SelectExit1Radio_clicked()
     qDebug() << "Exit 1 has been chosen";
 }
 
-void MainWindow::on_HVConnectButton_clicked()
-{
-    QString name = ui->COMPorts->currentText();
-    int baud = ui->BaudRate->currentText().toInt();
-
-    if (!hardware->HVConnented()) {
-        if (hardware->ConnectHV(name, baud)) {
-            ui->COMTerminalWindow->setEnabled(true);
-            ui->HVConnectButton->setText("Disconnect");
-        } else {
-            ui->COMTerminalWindow->appendPlainText("Error! Cannot connect to serial port.");
-        }
-    } else {
-        hardware->DisconnectHV();
-        ui->HVConnectButton->setText("Connect");
-    }
-}
-
-
-void MainWindow::on_COMRescanButton_clicked()
-{
-    QString portPreferred = "COM3";
-
-    ui->COMPorts->clear();
-    QStringList portsAvailable = hardware->GetSerialPorts();
-    ui->COMPorts->addItems(portsAvailable);
-
-    int index = ui->COMPorts->findText(portPreferred);
-    if (index != -1) {
-        ui->COMPorts->setCurrentIndex(index);
-    }
-}
-
-void MainWindow::on_SetVoltageButton_clicked()
-{
-    on_SetVoltageLine_returnPressed();
-}
-
-void MainWindow::on_SetVoltageLine_returnPressed()
-{
-    int voltage = ui->SetVoltageLine->text().toInt();
-    emit SetHV(voltage);
-}
-
-void MainWindow::on_AlwaysNegative_clicked()
-{
-    if (ui->AlwaysNegative->isChecked()) {
-        ui->HVradioMinus->setEnabled(false);\
-        ui->HVradioPlus->setEnabled(false);
-        emit SetHVPolarity('-');
-    } else {
-        ui->HVradioMinus->setEnabled(true);\
-        ui->HVradioPlus->setEnabled(true);
-
-        if (ui->HVradioPlus->isChecked())
-            on_HVradioPlus_clicked();
-    }
-}
-
-void MainWindow::on_HVradioPlus_clicked()
-{
-    emit SetHVPolarity('+');
-}
-
-void MainWindow::on_HVradioMinus_clicked()
-{
-    emit SetHVPolarity('-');
-}
-
-
 void MainWindow::on_MagnetConnectButton_clicked()
 {
     if (!(hardware->IsMagnetConnected())) {
@@ -383,7 +308,3 @@ void MainWindow::on_MagnetOnOffButton_clicked()
     }
 }
 
-void MainWindow::on_UpdateHVCurrent_clicked()
-{
-    ui->DisplayHVCurrentLine->setText(hardware->GetHVCurrent());
-}

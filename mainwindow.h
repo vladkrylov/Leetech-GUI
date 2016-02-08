@@ -52,20 +52,6 @@ private slots:
     void Connected();
     void Disconnected();
 
-    void on_SetVoltageButton_clicked();
-
-    void on_HVConnectButton_clicked();
-
-    void on_COMRescanButton_clicked();
-
-    void on_SetVoltageLine_returnPressed();
-
-    void on_AlwaysNegative_clicked();
-
-    void on_HVradioPlus_clicked();
-
-    void on_HVradioMinus_clicked();
-
     void on_MagnetConnectButton_clicked();
 
     void MagnetConnected();
@@ -81,8 +67,6 @@ private slots:
     void on_SetMagnetCurrentButton_clicked();
 
     void on_MagnetOnOffButton_clicked();
-
-    void on_UpdateHVCurrent_clicked();
 
 private:
     Ui::MainWindow *ui;
