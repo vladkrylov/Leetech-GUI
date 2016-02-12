@@ -3,10 +3,11 @@
 
 #include <stdint.h>
 #include <QObject>
-
 #include <QString>
 #include <QByteArray>
 #include <QDebug>
+
+#include "m_errors.h"
 
 #define pBINARY 2
 
@@ -33,9 +34,9 @@ public:
     void UpdateCoordinate(uint16_t coord);
     void UpdateOrigin(uint16_t coord);
 
-    uint16_t GetPosition();
+    uint16_t GetPosition_mm();
     uint8_t GetSteps2mm();
-    uint16_t GetOrigin();
+    uint16_t GetOrigin_mm();
 
     void ResetSteps2mm();
 

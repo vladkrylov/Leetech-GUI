@@ -1,8 +1,10 @@
-#include "mainwindow.h"
-#include "ui_mainwindow.h"
 #include <QDebug>
 #include <QFile>
 #include <QTextStream>
+
+#include "mainwindow.h"
+#include "ui_mainwindow.h"
+#include "m_errors.h"
 
 const float usPerTimerTick = 0.025;
 const float MAX_PULSE_WIDTH_US = 4.5;
@@ -208,15 +210,21 @@ void MainWindow::on_UpdateCoordinatesButton_clicked()
 
 void MainWindow::MotorCoordinateChanged(int setID, int motorID, uint16_t newCoordinate)
 {
+    QString coord;
+    if (newCoordinate != COORD_ERROR) {
+        coord = CoordToShow(newCoordinate);
+    } else {
+        coord = "No coordinate... Try resetting";
+    }
     if (setID == ChooseCollimatorSet()) {
         if (motorID == 0) {
-            ui->DisplayCoordinate1->setText(CoordToShow(newCoordinate));
+            ui->DisplayCoordinate1->setText(coord);
         } else if (motorID == 1) {
-            ui->DisplayCoordinate2->setText(CoordToShow(newCoordinate));
+            ui->DisplayCoordinate2->setText(coord);
         } else if (motorID == 2) {
-            ui->DisplayCoordinate3->setText(CoordToShow(newCoordinate));
+            ui->DisplayCoordinate3->setText(coord);
         } else if (motorID == 3) {
-            ui->DisplayCoordinate4->setText(CoordToShow(newCoordinate));
+            ui->DisplayCoordinate4->setText(coord);
         }
     }
 }
