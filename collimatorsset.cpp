@@ -34,12 +34,12 @@ void CollimatorsSet::MotorCoordinateChangedSlot(int motorID, uint16_t newCoordin
 
 uint16_t CollimatorsSet::GetMotorOrigin(int motorID)
 {
-    return motors[motorID]->GetOrigin();
+    return motors[motorID]->GetOrigin_mm();
 }
 
 int CollimatorsSet::GetPosition(int motorID)
 {
-    return motors[motorID]->GetPosition();
+    return motors[motorID]->GetPosition_mm();
 }
 
 uint8_t CollimatorsSet::GetSteps2mm(int motorID)

@@ -29,6 +29,7 @@ HEADERS  += mainwindow.h \
     tests.h \
     encoder.h \
     collimatorsset.h \
-    trajectory.h
+    trajectory.h \
+    m_errors.h
 
 FORMS    += mainwindow.ui

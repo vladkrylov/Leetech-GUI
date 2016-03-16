@@ -46,29 +46,42 @@ void Encoder::Update(QByteArray dataFromMaster)
 
 void Encoder::UpdateCoordinate(uint16_t coord)
 {
-    position = coord;
-    steps2mm = position/4096;
+    if (coord != COORD_ERROR) {
+        position = coord;
+        steps2mm = position/4096;
 
-    if (position < origin) {
-        origin = position;
-        position = 0;
+        if (position < origin) {
+            origin = position;
+            position = 0;
+        } else {
+            position -= origin;
+        }
+        emit MotorCoordinateUpdated(GetID(), GetPosition_mm());
     } else {
-        position -= origin;
+        position = COORD_ERROR;
+        origin = 0;
+        steps2mm = 0;
+        emit MotorCoordinateUpdated(GetID(), COORD_ERROR);
     }
 
-    emit MotorCoordinateUpdated(GetID(), GetPosition());
+
 }
 
 void Encoder::UpdateOrigin(uint16_t coord)
 {
-    origin = coord;
-    position = 0;
+    if (coord != COORD_ERROR) {
+        position = 0;
+        origin = coord;
+        emit MotorCoordinateUpdated(GetID(), GetPosition_mm());
+    } else {
+        position = COORD_ERROR;
+        origin = 0;
+        emit MotorCoordinateUpdated(GetID(), COORD_ERROR);
+    }
     steps2mm = 0;
-
-    emit MotorCoordinateUpdated(GetID(), position);
 }
 
-uint16_t Encoder::GetPosition()
+uint16_t Encoder::GetPosition_mm()
 {
     return steps_to_mm(position);
 }
@@ -83,7 +96,7 @@ void Encoder::ResetSteps2mm()
     steps2mm = 0;
 }
 
-uint16_t Encoder::GetOrigin()
+uint16_t Encoder::GetOrigin_mm()
 {
     return steps_to_mm(origin);
 }
