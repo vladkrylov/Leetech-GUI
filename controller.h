@@ -6,7 +6,6 @@
 #include <QtSerialPort/QSerialPort>
 #include <QTcpSocket>
 
-
 #include "ip_connection.h"
 #include "tests.h"
 #include "collimatorsset.h"
@@ -14,6 +13,7 @@
 
 class Tests;
 class IP_Connection;
+class MainWindow;
 
 class Controller : public QObject
 {
@@ -21,6 +21,8 @@ class Controller : public QObject
 public:
     explicit Controller(QObject *parent = 0);
     ~Controller();
+
+    MainWindow *userInterface;
 
     Tests *TestObject;
 
@@ -56,7 +58,7 @@ public:
     void MagnetOutputOff();
 
 private:
-    IP_Connection* PCB;
+    IP_Connection* collMaster;
     CollimatorsSet** colSets;
 
     QString GenerateCoordinate(const QString &coord_mm, int setID, int motorID);
@@ -65,32 +67,24 @@ private:
 
     Trajectory* traj;
 
-    QSerialPort* HighVoltage;
-
     QTcpSocket* magnet;
     QString magnetIP;
     int magnetPort;
     QTimer* magnetTimer;
 
 private slots:
-    void UpdateHighVoltageData();
     void UpdateMagnetData();
 
 signals:
     void MotorCoordinateChanged(int setID, int motorID, uint16_t newCoordinate);
-    void Connected();
-    void Disconnected();
-
-    void WriteToTerminal(QString data);
-    void HighVoltageDataUpdated(float voltage, float current);
+    void CollimatorsConnected();
+    void CollimatorsDisconnected();
 
     void MagnetConnected();
     void MagnetDataReceived(float u, float i);
 
 public slots:
-    void dataReceived();
-    void SetHV(int voltage);
-    void SetHVPolarity(QChar p);
+    void CollimatorsDataReceived();
 
     void SetMagnetVoltage(float u);
     void SetMagnetCurrent(float i);

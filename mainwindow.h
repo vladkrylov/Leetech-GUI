@@ -19,8 +19,6 @@ public:
     ~MainWindow();
 
 signals:
-    void SetHV(int voltage);
-    void SetHVPolarity(QChar p);
 
 private slots:
     void MotorCoordinateChanged(int setID, int motorID, uint16_t newCoordinate);
@@ -49,8 +47,8 @@ private slots:
 
     void on_SelectExit1Radio_clicked();
 
-    void Connected();
-    void Disconnected();
+    void CollimatorsConnected();
+    void CollimatorsDisconnected();
 
     void on_MagnetConnectButton_clicked();
 
@@ -70,7 +68,7 @@ private slots:
 
 private:
     Ui::MainWindow *ui;
-    Controller *hardware;
+//    Controller *hardware;
     QDoubleValidator *coordValidator;
 
     void SetValidators();

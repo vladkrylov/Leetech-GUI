@@ -15,28 +15,25 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    hardware = new Controller();
+//    hardware = new Controller();
     SetValidators();
 
     emit ui->PeriodSpinBox->valueChanged(ui->PeriodSpinBox->text());
     emit ui->WidthSpinBox->valueChanged(ui->WidthSpinBox->text());
 
-    connect(hardware, SIGNAL(MotorCoordinateChanged(int,int,uint16_t)), this, SLOT(MotorCoordinateChanged(int,int,uint16_t)));
-    connect(hardware, SIGNAL(Connected()), this, SLOT(Connected()));
-    connect(hardware, SIGNAL(Disconnected()), this, SLOT(Disconnected()));
-    on_SelectEntranceRadio_clicked();
+//    connect(hardware, SIGNAL(MotorCoordinateChanged(int,int,uint16_t)), this, SLOT(MotorCoordinateChanged(int,int,uint16_t)));
+//    connect(hardware, SIGNAL(CollimatorsConnected()), this, SLOT(CollimatorsConnected()));
+//    connect(hardware, SIGNAL(CollimatorsDisconnected()), this, SLOT(CollimatorsDisconnected()));
+//    on_SelectEntranceRadio_clicked();
 
-    connect(this, SIGNAL(SetHV(int)), hardware, SLOT(SetHV(int)));
-    connect(this, SIGNAL(SetHVPolarity(QChar)), hardware, SLOT(SetHVPolarity(QChar)));
-
-    connect(hardware, SIGNAL(MagnetConnected()), this, SLOT(MagnetConnected()));
-    connect(hardware, SIGNAL(MagnetDataReceived(float,float)), this, SLOT(UpdateMagnetPanel(float,float)));
+//    connect(hardware, SIGNAL(MagnetConnected()), this, SLOT(MagnetConnected()));
+//    connect(hardware, SIGNAL(MagnetDataReceived(float,float)), this, SLOT(UpdateMagnetPanel(float,float)));
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
-    delete hardware;
+//    delete hardware;
     delete coordValidator;
 }
 
@@ -103,30 +100,27 @@ void MainWindow::on_GoButton_clicked()
 
     UnknownCoordinate(set, motor);
     QString crd = ui->CoordinateLineEdit->text();
-    hardware->SetMotorCoordinate(set, motor, crd);
+//    hardware->SetMotorCoordinate(set, motor, crd);
 }
 
 void MainWindow::on_ConnectButton_clicked()
 {
-//    ui->ConnectLabel->setText("   Connecting...   ");
-//    ui->ConnectButton->setEnabled(false);
-
-    if (!(hardware->IsConnected())) {
-        hardware->SetIPAddress(ui->IP_lineEdit->text());
-        hardware->Connect();
-    } else {
-        hardware->Disconnect();
-    }
+//    if (!(hardware->IsConnected())) {
+//        hardware->SetIPAddress(ui->IP_lineEdit->text());
+//        hardware->Connect();
+//    } else {
+//        hardware->Disconnect();
+//    }
     ui->ConnectButton->setEnabled(true);
 }
 
-void MainWindow::Connected()
+void MainWindow::CollimatorsConnected()
 {
     ui->ConnectLabel->setText("   Connected   ");
     ui->ConnectButton->setText("Disconnect");
 }
 
-void MainWindow::Disconnected()
+void MainWindow::CollimatorsDisconnected()
 {
     ui->ConnectLabel->setText("   Disconnected   ");
     ui->ConnectButton->setText("Connect");
@@ -134,18 +128,16 @@ void MainWindow::Disconnected()
 
 void MainWindow::on_TestButton_clicked()
 {
-//    hardware->TestObject->Test(ChooseCollimatorSet(), ChooseMotor());
-//    hardware->TestObject->CollectData(ChooseCollimatorSet(), ChooseMotor(), ui->PeriodSpinBox->text());
-    hardware->dataReceived();
+//    hardware->CollimatorsDataReceived();
 }
 
 void MainWindow::on_PulsesButton_clicked()
 {
-    hardware->SetPulses(ChooseCollimatorSet(),
-                        ChooseMotor(),
-                        ui->WidthSpinBox->text(),
-                        ui->PeriodSpinBox->text()
-                        );
+//    hardware->SetPulses(ChooseCollimatorSet(),
+//                        ChooseMotor(),
+//                        ui->WidthSpinBox->text(),
+//                        ui->PeriodSpinBox->text()
+//                        );
 }
 
 void MainWindow::on_PeriodSpinBox_valueChanged(const QString &arg1)
@@ -191,12 +183,12 @@ void MainWindow::on_ResetOnePushButton_clicked()
     int motor = ChooseMotor();
 
     UnknownCoordinate(set, motor);
-    hardware->Reset(set, motor);
+//    hardware->Reset(set, motor);
 }
 
 void MainWindow::on_ResetAllPushButton_clicked()
 {
-    hardware->ResetAll(ChooseCollimatorSet());
+//    hardware->ResetAll(ChooseCollimatorSet());
 }
 
 void MainWindow::on_UpdateCoordinatesButton_clicked()
@@ -205,7 +197,7 @@ void MainWindow::on_UpdateCoordinatesButton_clicked()
     int motor = ChooseMotor();
 
     UnknownCoordinate(set, motor);
-    hardware->GetMotorCoordinate(set, motor);
+//    hardware->GetMotorCoordinate(set, motor);
 }
 
 void MainWindow::MotorCoordinateChanged(int setID, int motorID, uint16_t newCoordinate)
@@ -249,7 +241,7 @@ void MainWindow::on_SelectEntranceRadio_clicked()
 {
     int setID = ChooseCollimatorSet();
     for (int motorID = 0; motorID < 4; ++motorID) {
-        MotorCoordinateChanged(setID, motorID, hardware->ShowMotorCoordinate(setID, motorID));
+//        MotorCoordinateChanged(setID, motorID, hardware->ShowMotorCoordinate(setID, motorID));
     }
     qDebug() << "Entrance has been chosen";
 }
@@ -258,17 +250,17 @@ void MainWindow::on_SelectExit1Radio_clicked()
 {
     int setID = ChooseCollimatorSet();
     for (int motorID = 0; motorID < 4; ++motorID) {
-        MotorCoordinateChanged(setID, motorID, hardware->ShowMotorCoordinate(setID, motorID));
+//        MotorCoordinateChanged(setID, motorID, hardware->ShowMotorCoordinate(setID, motorID));
     }
     qDebug() << "Exit 1 has been chosen";
 }
 
 void MainWindow::on_MagnetConnectButton_clicked()
 {
-    if (!(hardware->IsMagnetConnected())) {
-        hardware->SetMagnetIPAddress(ui->MagnetIPLine->text());
-        hardware->ConnectMagnet();
-    }
+//    if (!(hardware->IsMagnetConnected())) {
+//        hardware->SetMagnetIPAddress(ui->MagnetIPLine->text());
+//        hardware->ConnectMagnet();
+//    }
 }
 
 void MainWindow::MagnetConnected()
@@ -285,12 +277,12 @@ void MainWindow::UpdateMagnetPanel(float u, float i)
 
 void MainWindow::on_SetMagnetVoltageButton_clicked()
 {
-    hardware->SetMagnetVoltage(ui->SetMagnetVoltageLine->text().toFloat());
+//    hardware->SetMagnetVoltage(ui->SetMagnetVoltageLine->text().toFloat());
 }
 
 void MainWindow::on_SetMagnetCurrentButton_clicked()
 {
-    hardware->SetMagnetCurrent(ui->SetMagnetCurrentLine->text().toFloat());
+//    hardware->SetMagnetCurrent(ui->SetMagnetCurrentLine->text().toFloat());
 }
 
 void MainWindow::on_SetMagnetVoltageLine_textChanged(const QString &arg1)
@@ -307,12 +299,12 @@ void MainWindow::on_SetMagnetCurrentLine_textChanged(const QString &arg1)
 
 void MainWindow::on_MagnetOnOffButton_clicked()
 {
-    if (hardware->MagnetOutputStatus() == true) {
-        hardware->MagnetOutputOff();
-        ui->MagnetOnOffButton->setText("Output On");
-    } else {
-        hardware->MagnetOutputOn();
-        ui->MagnetOnOffButton->setText("Output Off");
-    }
+//    if (hardware->MagnetOutputStatus() == true) {
+//        hardware->MagnetOutputOff();
+//        ui->MagnetOnOffButton->setText("Output On");
+//    } else {
+//        hardware->MagnetOutputOn();
+//        ui->MagnetOnOffButton->setText("Output Off");
+//    }
 }
 

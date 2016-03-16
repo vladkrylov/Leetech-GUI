@@ -8,9 +8,12 @@ const int N_sets = 2;
 Controller::Controller(QObject *parent) :
     QObject(parent)
 {
+    // User Interface --------------------------------------
+
+
     // Collimators -----------------------------------------
-    PCB = new IP_Connection();
-    TestObject = new Tests(this, PCB);
+    collMaster = new IP_Connection();
+    TestObject = new Tests(this, collMaster);
 
     traj = new Trajectory();
 
@@ -19,14 +22,11 @@ Controller::Controller(QObject *parent) :
         colSets[i] = new CollimatorsSet(i);
         connect(colSets[i], SIGNAL(MotorCoordinateChanged(int,int,uint16_t)), this, SIGNAL(MotorCoordinateChanged(int,int,uint16_t)));
     }
-    connect(PCB, SIGNAL(Connected()), this, SIGNAL(Connected()));
-    connect(PCB, SIGNAL(Disconnected()), this, SIGNAL(Disconnected()));
-    connect(PCB, SIGNAL(dataReceived()), this, SLOT(dataReceived()));
+    connect(collMaster, SIGNAL(CollimatorsConnected()), this, SIGNAL(CollimatorsConnected()));
+    connect(collMaster, SIGNAL(CollimatorsDisconnected()), this, SIGNAL(CollimatorsDisconnected()));
+    connect(collMaster, SIGNAL(CollimatorsDataReceived()), this, SLOT(CollimatorsDataReceived()));
 
-    // High Voltage Block ----------------------------------
-    HighVoltage = new QSerialPort(this);
-
-    // Magnet Power Supply
+    // Magnet Power Supply ---------------------------------
     magnet = new QTcpSocket(this);
     magnetPort = 8462;
     connect(magnet, SIGNAL(connected()), this, SIGNAL(MagnetConnected()));
@@ -40,7 +40,7 @@ Controller::Controller(QObject *parent) :
 
 Controller::~Controller()
 {
-    delete PCB;
+    delete collMaster;
 
     delete TestObject;
 
@@ -54,22 +54,22 @@ Controller::~Controller()
 
 int Controller::IsConnected()
 {
-    return PCB->IsConnected();
+    return collMaster->IsConnected();
 }
 
 int Controller::Connect()
 {
-    return PCB->PCB_Connect();
+    return collMaster->PCB_Connect();
 }
 
 void Controller::Disconnect()
 {
-    return PCB->PCB_Disconnect();
+    return collMaster->PCB_Disconnect();
 }
 
 void Controller::SetIPAddress(const QString &ipaddress)
 {
-    PCB->SetIPAddress(ipaddress);
+    collMaster->SetIPAddress(ipaddress);
 }
 
 int Controller::ValidateResponse(const QByteArray &response)
@@ -92,7 +92,7 @@ QString Controller::GenerateCoordinate(const QString &coord_mm, int setID, int m
 void Controller::TalkToBoard(const QString &sendPhrase)
 {
     qDebug() << endl << sendPhrase;
-    PCB->PCB_SendData(sendPhrase);
+    collMaster->PCB_SendData(sendPhrase);
 }
 
 void Controller::SetMotorCoordinate(int setID, int motorID, const QString &coord_mm)
@@ -165,7 +165,7 @@ void Controller::SetPulses(int setID, int motorID, const QString &width, const Q
             + QString::number(motorID)
             + "_______________"
             ;
-    PCB->PCB_SendData(data_to_send);
+    collMaster->PCB_SendData(data_to_send);
 }
 
 uint16_t Controller::ShowMotorCoordinate(int setID, int motorID)
@@ -173,12 +173,12 @@ uint16_t Controller::ShowMotorCoordinate(int setID, int motorID)
     return colSets[setID]->GetPosition(motorID);
 }
 
-void Controller::dataReceived()
+void Controller::CollimatorsDataReceived()
 {
     QByteArray response;
 //    for testing purposes
 //    response = InitResponse();
-    response = PCB->readAll();
+    response = collMaster->readAll();
 
     // check for sigle coordinate received
     if (response.contains("response_")) {
@@ -238,86 +238,6 @@ QStringList Controller::GetSerialPorts()
         COMNamesAvailable << info.portName();
     }
     return COMNamesAvailable;
-}
-
-bool Controller::ConnectHV(const QString& name, int baud)
-{
-    HighVoltage->setPortName(name);
-    HighVoltage->setBaudRate(baud);
-    HighVoltage->setDataBits(QSerialPort::Data8);
-    HighVoltage->setParity(QSerialPort::NoParity);
-    HighVoltage->setStopBits(QSerialPort::OneStop);
-    HighVoltage->setFlowControl(QSerialPort::NoFlowControl);
-
-    HighVoltage->open(QIODevice::ReadWrite);
-    if (HVConnented()) {
-        return true;
-    } else {
-        return false;
-    }
-}
-
-bool Controller::HVConnented()
-{
-    return HighVoltage->isOpen();
-}
-
-void Controller::DisconnectHV()
-{
-    HighVoltage->close();
-}
-
-QByteArray Controller::GetHV()
-{
-    QByteArray dataToSend("u2");
-    HighVoltage->clear();
-    dataToSend.append("\r\n");
-    HighVoltage->write(dataToSend);
-    HighVoltage->waitForBytesWritten(3000);
-
-    HighVoltage->waitForReadyRead(3000);
-    return HighVoltage->readAll().simplified().replace(" ", "");
-}
-
-QByteArray Controller::GetHVCurrent()
-{
-    QByteArray dataToSend("i2");
-    HighVoltage->clear();
-    dataToSend.append("\r\n");
-    HighVoltage->write(dataToSend);
-    HighVoltage->waitForBytesWritten(500);
-
-    HighVoltage->waitForReadyRead(500);
-    return HighVoltage->readAll().simplified().replace(" ", "");
-}
-
-
-void Controller::SetHV(int voltage)
-{
-    QByteArray dataToSend("d2=");
-    dataToSend.append(QString::number(voltage));
-    dataToSend.append("\r\n");
-
-    emit WriteToTerminal(dataToSend);
-    HighVoltage->write(dataToSend);
-}
-
-void Controller::SetHVPolarity(QChar p)
-{
-    QByteArray dataToSend("p2=");
-    dataToSend.append(p);
-    dataToSend.append("\r\n");
-
-    SetHV(10);
-    emit WriteToTerminal(dataToSend);
-    HighVoltage->write(dataToSend);
-//    SetHV(0);
-}
-
-void Controller::UpdateHighVoltageData()
-{
-//    qDebug() << GetHV();
-    qDebug() << GetHVCurrent();
 }
 
 bool Controller::IsMagnetConnected()
