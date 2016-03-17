@@ -18,7 +18,15 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
+    QString GetCollimatorsIPAddress();
+    void UpdateMagnetData(float u, float i);
+
 signals:
+    void CollimatorsConnect();
+    void CollimatorsDisconnect();
+    void SetMotorCoordinate(int setID, int motorID, QString coord);
+    void GetMotorCoordinate(int setID, int motorID);
+    void ResetMotor(int setID, int motorID);
 
 private slots:
     void MotorCoordinateChanged(int setID, int motorID, uint16_t newCoordinate);
@@ -48,13 +56,12 @@ private slots:
     void on_SelectExit1Radio_clicked();
 
     void CollimatorsConnected();
+
     void CollimatorsDisconnected();
 
     void on_MagnetConnectButton_clicked();
 
     void MagnetConnected();
-
-    void UpdateMagnetPanel(float u, float i);
 
     void on_SetMagnetVoltageButton_clicked();
 
@@ -71,6 +78,7 @@ private:
 //    Controller *hardware;
     QDoubleValidator *coordValidator;
 
+    bool isCollimatorsConnected;
     void SetValidators();
     int ValidatePulsesWidth(float width_us);
     int ValidatePulsesPeriod(float period_us);

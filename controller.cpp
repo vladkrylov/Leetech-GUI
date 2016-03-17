@@ -1,7 +1,7 @@
-#include "controller.h"
-
 #include <QDebug>
-#include <QtSerialPort/QSerialPortInfo>
+
+#include "controller.h"
+#include "mainwindow.h"
 
 const int N_sets = 2;
 
@@ -9,7 +9,10 @@ Controller::Controller(QObject *parent) :
     QObject(parent)
 {
     // User Interface --------------------------------------
-
+    userInterface = new MainWindow();
+    connect(userInterface, SIGNAL(SetMotorCoordinate(int, int, QString)), this, SLOT(SetMotorCoordinate(int, int, QString)));
+    connect(userInterface, SIGNAL(GetMotorCoordinate(int, int)), this, SLOT(GetMotorCoordinate(int, int)));
+    connect(userInterface, SIGNAL(ResetMotor(int, int)), this, SLOT(Reset(int, int)));
 
     // Collimators -----------------------------------------
     collMaster = new IP_Connection();
@@ -20,16 +23,16 @@ Controller::Controller(QObject *parent) :
     colSets = new CollimatorsSet*[N_sets];
     for (int i = 0; i < N_sets; ++i) {
         colSets[i] = new CollimatorsSet(i);
-        connect(colSets[i], SIGNAL(MotorCoordinateChanged(int,int,uint16_t)), this, SIGNAL(MotorCoordinateChanged(int,int,uint16_t)));
+        connect(colSets[i], SIGNAL(MotorCoordinateChanged(int,int,uint16_t)), userInterface, SLOT(MotorCoordinateChanged(int,int,uint16_t)));
     }
-    connect(collMaster, SIGNAL(CollimatorsConnected()), this, SIGNAL(CollimatorsConnected()));
-    connect(collMaster, SIGNAL(CollimatorsDisconnected()), this, SIGNAL(CollimatorsDisconnected()));
+    connect(collMaster, SIGNAL(CollimatorsConnected()), userInterface, SLOT(CollimatorsConnected()));
+    connect(collMaster, SIGNAL(CollimatorsDisconnected()), userInterface, SLOT(CollimatorsDisconnected()));
     connect(collMaster, SIGNAL(CollimatorsDataReceived()), this, SLOT(CollimatorsDataReceived()));
 
     // Magnet Power Supply ---------------------------------
     magnet = new QTcpSocket(this);
     magnetPort = 8462;
-    connect(magnet, SIGNAL(connected()), this, SIGNAL(MagnetConnected()));
+    connect(magnet, SIGNAL(connected()), userInterface, SLOT(MagnetConnected()));
 
 
     magnetTimer = new QTimer(this);
@@ -40,10 +43,9 @@ Controller::Controller(QObject *parent) :
 
 Controller::~Controller()
 {
+    delete userInterface;
     delete collMaster;
-
     delete TestObject;
-
     delete traj;
 
     for (int i = 0; i < N_sets; ++i) {
@@ -52,24 +54,20 @@ Controller::~Controller()
     delete [] colSets;
 }
 
-int Controller::IsConnected()
-{
-    return collMaster->IsConnected();
-}
+//int Controller::IsCollimatorsConnected()
+//{
+//    return collMaster->IsConnected();
+//}
 
-int Controller::Connect()
+int Controller::CollimatorsConnect()
 {
+    collMaster->SetIPAddress(userInterface->GetCollimatorsIPAddress());
     return collMaster->PCB_Connect();
 }
 
-void Controller::Disconnect()
+void Controller::CollimatorsDisconnect()
 {
     return collMaster->PCB_Disconnect();
-}
-
-void Controller::SetIPAddress(const QString &ipaddress)
-{
-    collMaster->SetIPAddress(ipaddress);
 }
 
 int Controller::ValidateResponse(const QByteArray &response)
@@ -231,15 +229,6 @@ QByteArray Controller::InitResponse()
     return res;
 }
 
-QStringList Controller::GetSerialPorts()
-{
-    QStringList COMNamesAvailable;
-    foreach (const QSerialPortInfo &info, QSerialPortInfo::availablePorts()) {
-        COMNamesAvailable << info.portName();
-    }
-    return COMNamesAvailable;
-}
-
 bool Controller::IsMagnetConnected()
 {
     return magnet->isOpen();
@@ -277,7 +266,9 @@ void Controller::UpdateMagnetData()
         magnet->waitForReadyRead();
         resp = magnet->readAll();
         i = resp.toFloat();
-        emit MagnetDataReceived(u, i);
+
+        // inform user about changes
+        userInterface->UpdateMagnetData(u, i);
     }
 }
 

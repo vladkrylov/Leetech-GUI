@@ -3,7 +3,6 @@
 
 #include <stdint.h>
 #include <QObject>
-#include <QtSerialPort/QSerialPort>
 #include <QTcpSocket>
 
 #include "ip_connection.h"
@@ -26,15 +25,9 @@ public:
 
     Tests *TestObject;
 
-    int IsConnected();
-    int Connect();
-    void Disconnect();
-    void SetIPAddress(const QString &ipaddress);
-
+//    int IsCollimatorsConnected();
     void TalkToBoard(const QString &sendPhrase);
-    void ResetMotorsData(int setID);
-    void SetMotorCoordinate(int setID, int motorID, const QString &coord_mm);
-    void GetMotorCoordinate(int setID, int motorID);
+
 
     void Reset(int setID, int motorID);
     void ResetAll(int setID);
@@ -42,13 +35,6 @@ public:
     void SetPulses(int setID, int motorID, const QString &width, const QString &period);
 
     uint16_t ShowMotorCoordinate(int setID, int motorID);
-
-    QStringList GetSerialPorts();
-    bool ConnectHV(const QString& name, int baud);
-    bool HVConnented();
-    void DisconnectHV();
-    QByteArray GetHV();
-    QByteArray GetHVCurrent();
 
     bool IsMagnetConnected();
     bool ConnectMagnet();
@@ -75,15 +61,14 @@ private:
 private slots:
     void UpdateMagnetData();
 
-signals:
-    void MotorCoordinateChanged(int setID, int motorID, uint16_t newCoordinate);
-    void CollimatorsConnected();
-    void CollimatorsDisconnected();
-
-    void MagnetConnected();
-    void MagnetDataReceived(float u, float i);
-
 public slots:
+    int CollimatorsConnect();
+    void CollimatorsDisconnect();
+    void ResetMotorsData(int setID);
+    void SetMotorCoordinate(int setID, int motorID, const QString &coord_mm);
+    void GetMotorCoordinate(int setID, int motorID);
+//    void SetCollIPAddress(const QString &ipaddress);
+
     void CollimatorsDataReceived();
 
     void SetMagnetVoltage(float u);

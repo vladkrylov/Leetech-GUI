@@ -12,7 +12,8 @@ const float MAX_PULSE_PERIOD_US = 24.5;
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
-    ui(new Ui::MainWindow)
+    ui(new Ui::MainWindow),
+    isCollimatorsConnected(false)
 {
     ui->setupUi(this);
 //    hardware = new Controller();
@@ -21,19 +22,12 @@ MainWindow::MainWindow(QWidget *parent) :
     emit ui->PeriodSpinBox->valueChanged(ui->PeriodSpinBox->text());
     emit ui->WidthSpinBox->valueChanged(ui->WidthSpinBox->text());
 
-//    connect(hardware, SIGNAL(MotorCoordinateChanged(int,int,uint16_t)), this, SLOT(MotorCoordinateChanged(int,int,uint16_t)));
-//    connect(hardware, SIGNAL(CollimatorsConnected()), this, SLOT(CollimatorsConnected()));
-//    connect(hardware, SIGNAL(CollimatorsDisconnected()), this, SLOT(CollimatorsDisconnected()));
-//    on_SelectEntranceRadio_clicked();
-
-//    connect(hardware, SIGNAL(MagnetConnected()), this, SLOT(MagnetConnected()));
-//    connect(hardware, SIGNAL(MagnetDataReceived(float,float)), this, SLOT(UpdateMagnetPanel(float,float)));
+    on_SelectEntranceRadio_clicked();
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
-//    delete hardware;
     delete coordValidator;
 }
 
@@ -100,30 +94,36 @@ void MainWindow::on_GoButton_clicked()
 
     UnknownCoordinate(set, motor);
     QString crd = ui->CoordinateLineEdit->text();
+    emit SetMotorCoordinate(set, motor, crd);
 //    hardware->SetMotorCoordinate(set, motor, crd);
 }
 
 void MainWindow::on_ConnectButton_clicked()
 {
-//    if (!(hardware->IsConnected())) {
-//        hardware->SetIPAddress(ui->IP_lineEdit->text());
-//        hardware->Connect();
-//    } else {
-//        hardware->Disconnect();
-//    }
-    ui->ConnectButton->setEnabled(true);
+    if (isCollimatorsConnected) {
+        emit CollimatorsDisconnect();
+    } else {
+        emit CollimatorsConnect();
+    }
+}
+
+QString MainWindow::GetCollimatorsIPAddress()
+{
+    return ui->IP_lineEdit->text();
 }
 
 void MainWindow::CollimatorsConnected()
 {
     ui->ConnectLabel->setText("   Connected   ");
     ui->ConnectButton->setText("Disconnect");
+    isCollimatorsConnected = true;
 }
 
 void MainWindow::CollimatorsDisconnected()
 {
     ui->ConnectLabel->setText("   Disconnected   ");
     ui->ConnectButton->setText("Connect");
+    isCollimatorsConnected = false;
 }
 
 void MainWindow::on_TestButton_clicked()
@@ -183,7 +183,7 @@ void MainWindow::on_ResetOnePushButton_clicked()
     int motor = ChooseMotor();
 
     UnknownCoordinate(set, motor);
-//    hardware->Reset(set, motor);
+    emit ResetMotor(set, motor);
 }
 
 void MainWindow::on_ResetAllPushButton_clicked()
@@ -197,7 +197,7 @@ void MainWindow::on_UpdateCoordinatesButton_clicked()
     int motor = ChooseMotor();
 
     UnknownCoordinate(set, motor);
-//    hardware->GetMotorCoordinate(set, motor);
+    emit GetMotorCoordinate(set, motor);
 }
 
 void MainWindow::MotorCoordinateChanged(int setID, int motorID, uint16_t newCoordinate)
@@ -269,7 +269,7 @@ void MainWindow::MagnetConnected()
     ui->MagnetConnectButton->setEnabled(false);
 }
 
-void MainWindow::UpdateMagnetPanel(float u, float i)
+void MainWindow::UpdateMagnetData(float u, float i)
 {
     ui->DisplayMagnetVoltageLine->setText(QString::number(u));
     ui->DisplayMagnetCurrentLine->setText(QString::number(i));
