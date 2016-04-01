@@ -21,7 +21,8 @@ SOURCES += main.cpp\
     tests.cpp \
     encoder.cpp \
     collimatorsset.cpp \
-    trajectory.cpp
+    trajectory.cpp \
+    guiv2.cpp
 
 HEADERS  += mainwindow.h \
     ip_connection.h \
@@ -30,6 +31,8 @@ HEADERS  += mainwindow.h \
     encoder.h \
     collimatorsset.h \
     trajectory.h \
-    m_errors.h
+    m_errors.h \
+    guiv2.h
 
-FORMS    += mainwindow.ui
+FORMS    += mainwindow.ui \
+    guiv2.ui
