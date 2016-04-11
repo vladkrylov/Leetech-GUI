@@ -36,7 +36,7 @@ private:
     CollimatorsSet** collSets;
     MainWindow* view;
 
-    QString GenerateCoordinate(const QString &coord_mm, int setID, int motorID);
+    QString GenerateCoordinate(const QString &coord_mm, int boxID, int collimatorID);
     int ValidateResponse(const QByteArray &response);
     QByteArray InitResponse();
 

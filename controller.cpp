@@ -84,11 +84,32 @@ void Controller::GetCollimatorCoordinate(int boxID, int collimatorID)
     TalkToBoard(data_to_send);
 }
 
+QString Controller::GenerateCoordinate(const QString &coord_mm, int boxID, int collimatorID)
+{
+    QString copyCoord = coord_mm;
+    int coord = copyCoord.replace(QString(","), QString(".")).toFloat() * 1000 + collSets[boxID]->GetMotorOrigin(collimatorID);
+    QString res = QString::number(coord);
+    while (res.length() < 5) {
+        res.prepend('0');
+    }
+    return res;
+}
+
 void Controller::SetCollimatorCoordinate(int boxID, int collimatorID, const QString &coord_mm)
 {
-    float coord = coord_mm.toFloat();
-//    qDebug() << "Set" << setID << ": move motor" << motorID << "to" << coord << "mm.";
-//    view->UpdateCoordinate(collimatorID, coord);
+    QString data_to_send = "move_motor"
+            + QString::number(collimatorID+1)
+            + "_tocoord="
+            + GenerateCoordinate(coord_mm, boxID, collimatorID)
+            + "m"
+            + "_steps2mm="
+            + QString::number(collSets[boxID]->GetSteps2mm(collimatorID))
+            + "_setID="
+            + QString::number(boxID)
+//            + "_getTrajectory=1"
+            + "_______________"
+            ;
+    TalkToBoard(data_to_send);
 }
 
 void Controller::ResetCollimator(int boxID, int collimatorID)
