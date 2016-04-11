@@ -1,310 +1,553 @@
-#include <QDebug>
-#include <QFile>
-#include <QTextStream>
-
+#include <QtWidgets>
+#include <QGraphicsProxyWidget>
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include "m_errors.h"
 
-const float usPerTimerTick = 0.025;
-const float MAX_PULSE_WIDTH_US = 4.5;
-const float MAX_PULSE_PERIOD_US = 24.5;
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
-    ui(new Ui::MainWindow),
-    isCollimatorsConnected(false)
+    ui(new Ui::MainWindow)
+  , sceneSize(480)
+  , animation(NULL)
+  , animationTimer(NULL)
 {
     ui->setupUi(this);
-//    hardware = new Controller();
-    SetValidators();
+    ui->collimatorScene->setMinimumSize(sceneSize+2, sceneSize+2);
 
-    emit ui->PeriodSpinBox->valueChanged(ui->PeriodSpinBox->text());
-    emit ui->WidthSpinBox->valueChanged(ui->WidthSpinBox->text());
-
-    on_SelectEntranceRadio_clicked();
+    ConstructScene();
+    ConnectUIActions();
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
-    delete coordValidator;
+
+    delete left;
+    delete right;
+    delete top;
+    delete bottom;
+
+    delete scene;
+
+    delete titlesFont;
+    delete textFont;
+
+    if (animationTimer)
+        delete animationTimer;
+    if (animation)
+        delete animation;
 }
 
-void MainWindow::SetValidators()
+void MainWindow::ConstructScene()
 {
-    coordValidator = new QDoubleValidator( 0, 14.999, 2, this );
-    ui->CoordinateLineEdit->setValidator(coordValidator);
+    scene = new QGraphicsScene(this);
+    ui->collimatorScene->setScene(scene);
+    scene->setSceneRect(0, 0, sceneSize, sceneSize);
 
-//    QDoubleValidator* magnetVoltageValidator = new QDoubleValidator(0, 18., 2, this);
-//    ui->SetMagnetVoltageLine->setValidator(magnetVoltageValidator);
+    /**
+     * Add collimators to the scene
+     */
+    int collimLength = (int) (0.38*sceneSize);
+    left = new CollimatorGraphicsItem(collimLength);
+    left->setRotation(0);
+    left->setPos(0, scene->sceneRect().height()/2 - left->boundingRect().height()/2);
 
-//    QDoubleValidator* magnetCurrentValidator = new QDoubleValidator(0, 50., 2, this);
-//    ui->SetMagnetCurrentLine->setValidator(magnetCurrentValidator);
+    right = new CollimatorGraphicsItem(collimLength);
+    right->setRotation(180);
+    right->setPos(scene->sceneRect().width()-1, scene->sceneRect().height()/2 + right->boundingRect().height()/2);
+
+    top = new CollimatorGraphicsItem(collimLength);
+    top->setRotation(90);
+    top->setPos(scene->sceneRect().width()/2 + top->boundingRect().height()/2, 0);
+//    UpdateCoordinate(COLL_TOP, 0);
+
+    bottom = new CollimatorGraphicsItem(collimLength);
+    bottom->setRotation(270);
+    bottom->setPos(scene->sceneRect().width()/2 - bottom->boundingRect().height()/2, scene->sceneRect().height()-1);
+
+    scene->addItem(top);
+    scene->addItem(bottom);
+    scene->addItem(left);
+    scene->addItem(right);
+
+    /**
+     * Add text
+     */
+    int lineSpacing = 0;
+    int leftSpacing = 0;
+    int topSpacing = 0;
+    titlesFont = new QFont("Helvetica", 14);
+    textFont = new QFont("Helvetica", 12);
+    lineSpacing = 8;
+
+    /**
+     * Hole size information
+     */
+    leftSpacing = 10;
+    topSpacing = 5;
+    holeSizeTitle = new QGraphicsTextItem();
+    holeSizeTitle->setFont(*titlesFont);
+    holeSizeTitle->setPos(leftSpacing, topSpacing);
+    holeSizeTitle->setHtml("Hole Size:");
+
+    holeDXText = new QGraphicsTextItem();
+    holeDXText->setFont(*textFont);
+    holeDXText->setPos(leftSpacing, holeSizeTitle->pos().y() + holeSizeTitle->font().pointSize() + lineSpacing + 5);
+    holeDXText->setHtml(HoleDXString(29.999));
+
+    holeDYText = new QGraphicsTextItem();
+    holeDYText->setFont(*textFont);
+    holeDYText->setPos(leftSpacing, holeDXText->pos().y() + holeSizeTitle->font().pointSize() + lineSpacing);
+    holeDYText->setHtml(HoleDYString(29.999));
+
+    scene->addItem(holeSizeTitle);
+    scene->addItem(holeDXText);
+    scene->addItem(holeDYText);
+
+//    /**
+//     * Busy state indicator
+//     */
+//    QMovie *mv = new QMovie("/home/vlad/Downloads/31.gif");
+//    QLabel *lbl = new QLabel;
+//    mv->start();
+//    lbl->setAttribute(Qt::WA_NoSystemBackground);
+//    lbl->setMovie(mv);
+//    scene->addWidget(lbl)->setPos(100, 100);
+
+    /**
+     * Hole offset information
+     */
+    leftSpacing = scene->sceneRect().width() - 140;
+    topSpacing = 5;
+    holeOffsetTitle = new QGraphicsTextItem();
+    holeOffsetTitle->setFont(*titlesFont);
+    holeOffsetTitle->setPos(leftSpacing, topSpacing);
+    holeOffsetTitle->setHtml("Hole Offset:");
+
+    holeOffsetXText = new QGraphicsTextItem();
+    holeOffsetXText->setFont(*textFont);
+    holeOffsetXText->setPos(leftSpacing, holeOffsetTitle->pos().y() + holeSizeTitle->font().pointSize() + lineSpacing + 5);
+    holeOffsetXText->setHtml(HoleOffsetXString(0));
+
+    holeOffsetYText = new QGraphicsTextItem();
+    holeOffsetYText->setFont(*textFont);
+    holeOffsetYText->setPos(leftSpacing, holeOffsetXText->pos().y() + holeSizeTitle->font().pointSize() + lineSpacing);
+    holeOffsetYText->setHtml(HoleOffsetYString(0));
+
+    scene->addItem(holeOffsetTitle);
+    scene->addItem(holeOffsetXText);
+    scene->addItem(holeOffsetYText);
+
+    /**
+     * Maximum collimator opening information
+     */
+    leftSpacing = 10;
+    topSpacing = scene->sceneRect().height() - 100;
+    maxOpeningTitle1 = new QGraphicsTextItem();
+    maxOpeningTitle1->setFont(*titlesFont);
+    maxOpeningTitle1->setPos(leftSpacing, topSpacing);
+    maxOpeningTitle1->setHtml("Maximum collimator");
+
+    maxOpeningTitle2 = new QGraphicsTextItem();
+    maxOpeningTitle2->setFont(*titlesFont);
+    maxOpeningTitle2->setPos(leftSpacing, maxOpeningTitle1->pos().y() + holeSizeTitle->font().pointSize() + lineSpacing);
+    maxOpeningTitle2->setHtml("opening:");
+
+    maxOpeningXText = new QGraphicsTextItem();
+    maxOpeningXText->setFont(*textFont);
+    maxOpeningXText->setPos(leftSpacing, maxOpeningTitle2->pos().y() + holeSizeTitle->font().pointSize() + lineSpacing + 5);
+    maxOpeningXText->setHtml(MaxOpeningXString(20.0));
+
+    maxOpeningYText = new QGraphicsTextItem();
+    maxOpeningYText->setFont(*textFont);
+    maxOpeningYText->setPos(leftSpacing, maxOpeningXText->pos().y() + holeSizeTitle->font().pointSize() + lineSpacing);
+    maxOpeningYText->setHtml(MaxOpeningYString(20.0));
+
+    scene->addItem(maxOpeningTitle1);
+    scene->addItem(maxOpeningTitle2);
+    scene->addItem(maxOpeningXText);
+    scene->addItem(maxOpeningYText);
+
+    /**
+     * Collimator positions
+     */
+    leftSpacing = scene->sceneRect().width() - 150;
+    topSpacing = scene->sceneRect().height() - 150;
+    positionsTitle1 = new QGraphicsTextItem();
+    positionsTitle1->setFont(*titlesFont);
+    positionsTitle1->setPos(leftSpacing, topSpacing);
+    positionsTitle1->setHtml("Collimator");
+
+    positionsTitle2 = new QGraphicsTextItem();
+    positionsTitle2->setFont(*titlesFont);
+    positionsTitle2->setPos(leftSpacing, positionsTitle1->pos().y() + positionsTitle1->font().pointSize() + lineSpacing);
+    positionsTitle2->setHtml("positions:");
+
+    positionRightText = new QGraphicsTextItem();
+    positionRightText->setFont(*textFont);
+    positionRightText->setPos(leftSpacing, positionsTitle2->pos().y() + positionsTitle2->font().pointSize() + lineSpacing + 5);
+    positionRightText->setPlainText(PositionRightString(10.0));
+
+    positionLeftText = new QGraphicsTextItem();
+    positionLeftText->setFont(*textFont);
+    positionLeftText->setPos(leftSpacing, positionRightText->pos().y() + positionsTitle2->font().pointSize() + lineSpacing);
+    positionLeftText->setPlainText(PositionLeftString(10.0));
+
+    positionTopText = new QGraphicsTextItem();
+    positionTopText->setFont(*textFont);
+    positionTopText->setPos(leftSpacing, positionLeftText->pos().y() + positionsTitle2->font().pointSize() + lineSpacing);
+    positionTopText->setPlainText(PositionTopString(10.0));
+
+    positionBottomText = new QGraphicsTextItem();
+    positionBottomText->setFont(*textFont);
+    positionBottomText->setPos(leftSpacing, positionTopText->pos().y() + positionsTitle2->font().pointSize() + lineSpacing);
+    positionBottomText->setPlainText(PositionBottomString(10.0));
+
+    scene->addItem(positionsTitle1);
+    scene->addItem(positionsTitle2);
+    scene->addItem(positionRightText);
+    scene->addItem(positionLeftText);
+    scene->addItem(positionTopText);
+    scene->addItem(positionBottomText);
+
+    /**
+     * connect internal (view) signals and slots
+     */
+    connect(right, SIGNAL(MoveMe()), this, SLOT(MoveRightRequested()));
+    connect(left, SIGNAL(MoveMe()), this, SLOT(MoveLeftRequested()));
+    connect(top, SIGNAL(MoveMe()), this, SLOT(MoveTopRequested()));
+    connect(bottom, SIGNAL(MoveMe()), this, SLOT(MoveBottomRequested()));
+
+    connect(right, SIGNAL(ResetMe()), this, SLOT(ResetRightRequested()));
+    connect(left, SIGNAL(ResetMe()), this, SLOT(ResetLeftRequested()));
+    connect(top, SIGNAL(ResetMe()), this, SLOT(ResetTopRequested()));
+    connect(bottom, SIGNAL(ResetMe()), this, SLOT(ResetBottomRequested()));
 }
 
-int MainWindow::ValidatePulsesWidth(float width_us)
+void MainWindow::ConnectUIActions()
 {
-    if (width_us > MAX_PULSE_WIDTH_US) {
-        return 0;
+    connect(ui->MoveButton, SIGNAL(clicked()), this, SLOT(MoveCollimatorHandler()));
+    connect(ui->coordLineEdit, SIGNAL(returnPressed()), this, SLOT(MoveCollimatorHandler()));
+    connect(ui->ResetButton, SIGNAL(clicked()), this, SLOT(ResetCollimatorHandler()));
+}
+
+int MainWindow::GetActiveCollimatorBox()
+{
+    int boxID = BOX_ENTRANCE;
+    if (ui->entranceRadio->isChecked()) {
+        boxID = BOX_ENTRANCE;
+    } else if (ui->exit1Radio->isChecked()) {
+        boxID = BOX_EXIT1;
+    } else if (ui->exit2Radio->isChecked()) {
+        boxID = BOX_EXIT2;
     }
-    return 1;
+    return boxID;
 }
 
-int MainWindow::ValidatePulsesPeriod(float period_us)
+QString MainWindow::Coord2String(float x)
 {
-    if (period_us > MAX_PULSE_PERIOD_US) {
-        return 0;
-    }
-    return 1;
-}
+    int digitsAfterPoint = 3;
+    int zerosToAppend = 0;
+    QString res = QString::number(x);
 
-int MainWindow::ChooseMotor()
-{
-    int motorID = 0;
-    if (ui->radioButton_1->isChecked()) {
-        motorID = 0;
-    } else if (ui->radioButton_2->isChecked()) {
-        motorID = 1;
-    } else if (ui->radioButton_3->isChecked()) {
-        motorID = 2;
-    } else if (ui->radioButton_4->isChecked()) {
-        motorID = 3;
-    }
-    return motorID;
-}
-
-int MainWindow::ChooseCollimatorSet()
-{
-    int setID = 0;
-    if (ui->SelectEntranceRadio->isChecked()) {
-        setID = 0;
-    } else if (ui->SelectExit1Radio->isChecked()) {
-        setID = 1;
-    } else if (ui->SelectExit2Radio->isChecked()) {
-        setID = 2;
-    }
-    return setID;
-}
-
-void MainWindow::on_GoButton_clicked()
-{
-    int set = ChooseCollimatorSet();
-    int motor = ChooseMotor();
-
-    UnknownCoordinate(set, motor);
-    QString crd = ui->CoordinateLineEdit->text();
-    emit SetMotorCoordinate(set, motor, crd);
-//    hardware->SetMotorCoordinate(set, motor, crd);
-}
-
-void MainWindow::on_ConnectButton_clicked()
-{
-    if (isCollimatorsConnected) {
-        emit CollimatorsDisconnect();
+    int pointIndex = res.indexOf(".");
+    if (pointIndex == -1) {
+        res += ".";
+        zerosToAppend = digitsAfterPoint;
+    } else if (res.length() - pointIndex - 1 > digitsAfterPoint) {
+        // number is too long, cut last digits
+        res = res.mid(0, pointIndex+1+digitsAfterPoint);
+        zerosToAppend = 0;
     } else {
-        emit CollimatorsConnect();
+        zerosToAppend = digitsAfterPoint+1 - (res.length() - pointIndex);
+    }
+
+    for(int i=0; i<zerosToAppend; i++)
+        res += "0";
+
+    return res;
+}
+
+QString MainWindow::HoleDXString(float dx)
+{
+    return QString(QChar(0x94, 0x03)) + "X = " + Coord2String(dx) + " mm";
+}
+
+QString MainWindow::HoleDYString(float dy)
+{
+    return QString(QChar(0x94, 0x03)) + "Y = " + Coord2String(dy) + " mm";
+}
+
+QString MainWindow::HoleOffsetXString(float x)
+{
+    return QString(QChar(0x94, 0x03)) + "X<sub>0</sub> = " + Coord2String(x) + " mm";
+}
+
+QString MainWindow::HoleOffsetYString(float y)
+{
+    return QString(QChar(0x94, 0x03)) + "Y<sub>0</sub> = " + Coord2String(y) + " mm";
+}
+
+QString MainWindow::MaxOpeningXString(float dx)
+{
+    return QString(QChar(0x94, 0x03)) + "X<sub>max</sub> = " + Coord2String(dx) + " mm";
+}
+
+QString MainWindow::MaxOpeningYString(float dy)
+{
+    return QString(QChar(0x94, 0x03)) + "Y<sub>max</sub> = " + Coord2String(dy) + " mm";
+}
+
+QString MainWindow::PositionRightString(float pos)
+{
+    return QString("Right: ") + Coord2String(pos) + " mm";
+}
+
+QString MainWindow::PositionLeftString(float pos)
+{
+    return QString("Left: ") + Coord2String(pos) + " mm";
+}
+
+QString MainWindow::PositionTopString(float pos)
+{
+    return QString("Top: ") + Coord2String(pos) + " mm";
+}
+
+QString MainWindow::PositionBottomString(float pos)
+{
+    return QString("Bottom: ") + Coord2String(pos) + " mm";
+}
+
+int MainWindow::GetActiveCollimator()
+{
+    int collimatorID = COLL_TOP;
+    if (ui->rightCollimator->isChecked()) {
+        collimatorID = COLL_RIGHT;
+    } else if (ui->leftCollimator->isChecked()) {
+        collimatorID = COLL_LEFT;
+    } else if (ui->topCollimator->isChecked()) {
+        collimatorID = COLL_TOP;
+    } else if (ui->bottomCollimator->isChecked()) {
+        collimatorID = COLL_BOTTOM;
+    }
+    return collimatorID;
+}
+
+void MainWindow::NiceMove(CollimatorGraphicsItem *collimator, QPointF to)
+{
+    QPointF from = collimator->pos();
+
+    if (animationTimer)
+        delete animationTimer;
+    animationTimer = new QTimeLine(300);
+    animationTimer->setFrameRange(0, 300);
+    animationTimer->setUpdateInterval(30);
+
+    if (animation)
+        delete animation;
+    animation = new QGraphicsItemAnimation;
+    animation->setItem(collimator);
+    animation->setTimeLine(animationTimer);
+
+    animation->setPosAt(0., from);
+    animation->setPosAt(1., to);
+
+    animationTimer->start();
+
+    // update numbers on the scene
+    holeDXText->setHtml(HoleDXString(CalculateHoleDX()));
+    holeDYText->setHtml(HoleDYString(CalculateHoleDY()));
+    holeOffsetXText->setHtml(HoleOffsetXString(CalculateHoleOffsetX()));
+    holeOffsetYText->setHtml(HoleOffsetYString(CalculateHoleOffsetY()));
+    positionRightText->setPlainText(PositionRightString(posRight));
+    positionLeftText->setPlainText(PositionLeftString(posLeft));
+    positionTopText->setPlainText(PositionTopString(posTop));
+    positionBottomText->setPlainText(PositionBottomString(posBottom));
+}
+
+void MainWindow::Update()
+{
+
+}
+
+void MainWindow::UpdateCoordinate(int motorID, float position)
+{
+    int originX = 0;
+    int originY = 0;
+    int destX = 0;
+    int destY = 0;
+
+    switch (motorID) {
+    case COLL_RIGHT:
+        posRight = position;
+
+        originX = scene->sceneRect().width()-1;
+        originY = scene->sceneRect().height()/2 + right->boundingRect().height()/2;
+
+        destX = originX - int(position/(maxOpeningX/2) * (scene->sceneRect().width()/2 - right->boundingRect().width()));
+        destY = originY;
+        NiceMove(right, QPointF(destX, destY));
+        break;
+
+    case COLL_LEFT:
+        posLeft = position;
+
+        originX = 0;
+        originY = scene->sceneRect().height()/2 - left->boundingRect().height()/2;
+
+        destX = originX + int(position/(maxOpeningX/2) * (scene->sceneRect().width()/2 - left->boundingRect().width()));
+        destY = originY;
+        NiceMove(left, QPointF(destX, destY));
+        break;
+
+    case COLL_TOP:
+        posTop = position;
+
+        originX = scene->sceneRect().width()/2 + top->boundingRect().height()/2;
+        originY = 0;
+
+        destX = originX;
+        destY = originY + int(position/(maxOpeningY/2) * (scene->sceneRect().height()/2 - top->boundingRect().width()));
+        NiceMove(top, QPointF(destX, destY));
+        break;
+
+    case COLL_BOTTOM:
+        posBottom = position;
+
+        originX = scene->sceneRect().width()/2 - bottom->boundingRect().height()/2;
+        originY = scene->sceneRect().height()-1;
+
+        destX = originX;
+        destY = originY - int(position/(maxOpeningY/2) * (scene->sceneRect().height()/2 - bottom->boundingRect().width()));
+        NiceMove(bottom, QPointF(destX, destY));
+        break;
+
+    default:
+        break;
     }
 }
 
-QString MainWindow::GetCollimatorsIPAddress()
+void MainWindow::SetMaxOpeningX(float opening)
 {
-    return ui->IP_lineEdit->text();
+    maxOpeningX = opening;
+    maxOpeningXText->setHtml(MaxOpeningXString(maxOpeningX));
 }
 
-void MainWindow::CollimatorsConnected()
+void MainWindow::SetMaxOpeningY(float opening)
 {
-    ui->ConnectLabel->setText("   Connected   ");
-    ui->ConnectButton->setText("Disconnect");
-    isCollimatorsConnected = true;
+    maxOpeningY = opening;
+    maxOpeningYText->setHtml(MaxOpeningYString(maxOpeningY));
 }
 
-void MainWindow::CollimatorsDisconnected()
+float MainWindow::CalculateHoleDX()
 {
-    ui->ConnectLabel->setText("   Disconnected   ");
-    ui->ConnectButton->setText("Connect");
-    isCollimatorsConnected = false;
+    return maxOpeningX - posLeft - posRight;
 }
 
-void MainWindow::on_TestButton_clicked()
+float MainWindow::CalculateHoleDY()
 {
-//    hardware->CollimatorsDataReceived();
+    return maxOpeningY - posTop - posBottom;
 }
 
-void MainWindow::on_PulsesButton_clicked()
+float MainWindow::CalculateHoleOffsetX()
 {
-//    hardware->SetPulses(ChooseCollimatorSet(),
-//                        ChooseMotor(),
-//                        ui->WidthSpinBox->text(),
-//                        ui->PeriodSpinBox->text()
-//                        );
+    return (posLeft - posRight)/2.;
 }
 
-void MainWindow::on_PeriodSpinBox_valueChanged(const QString &arg1)
+float MainWindow::CalculateHoleOffsetY()
 {
-    float t = usPerTimerTick * arg1.toInt();
-
-    if (ValidatePulsesPeriod(t)) {
-        ui->PulsesPeriodUS->setText("= " + QString::number(t) + " us");
-    } else {
-        ui->PeriodSpinBox->setValue(int(MAX_PULSE_PERIOD_US/usPerTimerTick));
-        ui->PulsesPeriodUS->setText("= " + QString::number(MAX_PULSE_PERIOD_US) + " us");
-    }
+    return (posBottom - posTop)/2.;
 }
 
-void MainWindow::on_WidthSpinBox_valueChanged(const QString &arg1)
+void MainWindow::MoveRightRequested()
 {
-    float w = usPerTimerTick * arg1.toInt();
-
-    if (ValidatePulsesWidth(w)) {
-        ui->PulsesWidthUS->setText("= " + QString::number(w) + " us");
-    } else {
-        ui->WidthSpinBox->setValue(int(MAX_PULSE_WIDTH_US/usPerTimerTick));
-        ui->PulsesWidthUS->setText("= " + QString::number(MAX_PULSE_WIDTH_US) + " us");
-    }
+    ui->rightCollimator->setChecked(true);
+    ui->coordLineEdit->selectAll();
+    ui->coordLineEdit->setFocus();
 }
 
-void MainWindow::on_CoordinateLineEdit_textChanged(const QString &arg1)
+void MainWindow::MoveLeftRequested()
 {
-    if (arg1.toFloat() > 14.99) {
-        ui->CoordinateLineEdit->setText("14,99");
-    }
+    ui->leftCollimator->setChecked(true);
+    ui->coordLineEdit->selectAll();
+    ui->coordLineEdit->setFocus();
 }
 
-QString MainWindow::CoordToShow(uint16_t coordinate)
+void MainWindow::MoveTopRequested()
 {
-    QString textCoord = QString::number( coordinate/1000. );
-    return textCoord/*.mid( 0, end )*/;
+    ui->topCollimator->setChecked(true);
+    ui->coordLineEdit->selectAll();
+    ui->coordLineEdit->setFocus();
 }
 
-void MainWindow::on_ResetOnePushButton_clicked()
+void MainWindow::MoveBottomRequested()
 {
-    int set = ChooseCollimatorSet();
-    int motor = ChooseMotor();
-
-    UnknownCoordinate(set, motor);
-    emit ResetMotor(set, motor);
+    ui->bottomCollimator->setChecked(true);
+    ui->coordLineEdit->selectAll();
+    ui->coordLineEdit->setFocus();
 }
 
-void MainWindow::on_ResetAllPushButton_clicked()
+void MainWindow::ResetRightRequested()
 {
-//    hardware->ResetAll(ChooseCollimatorSet());
+    int collimatorBox = GetActiveCollimatorBox();
+    emit ResetCollimator(collimatorBox, COLL_RIGHT);
 }
 
-void MainWindow::on_UpdateCoordinatesButton_clicked()
+void MainWindow::ResetLeftRequested()
 {
-    int set = ChooseCollimatorSet();
-    int motor = ChooseMotor();
-
-    UnknownCoordinate(set, motor);
-    emit GetMotorCoordinate(set, motor);
+    int collimatorBox = GetActiveCollimatorBox();
+    emit ResetCollimator(collimatorBox, COLL_LEFT);
 }
 
-void MainWindow::MotorCoordinateChanged(int setID, int motorID, uint16_t newCoordinate)
+void MainWindow::ResetTopRequested()
 {
-    QString coord;
-    if (newCoordinate != COORD_ERROR) {
-        coord = CoordToShow(newCoordinate);
-    } else {
-        coord = "No coordinate... Try resetting";
-    }
-    if (setID == ChooseCollimatorSet()) {
-        if (motorID == 0) {
-            ui->DisplayCoordinate1->setText(coord);
-        } else if (motorID == 1) {
-            ui->DisplayCoordinate2->setText(coord);
-        } else if (motorID == 2) {
-            ui->DisplayCoordinate3->setText(coord);
-        } else if (motorID == 3) {
-            ui->DisplayCoordinate4->setText(coord);
-        }
-    }
+    int collimatorBox = GetActiveCollimatorBox();
+    emit ResetCollimator(collimatorBox, COLL_TOP);
 }
 
-void MainWindow::UnknownCoordinate(int setID, int motorID)
+void MainWindow::ResetBottomRequested()
 {
-    QString unkn = "-----";
-    if (setID == ChooseCollimatorSet()) {
-        if (motorID == 0) {
-            ui->DisplayCoordinate1->setText(unkn);
-        } else if (motorID == 1) {
-            ui->DisplayCoordinate2->setText(unkn);
-        } else if (motorID == 2) {
-            ui->DisplayCoordinate3->setText(unkn);
-        } else if (motorID == 3) {
-            ui->DisplayCoordinate4->setText(unkn);
-        }
-    }
+    int collimatorBox = GetActiveCollimatorBox();
+    emit ResetCollimator(collimatorBox, COLL_BOTTOM);
 }
 
-void MainWindow::on_SelectEntranceRadio_clicked()
+void MainWindow::MoveCollimatorHandler()
 {
-    int setID = ChooseCollimatorSet();
-    for (int motorID = 0; motorID < 4; ++motorID) {
-//        MotorCoordinateChanged(setID, motorID, hardware->ShowMotorCoordinate(setID, motorID));
-    }
-    qDebug() << "Entrance has been chosen";
+    int collimatorBox = GetActiveCollimatorBox();
+    int collimatorID = GetActiveCollimator();
+    QString coordinate = ui->coordLineEdit->text();
+    emit MoveCollimator(collimatorBox, collimatorID, coordinate);
 }
 
-void MainWindow::on_SelectExit1Radio_clicked()
+void MainWindow::ResetCollimatorHandler()
 {
-    int setID = ChooseCollimatorSet();
-    for (int motorID = 0; motorID < 4; ++motorID) {
-//        MotorCoordinateChanged(setID, motorID, hardware->ShowMotorCoordinate(setID, motorID));
-    }
-    qDebug() << "Exit 1 has been chosen";
+    int collimatorBox = GetActiveCollimatorBox();
+    int collimatorID = GetActiveCollimator();
+    emit ResetCollimator(collimatorBox, collimatorID);
 }
 
-void MainWindow::on_MagnetConnectButton_clicked()
-{
-//    if (!(hardware->IsMagnetConnected())) {
-//        hardware->SetMagnetIPAddress(ui->MagnetIPLine->text());
-//        hardware->ConnectMagnet();
-//    }
-}
 
-void MainWindow::MagnetConnected()
-{
-    ui->MagnetConnectLabel->setText("   Connected   ");
-    ui->MagnetConnectButton->setEnabled(false);
-}
 
-void MainWindow::UpdateMagnetData(float u, float i)
-{
-    ui->DisplayMagnetVoltageLine->setText(QString::number(u));
-    ui->DisplayMagnetCurrentLine->setText(QString::number(i));
-}
 
-void MainWindow::on_SetMagnetVoltageButton_clicked()
-{
-//    hardware->SetMagnetVoltage(ui->SetMagnetVoltageLine->text().toFloat());
-}
 
-void MainWindow::on_SetMagnetCurrentButton_clicked()
-{
-//    hardware->SetMagnetCurrent(ui->SetMagnetCurrentLine->text().toFloat());
-}
 
-void MainWindow::on_SetMagnetVoltageLine_textChanged(const QString &arg1)
-{
-    if (arg1.toFloat() < 0.) ui->SetMagnetVoltageLine->setText(QString::number(0.));
-    if (arg1.toFloat() > 18.) ui->SetMagnetVoltageLine->setText(QString::number(18.));
-}
 
-void MainWindow::on_SetMagnetCurrentLine_textChanged(const QString &arg1)
-{
-    if (arg1.toFloat() < 0.) ui->SetMagnetCurrentLine->setText(QString::number(0.));
-    if (arg1.toFloat() > 50.) ui->SetMagnetCurrentLine->setText(QString::number(50.));
-}
 
-void MainWindow::on_MagnetOnOffButton_clicked()
-{
-//    if (hardware->MagnetOutputStatus() == true) {
-//        hardware->MagnetOutputOff();
-//        ui->MagnetOnOffButton->setText("Output On");
-//    } else {
-//        hardware->MagnetOutputOn();
-//        ui->MagnetOnOffButton->setText("Output Off");
-//    }
-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

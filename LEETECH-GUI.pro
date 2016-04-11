@@ -22,7 +22,7 @@ SOURCES += main.cpp\
     encoder.cpp \
     collimatorsset.cpp \
     trajectory.cpp \
-    guiv2.cpp
+    collimatorgraphicsitem.cpp
 
 HEADERS  += mainwindow.h \
     ip_connection.h \
@@ -32,7 +32,11 @@ HEADERS  += mainwindow.h \
     collimatorsset.h \
     trajectory.h \
     m_errors.h \
-    guiv2.h
+    collimatorgraphicsitem.h \
+    types.h
 
-FORMS    += mainwindow.ui \
-    guiv2.ui
+FORMS    += mainwindow.ui
+
+OTHER_FILES += \
+    LEETECH-GUI.pro.user \
+    one_motor_raw_ss.pro.user
