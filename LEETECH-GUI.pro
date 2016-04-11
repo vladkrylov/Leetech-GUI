@@ -36,5 +36,7 @@ HEADERS  += mainwindow.h \
 FORMS    += mainwindow.ui
 
 OTHER_FILES += \
-    LEETECH-GUI.pro.user \
-    one_motor_raw_ss.pro.user
+    LEETECH-GUI.pro.user
+
+RESOURCES += \
+    resources.qrc

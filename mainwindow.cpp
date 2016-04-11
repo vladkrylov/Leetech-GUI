@@ -104,15 +104,24 @@ void MainWindow::ConstructScene()
     scene->addItem(holeDXText);
     scene->addItem(holeDYText);
 
-//    /**
-//     * Busy state indicator
-//     */
-//    QMovie *mv = new QMovie("/home/vlad/Downloads/31.gif");
-//    QLabel *lbl = new QLabel;
-//    mv->start();
-//    lbl->setAttribute(Qt::WA_NoSystemBackground);
-//    lbl->setMovie(mv);
-//    scene->addWidget(lbl)->setPos(100, 100);
+    /**
+     * Busy state indicator
+     */
+    waitingGif = new QMovie(":/31.gif");
+    waitingIndicator = new QLabel;
+//    proxyGif = new QGraphicsProxyWidget;
+    waitingGif->start();
+    waitingIndicator->setAttribute(Qt::WA_NoSystemBackground);
+    waitingIndicator->setMovie(waitingGif);
+
+    proxyGif = scene->addWidget(waitingIndicator);
+    proxyGif->setPos(30, 100);
+    scene->removeItem(proxyGif);
+
+    IndicateWaitingState();
+//    FinishWaitingState();
+//    IndicateWaitingState();
+//    scene->addWidget(waitingIndicator)->setPos(30, 100);
 
     /**
      * Hole offset information
@@ -365,6 +374,16 @@ void MainWindow::NiceMove(CollimatorGraphicsItem *collimator, QPointF to)
     positionBottomText->setPlainText(PositionBottomString(posBottom));
 }
 
+void MainWindow::IndicateWaitingState()
+{
+    scene->addItem(proxyGif);
+}
+
+void MainWindow::FinishWaitingState()
+{
+    scene->removeItem(proxyGif);
+}
+
 void MainWindow::Update()
 {
 
@@ -425,6 +444,7 @@ void MainWindow::UpdateCoordinate(int collimatorBox, int collimatorID, float pos
     default:
         break;
     }
+    FinishWaitingState();
 }
 
 void MainWindow::SetMaxOpeningX(float opening)
@@ -490,24 +510,28 @@ void MainWindow::MoveBottomRequested()
 void MainWindow::ResetRightRequested()
 {
     int collimatorBox = GetActiveCollimatorBox();
+    IndicateWaitingState();
     emit ResetCollimator(collimatorBox, COLL_RIGHT);
 }
 
 void MainWindow::ResetLeftRequested()
 {
     int collimatorBox = GetActiveCollimatorBox();
+    IndicateWaitingState();
     emit ResetCollimator(collimatorBox, COLL_LEFT);
 }
 
 void MainWindow::ResetTopRequested()
 {
     int collimatorBox = GetActiveCollimatorBox();
+    IndicateWaitingState();
     emit ResetCollimator(collimatorBox, COLL_TOP);
 }
 
 void MainWindow::ResetBottomRequested()
 {
     int collimatorBox = GetActiveCollimatorBox();
+    IndicateWaitingState();
     emit ResetCollimator(collimatorBox, COLL_BOTTOM);
 }
 
@@ -516,6 +540,7 @@ void MainWindow::MoveCollimatorHandler()
     int collimatorBox = GetActiveCollimatorBox();
     int collimatorID = GetActiveCollimator();
     QString coordinate = ui->coordLineEdit->text();
+    IndicateWaitingState();
     emit MoveCollimator(collimatorBox, collimatorID, coordinate);
 }
 
@@ -523,6 +548,7 @@ void MainWindow::ResetCollimatorHandler()
 {
     int collimatorBox = GetActiveCollimatorBox();
     int collimatorID = GetActiveCollimator();
+    IndicateWaitingState();
     emit ResetCollimator(collimatorBox, collimatorID);
 }
 

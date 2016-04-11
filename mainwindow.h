@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include <QtCore>
 #include <QtGui>
+#include <QLabel>
 #include <QMenu>
 #include <QAction>
 #include <QFont>
@@ -109,6 +110,12 @@ private:
     QTimeLine* animationTimer;
     QGraphicsItemAnimation* animation;
     void NiceMove(CollimatorGraphicsItem* collimator, QPointF to);
+
+    QMovie* waitingGif;
+    QLabel* waitingIndicator;
+    QGraphicsProxyWidget* proxyGif;
+    void IndicateWaitingState();
+    void FinishWaitingState();
 
 private slots:
     void MoveRightRequested();
