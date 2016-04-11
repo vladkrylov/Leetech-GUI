@@ -118,10 +118,7 @@ void MainWindow::ConstructScene()
     proxyGif->setPos(30, 100);
     scene->removeItem(proxyGif);
 
-    IndicateWaitingState();
-//    FinishWaitingState();
 //    IndicateWaitingState();
-//    scene->addWidget(waitingIndicator)->setPos(30, 100);
 
     /**
      * Hole offset information
@@ -231,6 +228,11 @@ void MainWindow::ConstructScene()
     connect(left, SIGNAL(ResetMe()), this, SLOT(ResetLeftRequested()));
     connect(top, SIGNAL(ResetMe()), this, SLOT(ResetTopRequested()));
     connect(bottom, SIGNAL(ResetMe()), this, SLOT(ResetBottomRequested()));
+
+    connect(right, SIGNAL(UpdateMe()), this, SLOT(UpdateRightRequested()));
+    connect(left, SIGNAL(UpdateMe()), this, SLOT(UpdateLeftRequested()));
+    connect(top, SIGNAL(UpdateMe()), this, SLOT(UpdateTopRequested()));
+    connect(bottom, SIGNAL(UpdateMe()), this, SLOT(UpdateBottomRequested()));
 }
 
 void MainWindow::ConnectUIActions()
@@ -535,6 +537,34 @@ void MainWindow::ResetBottomRequested()
     emit ResetCollimator(collimatorBox, COLL_BOTTOM);
 }
 
+void MainWindow::UpdateRightRequested()
+{
+    int collimatorBox = GetActiveCollimatorBox();
+    IndicateWaitingState();
+    emit UpdateCollimator(collimatorBox, COLL_RIGHT);
+}
+
+void MainWindow::UpdateLeftRequested()
+{
+    int collimatorBox = GetActiveCollimatorBox();
+    IndicateWaitingState();
+    emit UpdateCollimator(collimatorBox, COLL_LEFT);
+}
+
+void MainWindow::UpdateTopRequested()
+{
+    int collimatorBox = GetActiveCollimatorBox();
+    IndicateWaitingState();
+    emit UpdateCollimator(collimatorBox, COLL_TOP);
+}
+
+void MainWindow::UpdateBottomRequested()
+{
+    int collimatorBox = GetActiveCollimatorBox();
+    IndicateWaitingState();
+    emit UpdateCollimator(collimatorBox, COLL_BOTTOM);
+}
+
 void MainWindow::MoveCollimatorHandler()
 {
     int collimatorBox = GetActiveCollimatorBox();
@@ -550,6 +580,14 @@ void MainWindow::ResetCollimatorHandler()
     int collimatorID = GetActiveCollimator();
     IndicateWaitingState();
     emit ResetCollimator(collimatorBox, collimatorID);
+}
+
+void MainWindow::UpdateCollimatorHandler()
+{
+    int collimatorBox = GetActiveCollimatorBox();
+    int collimatorID = GetActiveCollimator();
+    IndicateWaitingState();
+    emit UpdateCollimator(collimatorBox, collimatorID);
 }
 
 void MainWindow::CollimatorsConnected()

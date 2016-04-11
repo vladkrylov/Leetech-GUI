@@ -17,6 +17,7 @@ Controller::Controller(QObject *parent) : QObject(parent)
     connect(view, SIGNAL(ConnectCollimatiors(QString)), CollMaster, SLOT(Connect(QString)));
     connect(view, SIGNAL(DisconnectCollimatiors()), CollMaster, SLOT(Disconnect()));
     connect(view, SIGNAL(ResetCollimator(int,int)), this, SLOT(ResetCollimator(int,int)));
+    connect(view, SIGNAL(UpdateCollimator(int,int)), this, SLOT(GetCollimatorCoordinate(int,int)));
     connect(view, SIGNAL(MoveCollimator(int,int,QString)), this, SLOT(SetCollimatorCoordinate(int,int,QString)));
 
     connect(CollMaster, SIGNAL(Connected()), view, SLOT(CollimatorsConnected()));

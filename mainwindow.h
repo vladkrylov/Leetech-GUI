@@ -43,6 +43,7 @@ signals:
     void DisconnectCollimatiors();
     void MoveCollimator(int collimatorBox, int collimatorID, QString coordinate);
     void ResetCollimator(int collimatorBox, int collimatorID);
+    void UpdateCollimator(int collimatorBox, int collimatorID);
 
 private:
     Ui::MainWindow* ui;
@@ -122,13 +123,20 @@ private slots:
     void MoveLeftRequested();
     void MoveTopRequested();
     void MoveBottomRequested();
+
     void ResetRightRequested();
     void ResetLeftRequested();
     void ResetTopRequested();
     void ResetBottomRequested();
 
+    void UpdateRightRequested();
+    void UpdateLeftRequested();
+    void UpdateTopRequested();
+    void UpdateBottomRequested();
+
     void MoveCollimatorHandler();
     void ResetCollimatorHandler();
+    void UpdateCollimatorHandler();
     void on_ConnectButton_clicked();
 };
 
