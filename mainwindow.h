@@ -29,11 +29,17 @@ public:
     ~MainWindow();
 
     void Update();
-    void UpdateCoordinate(int motorID, float position);
     void SetMaxOpeningX(float opening);
     void SetMaxOpeningY(float opening);
 
+public slots:
+    void CollimatorsConnected();
+    void CollimatorsDisconnected();
+    void UpdateCoordinate(int collimatorBox, int collimatorID, float position);
+
 signals:
+    void ConnectCollimatiors(QString IPAddress);
+    void DisconnectCollimatiors();
     void MoveCollimator(int collimatorBox, int collimatorID, QString coordinate);
     void ResetCollimator(int collimatorBox, int collimatorID);
 
@@ -116,6 +122,7 @@ private slots:
 
     void MoveCollimatorHandler();
     void ResetCollimatorHandler();
+    void on_ConnectButton_clicked();
 };
 
 #endif // MAINWINDOW_H

@@ -29,7 +29,7 @@ int CollimatorsSet::GetID()
 
 void CollimatorsSet::MotorCoordinateChangedSlot(int motorID, uint16_t newCoordinate)
 {
-    emit MotorCoordinateChanged(GetID(), motorID, newCoordinate);
+    emit MotorCoordinateChanged(GetID(), motorID, newCoordinate/1000.);
 }
 
 uint16_t CollimatorsSet::GetMotorOrigin(int motorID)

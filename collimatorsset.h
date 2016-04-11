@@ -33,7 +33,7 @@ private slots:
     void MotorCoordinateChangedSlot(int motorID, uint16_t newCoordinate);
 
 signals:
-    void MotorCoordinateChanged(int setID, int motorID, uint16_t newCoordinate);
+    void MotorCoordinateChanged(int setID, int motorID, float newCoordinate);
 
 public slots:
 

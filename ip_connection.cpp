@@ -26,14 +26,15 @@ void IP_Connection::IP_Init()
     _Connected = false;
 }
 
-bool IP_Connection::PCB_Connect()
+bool IP_Connection::Connect(QString IPAddress)
 {
+    IP_Address = IPAddress;
     socket->connectToHost(IP_Address, 80);
     _Connected = socket->waitForConnected(Delay_waitForConnected);
     return _Connected;
 }
 
-void IP_Connection::PCB_Disconnect()
+void IP_Connection::Disconnect()
 {
     if (_Connected) {
         socket->disconnectFromHost();

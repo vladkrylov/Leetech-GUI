@@ -3,7 +3,10 @@
 
 #include <stdint.h>
 #include <QObject>
+
 #include "mainwindow.h"
+#include "ip_connection.h"
+#include "collimatorsset.h"
 
 class Controller : public QObject
 {
@@ -12,16 +15,8 @@ public:
     explicit Controller(QObject *parent = 0);
     ~Controller();
 
-    int IsCollimatorsConnected();
-    int ConnectCollimators();
-    void DisconnectCollimators();
-    void SetCollimatorsIPAddress(const QString &ipaddress);
-
     void TalkToBoard(const QString &sendPhrase);
     void ResetCollimatorsData(int setID);
-
-    void GetCollimatorCoordinate(int setID, int motorID);
-
 
     void ResetAllCollimators(int setID);
 
@@ -37,6 +32,8 @@ public:
     void MagnetOutputOff();
 
 private:
+    IP_Connection* CollMaster;
+    CollimatorsSet** collSets;
     MainWindow* view;
 
     QString GenerateCoordinate(const QString &coord_mm, int setID, int motorID);
@@ -44,8 +41,10 @@ private:
     QByteArray InitResponse();
 
 private slots:
-    void SetCollimatorCoordinate(int setID, int motorID, const QString &coord_mm);
-    void ResetCollimator(int setID, int motorID);
+    void DataReceived();
+    void GetCollimatorCoordinate(int boxID, int collimatorID);
+    void SetCollimatorCoordinate(int boxID, int collimatorID, const QString &coord_mm);
+    void ResetCollimator(int boxID, int collimatorID);
 
 signals:
     void CollimatorCoordinateChanged(int setID, int motorID, uint16_t newCoordinate);

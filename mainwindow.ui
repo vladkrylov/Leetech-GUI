@@ -581,7 +581,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QLineEdit" name="lineEdit">
+         <widget class="QLineEdit" name="IPLineEdit">
           <property name="maximumSize">
            <size>
             <width>120</width>
@@ -589,7 +589,7 @@
            </size>
           </property>
           <property name="text">
-           <string>134.158.91.37</string>
+           <string>134.158.91.38</string>
           </property>
          </widget>
         </item>
@@ -622,7 +622,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QLabel" name="label_11">
+         <widget class="QLabel" name="ConnectLabel">
           <property name="minimumSize">
            <size>
             <width>150</width>

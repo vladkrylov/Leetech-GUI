@@ -18,7 +18,6 @@ SOURCES += main.cpp\
         mainwindow.cpp \
     ip_connection.cpp \
     controller.cpp \
-    tests.cpp \
     encoder.cpp \
     collimatorsset.cpp \
     trajectory.cpp \
@@ -27,7 +26,6 @@ SOURCES += main.cpp\
 HEADERS  += mainwindow.h \
     ip_connection.h \
     controller.h \
-    tests.h \
     encoder.h \
     collimatorsset.h \
     trajectory.h \

@@ -370,14 +370,14 @@ void MainWindow::Update()
 
 }
 
-void MainWindow::UpdateCoordinate(int motorID, float position)
+void MainWindow::UpdateCoordinate(int collimatorBox, int collimatorID, float position)
 {
     int originX = 0;
     int originY = 0;
     int destX = 0;
     int destY = 0;
 
-    switch (motorID) {
+    switch (collimatorID) {
     case COLL_RIGHT:
         posRight = position;
 
@@ -526,28 +526,23 @@ void MainWindow::ResetCollimatorHandler()
     emit ResetCollimator(collimatorBox, collimatorID);
 }
 
+void MainWindow::CollimatorsConnected()
+{
+    ui->ConnectLabel->setText("Connected");
+    ui->ConnectButton->setText("Disconnect");
+}
 
+void MainWindow::CollimatorsDisconnected()
+{
+    ui->ConnectLabel->setText("Disconnected");
+    ui->ConnectButton->setText("Connect");
+}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+void MainWindow::on_ConnectButton_clicked()
+{
+    if (ui->ConnectButton->text() == "Connect") {
+        emit ConnectCollimatiors(ui->IPLineEdit->text());
+    } else if (ui->ConnectButton->text() == "Disconnect") {
+        emit DisconnectCollimatiors();
+    }
+}
