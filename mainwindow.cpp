@@ -5,16 +5,19 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
+const float usPerTimerTick = 0.025;
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
-  , sceneSize(480)
+  , sceneSize(500)
   , animation(NULL)
   , animationTimer(NULL)
 {
     ui->setupUi(this);
     ui->collimatorScene->setMinimumSize(sceneSize+2, sceneSize+2);
+
+    CreateTopMenu();
 
     ConstructScene();
     ConnectUIActions();
@@ -397,7 +400,9 @@ void MainWindow::NiceMove(CollimatorGraphicsItem *collimator, QPointF to)
 void MainWindow::FinishWaitingState()
 {
     // remove waiting indicator from the scene
-    scene->removeItem(proxyGif);
+    if (scene->items().contains(proxyGif)) {
+        scene->removeItem(proxyGif);
+    }
     // change the state
     applicationState = READY;
     emit ImReady();
@@ -405,11 +410,6 @@ void MainWindow::FinishWaitingState()
 
 void MainWindow::WaitForReady()
 {
-//    while (applicationState != READY) {
-//        QThread::msleep(100);
-//    }
-//    QEventLoop loop;
-//    loop.connect(this, )
     forever {
         if (applicationState == READY)
             break;
@@ -494,6 +494,20 @@ void MainWindow::UpdateCoordinate(int collimatorBox, int collimatorID, float pos
         break;
     }
     FinishWaitingState();
+}
+
+void MainWindow::CreateTopMenuActions()
+{
+    setPulsesAction = new QAction(tr("&PWM pulses"), this);
+    setPulsesAction->setStatusTip(tr("Set parameters of PWM pulses sent to piezomotors"));
+    connect(setPulsesAction, SIGNAL(triggered()), this, SLOT(SetPWM()));
+}
+
+void MainWindow::CreateTopMenu()
+{
+    CreateTopMenuActions();
+    settingsMenu = menuBar()->addMenu(tr("&Settings"));
+    settingsMenu->addAction(setPulsesAction);
 }
 
 void MainWindow::SetMaxOpeningX(float opening)
@@ -607,43 +621,45 @@ void MainWindow::UpdateBottomRequested()
 void MainWindow::CloseHorizontal()
 {
     int collimatorBox = GetActiveCollimatorBox();
-    switch (collimatorBox) {
-    case BOX_ENTRANCE:
-        emit MoveCollimator(collimatorBox, COLL_LEFT, "12.000");
-        WaitForReady();
+//    switch (collimatorBox) {
+//    case BOX_ENTRANCE:
+//        emit MoveCollimator(collimatorBox, COLL_LEFT, "12.000");
+//        WaitForReady();
 
-        emit MoveCollimator(collimatorBox, COLL_RIGHT, "12.000");
-        WaitForReady();
+//        emit MoveCollimator(collimatorBox, COLL_RIGHT, "12.000");
+//        WaitForReady();
 
-        emit UpdateCollimator(collimatorBox, COLL_LEFT);
-        WaitForReady();
-        break;
-    case BOX_EXIT1:
-        break;
-    case BOX_EXIT2:
-        break;
-    }
+//        emit UpdateCollimator(collimatorBox, COLL_LEFT);
+//        WaitForReady();
+//        break;
+//    case BOX_EXIT1:
+//        break;
+//    case BOX_EXIT2:
+//        break;
+//    }
+    emit CloseCollimators(collimatorBox, COLL_RIGHT);
 }
 
 void MainWindow::CloseVertical()
 {
     int collimatorBox = GetActiveCollimatorBox();
-    switch (collimatorBox) {
-    case BOX_ENTRANCE:
-        emit MoveCollimator(collimatorBox, COLL_TOP, "12.000");
-        WaitForReady();
+//    switch (collimatorBox) {
+//    case BOX_ENTRANCE:
+//        emit MoveCollimator(collimatorBox, COLL_TOP, "12.000");
+//        WaitForReady();
 
-        emit MoveCollimator(collimatorBox, COLL_BOTTOM, "12.000");
-        WaitForReady();
+//        emit MoveCollimator(collimatorBox, COLL_BOTTOM, "12.000");
+//        WaitForReady();
 
-        emit UpdateCollimator(collimatorBox, COLL_TOP);
-        WaitForReady();
-        break;
-    case BOX_EXIT1:
-        break;
-    case BOX_EXIT2:
-        break;
-    }
+//        emit UpdateCollimator(collimatorBox, COLL_TOP);
+//        WaitForReady();
+//        break;
+//    case BOX_EXIT1:
+//        break;
+//    case BOX_EXIT2:
+//        break;
+//    }
+    emit CloseCollimators(collimatorBox, COLL_TOP);
 }
 
 void MainWindow::MoveCollimatorHandler()
@@ -668,6 +684,9 @@ void MainWindow::ResetAllCollimatorHandler()
         emit ResetCollimator(collimatorBox, collimatorID);
         WaitForReady();
     }
+//    int collimatorBox = GetActiveCollimatorBox();
+//    emit ResetAll();
+//    WaitForReady();
 }
 
 void MainWindow::UpdateCollimatorHandler()
@@ -675,6 +694,11 @@ void MainWindow::UpdateCollimatorHandler()
     int collimatorBox = GetActiveCollimatorBox();
     int collimatorID = GetActiveCollimator();
     emit UpdateCollimator(collimatorBox, collimatorID);
+}
+
+void MainWindow::SetPWM()
+{
+
 }
 
 void MainWindow::CollimatorsConnected()
@@ -706,4 +730,33 @@ void MainWindow::on_ResetAllButton_clicked()
 void MainWindow::on_holeSizeHorizontal_returnPressed()
 {
 
+}
+
+void MainWindow::on_holeSizeVertical_returnPressed()
+{
+
+}
+
+void MainWindow::on_centerHorizontalOffet_returnPressed()
+{
+
+}
+
+void MainWindow::on_centerVerticalOffet_returnPressed()
+{
+
+}
+
+void MainWindow::on_PulsePeriodBox_valueChanged(const QString &arg1)
+{
+    float T = usPerTimerTick * arg1.toInt();
+    ui->PeriodLine_us->setText("= " + QString::number(T) + " us");
+}
+
+void MainWindow::on_pushButton_clicked()
+{
+    int collimatorBox = GetActiveCollimatorBox();
+    int collimatorID = GetActiveCollimator();
+    QString T = ui->PulsePeriodBox->text();
+    emit SetPWMPeriod(collimatorBox, collimatorID, T);
 }

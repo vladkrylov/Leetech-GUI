@@ -17,7 +17,7 @@ public:
     void Update(QByteArray response);
     void UpdateAllOrigins(QByteArray response);
 
-    int GetPosition(int motorID);
+    float GetPosition(int motorID);
     uint16_t GetMotorOrigin(int motorID);
     uint8_t GetSteps2mm(int motorID);
 

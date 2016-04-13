@@ -32,19 +32,33 @@ public:
     void MagnetOutputOff();
 
 private:
+    typedef enum {
+        WAITING_FOR_COLLIMATORS_RESPONSE,
+        READY
+    } state_t;
+    state_t applicationState;
+
     IP_Connection* CollMaster;
     CollimatorsSet** collSets;
     MainWindow* view;
 
     QString GenerateCoordinate(const QString &coord_mm, int boxID, int collimatorID);
     int ValidateResponse(const QByteArray &response);
+    int GetBoxSpecificCollimatorID(int boxID, int collimatorID);
     QByteArray InitResponse();
 
+    int responsesRequested;
+
 private slots:
+    void UpdateCoordinate(int boxID, int collimatorID, float coord);
+
     void DataReceived();
     void GetCollimatorCoordinate(int boxID, int collimatorID);
     void SetCollimatorCoordinate(int boxID, int collimatorID, const QString &coord_mm);
     void ResetCollimator(int boxID, int collimatorID);
+    void ResetAll(int collimatorBox);
+    void CloseCollimators(int boxID, int collimatorID);
+    void SetPWM(int collimatorBox, int collimatorID, QString T);
 
 signals:
     void CollimatorCoordinateChanged(int setID, int motorID, uint16_t newCoordinate);

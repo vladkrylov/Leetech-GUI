@@ -35,8 +35,7 @@ HEADERS  += mainwindow.h \
 
 FORMS    += mainwindow.ui
 
-OTHER_FILES += \
-    LEETECH-GUI.pro.user
+OTHER_FILES +=
 
 RESOURCES += \
     resources.qrc

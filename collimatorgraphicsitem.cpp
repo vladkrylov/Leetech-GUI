@@ -41,8 +41,8 @@ void CollimatorGraphicsItem::paint(QPainter *painter, const QStyleOptionGraphics
     QBrush brush1(Qt::darkGray);
     QBrush brush2(Qt::lightGray);
 
-    QRect r1(w-h/1.8, 0, h/1.8, h);
-    QRect r2(0, h/3, w-h/1.8, h/3);
+    QRect r1(w-h/1.7, 0, h/1.7, h);
+    QRect r2(0, h/3, w-h/1.7, h/3);
 
     painter->fillRect(r1, brush1);
     painter->fillRect(r2, brush2);

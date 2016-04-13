@@ -43,7 +43,10 @@ signals:
     void DisconnectCollimatiors();
     void MoveCollimator(int collimatorBox, int collimatorID, QString coordinate);
     void ResetCollimator(int collimatorBox, int collimatorID);
+    void ResetAll(int collimatorBox);
+    void CloseCollimators(int collimatorBox, int collimatorID);
     void UpdateCollimator(int collimatorBox, int collimatorID);
+    void SetPWMPeriod(int collimatorBox, int collimatorID, QString T);
     void ImReady();
 
 private:
@@ -57,10 +60,18 @@ private:
     int sceneSize;
     QGraphicsScene* scene;
 
+    // right click menu items
     QMenu* collimatorMenu;
     QAction* moveAction;
     QAction* resetAction;
 
+    // top menu items
+    QMenu* settingsMenu;
+    QAction* setPulsesAction;
+    void CreateTopMenuActions();
+    void CreateTopMenu();
+
+    // scene elements
     CollimatorGraphicsItem* left;
     CollimatorGraphicsItem* right;
     CollimatorGraphicsItem* top;
@@ -153,9 +164,15 @@ private slots:
     void ResetCollimatorHandler();
     void ResetAllCollimatorHandler();
     void UpdateCollimatorHandler();
+    void SetPWM();
     void on_ConnectButton_clicked();
     void on_ResetAllButton_clicked();
     void on_holeSizeHorizontal_returnPressed();
+    void on_holeSizeVertical_returnPressed();
+    void on_centerHorizontalOffet_returnPressed();
+    void on_centerVerticalOffet_returnPressed();
+    void on_PulsePeriodBox_valueChanged(const QString &arg1);
+    void on_pushButton_clicked();
 };
 
 #endif // MAINWINDOW_H

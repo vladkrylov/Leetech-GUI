@@ -37,9 +37,9 @@ uint16_t CollimatorsSet::GetMotorOrigin(int motorID)
     return motors[motorID]->GetOrigin_mm();
 }
 
-int CollimatorsSet::GetPosition(int motorID)
+float CollimatorsSet::GetPosition(int motorID)
 {
-    return motors[motorID]->GetPosition_mm();
+    return motors[motorID]->GetPosition_mm()/1000.;
 }
 
 uint8_t CollimatorsSet::GetSteps2mm(int motorID)
