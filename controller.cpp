@@ -24,8 +24,8 @@ Controller::Controller(QObject *parent) : QObject(parent)
     connect(CollMaster, SIGNAL(Disconnected()), view, SLOT(CollimatorsDisconnected()));
     connect(CollMaster, SIGNAL(dataReceived()), this, SLOT(DataReceived()));
 
-    view->SetMaxOpeningX(20.);
-    view->SetMaxOpeningY(22.);
+    view->SetMaxOpeningX(19.941);
+    view->SetMaxOpeningY(20.992);
 
     view->show();
 }

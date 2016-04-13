@@ -44,8 +44,15 @@ signals:
     void MoveCollimator(int collimatorBox, int collimatorID, QString coordinate);
     void ResetCollimator(int collimatorBox, int collimatorID);
     void UpdateCollimator(int collimatorBox, int collimatorID);
+    void ImReady();
 
 private:
+    typedef enum {
+        WAITING_FOR_COLLIMATORS_RESPONSE,
+        READY
+    } state_t;
+    state_t applicationState;
+
     Ui::MainWindow* ui;
     int sceneSize;
     QGraphicsScene* scene;
@@ -102,6 +109,7 @@ private:
 
     void ConstructScene();
     void ConnectUIActions();
+    void ConnectCollimatorsRequests();
 
     int GetActiveCollimatorBox();
     int GetActiveCollimator();
@@ -115,10 +123,14 @@ private:
     QMovie* waitingGif;
     QLabel* waitingIndicator;
     QGraphicsProxyWidget* proxyGif;
-    void IndicateWaitingState();
     void FinishWaitingState();
+    void WaitForReady();
+
+    void CollimatorBoxChanged();
 
 private slots:
+    void SetWaitingState();
+
     void MoveRightRequested();
     void MoveLeftRequested();
     void MoveTopRequested();
@@ -134,10 +146,16 @@ private slots:
     void UpdateTopRequested();
     void UpdateBottomRequested();
 
+    void CloseHorizontal();
+    void CloseVertical();
+
     void MoveCollimatorHandler();
     void ResetCollimatorHandler();
+    void ResetAllCollimatorHandler();
     void UpdateCollimatorHandler();
     void on_ConnectButton_clicked();
+    void on_ResetAllButton_clicked();
+    void on_holeSizeHorizontal_returnPressed();
 };
 
 #endif // MAINWINDOW_H
