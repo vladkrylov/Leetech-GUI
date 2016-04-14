@@ -30,13 +30,13 @@ public:
     ~MainWindow();
 
     void Update();
-    void SetMaxOpeningX(float opening);
-    void SetMaxOpeningY(float opening);
 
 public slots:
     void CollimatorsConnected();
     void CollimatorsDisconnected();
     void UpdateCoordinate(int collimatorBox, int collimatorID, float position);
+    void SetMaxOpeningX(int collimatorBox, float opening);
+    void SetMaxOpeningY(int collimatorBox, float opening);
 
 signals:
     void ConnectCollimatiors(QString IPAddress);

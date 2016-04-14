@@ -4,16 +4,17 @@
 #include "controller.h"
 
 Controller::Controller(QObject *parent) : QObject(parent)
-  ,applicationState(READY)
-  ,responsesRequested(0)
+  ,waitForResponse(false)
 {
     view = new MainWindow();
     CollMaster = new IP_Connection();
 
     collSets = new CollimatorsSet*[N_SETS];
-    for (int i=BOX_ENTRANCE; i<N_SETS; i++) {
+    for (int i=0; i<N_SETS; i++) {
         collSets[i] = new CollimatorsSet(i);
         connect(collSets[i], SIGNAL(MotorCoordinateChanged(int,int,float)), this, SLOT(UpdateCoordinate(int,int,float)));
+        connect(collSets[i], SIGNAL(HorizontalMaxOpeningChanged(int,float)), view, SLOT(SetMaxOpeningX(int,float)));
+        connect(collSets[i], SIGNAL(VerticalMaxOpeningChanged(int,float)), view, SLOT(SetMaxOpeningY(int,float)));
     }
 
     connect(view, SIGNAL(ConnectCollimatiors(QString)), CollMaster, SLOT(Connect(QString)));
@@ -29,8 +30,8 @@ Controller::Controller(QObject *parent) : QObject(parent)
     connect(CollMaster, SIGNAL(Disconnected()), view, SLOT(CollimatorsDisconnected()));
     connect(CollMaster, SIGNAL(dataReceived()), this, SLOT(DataReceived()));
 
-    view->SetMaxOpeningX(19.941);
-    view->SetMaxOpeningY(20.992);
+    collSets[BOX_ENTRANCE]->SetHorizontalMaxOpening(10.941);
+    collSets[BOX_ENTRANCE]->SetVerticalMaxOpening(10.992);
 
     view->show();
 }
@@ -72,20 +73,6 @@ void Controller::DataReceived()
 
         collSets[setID]->Update(response);
     }
-}
-
-void Controller::GetCollimatorCoordinate(int boxID, int collimatorID)
-{
-    QString data_to_send = "getc_motor"
-            + QString::number(collimatorID+1)
-            + "_steps2mm="
-            + QString::number(collSets[boxID]->GetSteps2mm(collimatorID))
-            + "_setID="
-            + QString::number(boxID)
-            + "_______________"
-            ;
-
-    TalkToBoard(data_to_send);
 }
 
 QString Controller::GenerateCoordinate(const QString &coord_mm, int boxID, int collimatorID)
@@ -150,13 +137,94 @@ int Controller::GetBoxSpecificCollimatorID(int boxID, int collimatorID)
     }
 }
 
+int Controller::OppositeCollimator(int collimatorID)
+{
+    switch (collimatorID) {
+    case COLL_LEFT:
+        return COLL_RIGHT;
+        break;
+    case COLL_RIGHT:
+        return COLL_LEFT;
+        break;
+    case COLL_TOP:
+        return COLL_BOTTOM;
+        break;
+    case COLL_BOTTOM:
+        return COLL_TOP;
+        break;
+    }
+}
+
+int Controller::GetStrongCollimator(int boxID, int collimatorID)
+{
+    switch (boxID) {
+    case BOX_ENTRANCE:
+        switch (collimatorID) {
+        case COLL_LEFT:
+        case COLL_RIGHT:
+            return COLL_RIGHT;
+            break;
+        case COLL_TOP:
+        case COLL_BOTTOM:
+            return COLL_TOP;
+            break;
+        }
+        break;
+
+    case BOX_EXIT1:
+        switch (collimatorID) {
+        case COLL_LEFT:
+        case COLL_RIGHT:
+            return COLL_RIGHT;
+            break;
+        case COLL_TOP:
+        case COLL_BOTTOM:
+            return COLL_TOP;
+            break;
+        }
+        break;
+
+    case BOX_EXIT2:
+        switch (collimatorID) {
+        case COLL_LEFT:
+        case COLL_RIGHT:
+            return COLL_RIGHT;
+            break;
+        case COLL_TOP:
+        case COLL_BOTTOM:
+            return COLL_TOP;
+            break;
+        }
+        break;
+    }
+}
+
+int Controller::GetWeakCollimator(int boxID, int collimatorID)
+{
+    return OppositeCollimator(GetStrongCollimator(boxID, collimatorID));
+}
+
 void Controller::UpdateCoordinate(int boxID, int collimatorID, float coord)
 {
-    if (responsesRequested == 0) {
+    if (!waitForResponse) {
         view->UpdateCoordinate(boxID, collimatorID, coord);
     } else {
-        responsesRequested--;
+        waitForResponse = false;
     }
+}
+
+void Controller::GetCollimatorCoordinate(int boxID, int collimatorID)
+{
+    QString data_to_send = "getc_motor"
+            + QString::number(collimatorID+1)
+            + "_steps2mm="
+            + QString::number(collSets[boxID]->GetSteps2mm(collimatorID))
+            + "_setID="
+            + QString::number(boxID)
+            + "_______________"
+            ;
+
+    TalkToBoard(data_to_send);
 }
 
 void Controller::SetCollimatorCoordinate(int boxID, int collimatorID, const QString &coord_mm)
@@ -191,35 +259,53 @@ void Controller::ResetCollimator(int boxID, int collimatorID)
 
 void Controller::ResetAll(int collimatorBox)
 {
-    responsesRequested = N_COLLIMATORS;
 
 }
 
 void Controller::CloseCollimators(int boxID, int collimatorID)
 {
-    switch (collimatorID) {
-    case COLL_RIGHT:
-    case COLL_LEFT:
-        break;
-    case COLL_TOP:
-    case COLL_BOTTOM:
-        responsesRequested = 2;
-        // move the top collimator
-        SetCollimatorCoordinate(boxID, COLL_TOP, "12.000");
-        // wait for collimators response
-        while(responsesRequested != 1) {
-            qApp->processEvents();
-        }
-        // move the bottom collimator
-        SetCollimatorCoordinate(boxID, COLL_BOTTOM, "12.000");
-        // wait for collimators response
-        while(responsesRequested != 1) {
-            qApp->processEvents();
-        }
-        view->UpdateCoordinate(boxID, COLL_TOP, collSets[boxID]->GetPosition(COLL_TOP));
-        view->UpdateCoordinate(boxID, COLL_BOTTOM, collSets[boxID]->GetPosition(COLL_BOTTOM));
-        break;
+    int strongCollimator = GetStrongCollimator(boxID, collimatorID);
+    int weakCollimator = GetWeakCollimator(boxID, collimatorID);
+
+    // move the strong collimator
+    waitForResponse = true;
+    SetCollimatorCoordinate(boxID, strongCollimator, "11.000");
+    // wait for collimators response
+    while(waitForResponse) {
+        qApp->processEvents();
     }
+
+    // move the weak collimator
+    waitForResponse = true;
+    SetCollimatorCoordinate(boxID, weakCollimator, "11.000");
+    // wait for collimators response
+    while(waitForResponse) {
+        qApp->processEvents();
+    }
+
+    // update the strong collimator's position
+    waitForResponse = true;
+    GetCollimatorCoordinate(boxID, strongCollimator);
+    // wait for collimators response
+    while(waitForResponse) {
+        qApp->processEvents();
+    }
+
+    float strongCollimatorPosition = collSets[boxID]->GetPosition(strongCollimator); // mm
+    float weakCollimatorPosition = collSets[boxID]->GetPosition(weakCollimator); // mm
+
+    // calculate maximum opening in collimators pair
+    float maxOpening = strongCollimatorPosition + weakCollimatorPosition;
+    if (collimatorID == COLL_RIGHT || collimatorID == COLL_LEFT) {
+        if (maxOpening > collSets[boxID]->GetHorizontalMaxOpening())
+            collSets[boxID]->SetHorizontalMaxOpening(maxOpening);
+    } else {
+        if (maxOpening > collSets[boxID]->GetVerticalMaxOpening())
+            collSets[boxID]->SetVerticalMaxOpening(maxOpening);
+    }
+
+    view->UpdateCoordinate(boxID, strongCollimator, strongCollimatorPosition);
+    view->UpdateCoordinate(boxID, weakCollimator, weakCollimatorPosition);
 }
 
 void Controller::SetPWM(int collimatorBox, int collimatorID, QString T)

@@ -32,12 +32,7 @@ public:
     void MagnetOutputOff();
 
 private:
-    typedef enum {
-        WAITING_FOR_COLLIMATORS_RESPONSE,
-        READY
-    } state_t;
-    state_t applicationState;
-
+    bool waitForResponse;
     IP_Connection* CollMaster;
     CollimatorsSet** collSets;
     MainWindow* view;
@@ -45,9 +40,14 @@ private:
     QString GenerateCoordinate(const QString &coord_mm, int boxID, int collimatorID);
     int ValidateResponse(const QByteArray &response);
     int GetBoxSpecificCollimatorID(int boxID, int collimatorID);
+
+    int OppositeCollimator(int collimatorID);
+    int GetStrongCollimator(int boxID, int collimatorID);
+    int GetWeakCollimator(int boxID, int collimatorID);
+
     QByteArray InitResponse();
 
-    int responsesRequested;
+//    int responsesRequested;
 
 private slots:
     void UpdateCoordinate(int boxID, int collimatorID, float coord);

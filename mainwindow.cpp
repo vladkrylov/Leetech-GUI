@@ -258,6 +258,7 @@ void MainWindow::ConnectCollimatorsRequests()
     connect(this, SIGNAL(ResetCollimator(int,int)), this, SLOT(SetWaitingState()));
     connect(this, SIGNAL(MoveCollimator(int,int,QString)), this, SLOT(SetWaitingState()));
     connect(this, SIGNAL(UpdateCollimator(int,int)), this, SLOT(SetWaitingState()));
+    connect(this, SIGNAL(CloseCollimators(int,int)), this, SLOT(SetWaitingState()));
 }
 
 int MainWindow::GetActiveCollimatorBox()
@@ -440,6 +441,9 @@ void MainWindow::Update()
 
 void MainWindow::UpdateCoordinate(int collimatorBox, int collimatorID, float position)
 {
+    if (position < 0 || position > 15.)
+        return;
+
     int originX = 0;
     int originY = 0;
     int destX = 0;
@@ -510,16 +514,20 @@ void MainWindow::CreateTopMenu()
     settingsMenu->addAction(setPulsesAction);
 }
 
-void MainWindow::SetMaxOpeningX(float opening)
+void MainWindow::SetMaxOpeningX(int collimatorBox, float opening)
 {
-    maxOpeningX = opening;
-    maxOpeningXText->setHtml(MaxOpeningXString(maxOpeningX));
+    if (collimatorBox == GetActiveCollimatorBox()) {
+        maxOpeningX = opening;
+        maxOpeningXText->setHtml(MaxOpeningXString(maxOpeningX));
+    }
 }
 
-void MainWindow::SetMaxOpeningY(float opening)
+void MainWindow::SetMaxOpeningY(int collimatorBox, float opening)
 {
-    maxOpeningY = opening;
-    maxOpeningYText->setHtml(MaxOpeningYString(maxOpeningY));
+    if (collimatorBox == GetActiveCollimatorBox()) {
+        maxOpeningY = opening;
+        maxOpeningYText->setHtml(MaxOpeningYString(maxOpeningY));
+    }
 }
 
 float MainWindow::CalculateHoleDX()
