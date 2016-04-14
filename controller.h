@@ -3,17 +3,10 @@
 
 #include <stdint.h>
 #include <QObject>
-#include <QtSerialPort/QSerialPort>
-#include <QTcpSocket>
 
-
+#include "mainwindow.h"
 #include "ip_connection.h"
-#include "tests.h"
 #include "collimatorsset.h"
-#include "trajectory.h"
-
-class Tests;
-class IP_Connection;
 
 class Controller : public QObject
 {
@@ -22,31 +15,14 @@ public:
     explicit Controller(QObject *parent = 0);
     ~Controller();
 
-    Tests *TestObject;
-
-    int IsConnected();
-    int Connect();
-    void Disconnect();
-    void SetIPAddress(const QString &ipaddress);
-
     void TalkToBoard(const QString &sendPhrase);
-    void ResetMotorsData(int setID);
-    void SetMotorCoordinate(int setID, int motorID, const QString &coord_mm);
-    void GetMotorCoordinate(int setID, int motorID);
+    void ResetCollimatorsData(int setID);
 
-    void Reset(int setID, int motorID);
-    void ResetAll(int setID);
+    void ResetAllCollimators(int setID);
 
     void SetPulses(int setID, int motorID, const QString &width, const QString &period);
 
-    uint16_t ShowMotorCoordinate(int setID, int motorID);
-
-    QStringList GetSerialPorts();
-    bool ConnectHV(const QString& name, int baud);
-    bool HVConnented();
-    void DisconnectHV();
-    QByteArray GetHV();
-    QByteArray GetHVCurrent();
+    uint16_t ShowCollimatorCoordinate(int setID, int motorID);
 
     bool IsMagnetConnected();
     bool ConnectMagnet();
@@ -56,45 +32,43 @@ public:
     void MagnetOutputOff();
 
 private:
-    IP_Connection* PCB;
-    CollimatorsSet** colSets;
+    bool waitForResponse;
+    IP_Connection* CollMaster;
+    CollimatorsSet** collSets;
+    MainWindow* view;
 
-    QString GenerateCoordinate(const QString &coord_mm, int setID, int motorID);
+    QString GenerateCoordinate(const QString &coord_mm, int boxID, int collimatorID);
     int ValidateResponse(const QByteArray &response);
+    int GetBoxSpecificCollimatorID(int boxID, int collimatorID);
+
+    int OppositeCollimator(int collimatorID);
+    int GetStrongCollimator(int boxID, int collimatorID);
+    int GetWeakCollimator(int boxID, int collimatorID);
+
     QByteArray InitResponse();
 
-    Trajectory* traj;
-
-    QSerialPort* HighVoltage;
-
-    QTcpSocket* magnet;
-    QString magnetIP;
-    int magnetPort;
-    QTimer* magnetTimer;
+//    int responsesRequested;
 
 private slots:
-    void UpdateHighVoltageData();
-    void UpdateMagnetData();
+    void UpdateCoordinate(int boxID, int collimatorID, float coord);
+
+    void DataReceived();
+    void GetCollimatorCoordinate(int boxID, int collimatorID);
+    void SetCollimatorCoordinate(int boxID, int collimatorID, const QString &coord_mm);
+    void ResetCollimator(int boxID, int collimatorID);
+    void ResetAll(int collimatorBox);
+    void CloseCollimators(int boxID, int collimatorID);
+    void SetPWM(int collimatorBox, int collimatorID, QString T);
 
 signals:
-    void MotorCoordinateChanged(int setID, int motorID, uint16_t newCoordinate);
+    void CollimatorCoordinateChanged(int setID, int motorID, uint16_t newCoordinate);
     void Connected();
     void Disconnected();
-
-    void WriteToTerminal(QString data);
-    void HighVoltageDataUpdated(float voltage, float current);
 
     void MagnetConnected();
     void MagnetDataReceived(float u, float i);
 
 public slots:
-    void dataReceived();
-    void SetHV(int voltage);
-    void SetHVPolarity(QChar p);
-
-    void SetMagnetVoltage(float u);
-    void SetMagnetCurrent(float i);
-
 };
 
-#endif // CONTROLLER_H
+#endif /* CONTROLLER_H */

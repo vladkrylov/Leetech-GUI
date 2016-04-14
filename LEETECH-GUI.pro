@@ -18,18 +18,24 @@ SOURCES += main.cpp\
         mainwindow.cpp \
     ip_connection.cpp \
     controller.cpp \
-    tests.cpp \
     encoder.cpp \
     collimatorsset.cpp \
-    trajectory.cpp
+    trajectory.cpp \
+    collimatorgraphicsitem.cpp
 
 HEADERS  += mainwindow.h \
     ip_connection.h \
     controller.h \
-    tests.h \
     encoder.h \
     collimatorsset.h \
     trajectory.h \
-    m_errors.h
+    m_errors.h \
+    collimatorgraphicsitem.h \
+    types.h
 
 FORMS    += mainwindow.ui
+
+OTHER_FILES +=
+
+RESOURCES += \
+    resources.qrc

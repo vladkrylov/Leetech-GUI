@@ -35,18 +35,18 @@ void Tests::TestPulsesForOscilloscope()
 
 void Tests::TestForce(int width, int begin, int end, int setID, int motorID)
 {
-    stopForseTest = 0;
-    for (int period = begin; period <= end; period++) {
-        if (stopForseTest) break;
+//    stopForseTest = 0;
+//    for (int period = begin; period <= end; period++) {
+//        if (stopForseTest) break;
 
-        qDebug() << period;
-        control->SetPulses(setID, motorID, QString::number(width), QString::number(period));
+//        qDebug() << period;
+//        control->SetPulses(setID, motorID, QString::number(width), QString::number(period));
 
-        QTest::qWait(250);
+//        QTest::qWait(250);
 
-        Test(setID, motorID);
-        QTest::qWait(5000);
-    }
+//        Test(setID, motorID);
+//        QTest::qWait(5000);
+//    }
 }
 
 void Tests::StopForseTest()
@@ -63,30 +63,30 @@ void Tests::PrintBoardResponse()
 
 void Tests::CollectData(int setID, int motorID, QString period)
 {
-    QFileInfo *info = new QFileInfo("D:\\Leetech\\Slave\\DebugLogs\\MatlabSignalFile.log");
-    QDateTime lastMod = info->lastModified();
-    QDateTime modified;
+//    QFileInfo *info = new QFileInfo("D:\\Leetech\\Slave\\DebugLogs\\MatlabSignalFile.log");
+//    QDateTime lastMod = info->lastModified();
+//    QDateTime modified;
 
-    for(int pulseWidth = 110; pulseWidth >= 50; pulseWidth -= 10) {
-        control->SetPulses(setID, motorID, QString::number(pulseWidth), period);
-        QThread::msleep(200);
-        for(double destination = 3.; destination <= 12.; destination += 1.) {
-            control->Reset(setID, motorID);
-            QThread::msleep(200);
-            control->SetMotorCoordinate(setID, motorID, QString::number(destination));
-            QThread::msleep(200);
+//    for(int pulseWidth = 110; pulseWidth >= 50; pulseWidth -= 10) {
+//        control->SetPulses(setID, motorID, QString::number(pulseWidth), period);
+//        QThread::msleep(200);
+//        for(double destination = 3.; destination <= 12.; destination += 1.) {
+//            control->Reset(setID, motorID);
+//            QThread::msleep(200);
+//            control->SetMotorCoordinate(setID, motorID, QString::number(destination));
+//            QThread::msleep(200);
 
-            while(1) {
-                info->refresh();
-                QThread::msleep(500);
-                modified = info->lastModified();
-                if (modified > lastMod) {
-                    lastMod = modified;
-                    break;
-                }
-            }
-        }
-    }
+//            while(1) {
+//                info->refresh();
+//                QThread::msleep(500);
+//                modified = info->lastModified();
+//                if (modified > lastMod) {
+//                    lastMod = modified;
+//                    break;
+//                }
+//            }
+//        }
+//    }
 }
 
 void Tests::WaitForMotorData()

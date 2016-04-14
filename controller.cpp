@@ -1,184 +1,64 @@
+#include <QDebug>
+
+#include "types.h"
 #include "controller.h"
 
-#include <QDebug>
-#include <QtSerialPort/QSerialPortInfo>
-
-const int N_sets = 2;
-
-Controller::Controller(QObject *parent) :
-    QObject(parent)
+Controller::Controller(QObject *parent) : QObject(parent)
+  ,waitForResponse(false)
 {
-    // Collimators -----------------------------------------
-    PCB = new IP_Connection();
-    TestObject = new Tests(this, PCB);
+    view = new MainWindow();
+    CollMaster = new IP_Connection();
 
-    traj = new Trajectory();
-
-    colSets = new CollimatorsSet*[N_sets];
-    for (int i = 0; i < N_sets; ++i) {
-        colSets[i] = new CollimatorsSet(i);
-        connect(colSets[i], SIGNAL(MotorCoordinateChanged(int,int,uint16_t)), this, SIGNAL(MotorCoordinateChanged(int,int,uint16_t)));
+    collSets = new CollimatorsSet*[N_SETS];
+    for (int i=0; i<N_SETS; i++) {
+        collSets[i] = new CollimatorsSet(i);
+        connect(collSets[i], SIGNAL(MotorCoordinateChanged(int,int,float)), this, SLOT(UpdateCoordinate(int,int,float)));
+        connect(collSets[i], SIGNAL(HorizontalMaxOpeningChanged(int,float)), view, SLOT(SetMaxOpeningX(int,float)));
+        connect(collSets[i], SIGNAL(VerticalMaxOpeningChanged(int,float)), view, SLOT(SetMaxOpeningY(int,float)));
     }
-    connect(PCB, SIGNAL(Connected()), this, SIGNAL(Connected()));
-    connect(PCB, SIGNAL(Disconnected()), this, SIGNAL(Disconnected()));
-    connect(PCB, SIGNAL(dataReceived()), this, SLOT(dataReceived()));
 
-    // High Voltage Block ----------------------------------
-    HighVoltage = new QSerialPort(this);
+    connect(view, SIGNAL(ConnectCollimatiors(QString)), CollMaster, SLOT(Connect(QString)));
+    connect(view, SIGNAL(DisconnectCollimatiors()), CollMaster, SLOT(Disconnect()));
+    connect(view, SIGNAL(ResetCollimator(int,int)), this, SLOT(ResetCollimator(int,int)));
+    connect(view, SIGNAL(ResetAll(int)), this, SLOT(ResetAll(int)));
+    connect(view, SIGNAL(CloseCollimators(int,int)), this, SLOT(CloseCollimators(int,int)));
+    connect(view, SIGNAL(UpdateCollimator(int,int)), this, SLOT(GetCollimatorCoordinate(int,int)));
+    connect(view, SIGNAL(MoveCollimator(int,int,QString)), this, SLOT(SetCollimatorCoordinate(int,int,QString)));
+    connect(view, SIGNAL(SetPWMPeriod(int,int,QString)), this, SLOT(SetPWM(int,int,QString)));
 
-    // Magnet Power Supply
-    magnet = new QTcpSocket(this);
-    magnetPort = 8462;
-    connect(magnet, SIGNAL(connected()), this, SIGNAL(MagnetConnected()));
+    connect(CollMaster, SIGNAL(Connected()), view, SLOT(CollimatorsConnected()));
+    connect(CollMaster, SIGNAL(Disconnected()), view, SLOT(CollimatorsDisconnected()));
+    connect(CollMaster, SIGNAL(dataReceived()), this, SLOT(DataReceived()));
 
+    collSets[BOX_ENTRANCE]->SetHorizontalMaxOpening(10.941);
+    collSets[BOX_ENTRANCE]->SetVerticalMaxOpening(10.992);
 
-    magnetTimer = new QTimer(this);
-    magnetTimer->setInterval(2000);
-    connect(magnet, SIGNAL(connected()), magnetTimer, SLOT(start()));
-    connect(magnetTimer, SIGNAL(timeout()), this, SLOT(UpdateMagnetData()));
+    view->show();
 }
 
 Controller::~Controller()
 {
-    delete PCB;
+    delete view;
+    delete CollMaster;
 
-    delete TestObject;
-
-    delete traj;
-
-    for (int i = 0; i < N_sets; ++i) {
-        delete colSets[i];
+    for (int i=BOX_ENTRANCE; i<N_SETS; ++i) {
+        delete collSets[i];
     }
-    delete [] colSets;
-}
-
-int Controller::IsConnected()
-{
-    return PCB->IsConnected();
-}
-
-int Controller::Connect()
-{
-    return PCB->PCB_Connect();
-}
-
-void Controller::Disconnect()
-{
-    return PCB->PCB_Disconnect();
-}
-
-void Controller::SetIPAddress(const QString &ipaddress)
-{
-    PCB->SetIPAddress(ipaddress);
-}
-
-int Controller::ValidateResponse(const QByteArray &response)
-{
-    QString validator = "response_";
-    return !(QString::compare(response.mid(0,9), validator));
-}
-
-QString Controller::GenerateCoordinate(const QString &coord_mm, int setID, int motorID)
-{
-    QString copyCoord = coord_mm;
-    int coord = copyCoord.replace(QString(","), QString(".")).toFloat() * 1000 + colSets[setID]->GetMotorOrigin(motorID);
-    QString res = QString::number(coord);
-    while (res.length() < 5) {
-        res.prepend('0');
-    }
-    return res;
+    delete [] collSets;
 }
 
 void Controller::TalkToBoard(const QString &sendPhrase)
 {
     qDebug() << endl << sendPhrase;
-    PCB->PCB_SendData(sendPhrase);
+    CollMaster->PCB_SendData(sendPhrase);
 }
 
-void Controller::SetMotorCoordinate(int setID, int motorID, const QString &coord_mm)
-{
-    QString data_to_send = "move_motor"
-            + QString::number(motorID+1)
-            + "_tocoord="
-            + GenerateCoordinate(coord_mm, setID, motorID)
-            + "m"
-            + "_steps2mm="
-            + QString::number(colSets[setID]->GetSteps2mm(motorID))
-            + "_setID="
-            + QString::number(setID)
-//            + "_getTrajectory=1"
-            + "_______________"
-            ;
-    TalkToBoard(data_to_send);
-}
-
-void Controller::GetMotorCoordinate(int setID, int motorID)
-{
-    QString data_to_send = "getc_motor"
-            + QString::number(motorID+1)
-            + "_steps2mm="
-            + QString::number(colSets[setID]->GetSteps2mm(motorID))
-            + "_setID="
-            + QString::number(setID)
-            + "_______________"
-            ;
-
-    TalkToBoard(data_to_send);
-}
-
-void Controller::ResetMotorsData(int setID)
-{
-    colSets[setID]->ResetMotorsData();
-}
-
-void Controller::Reset(int setID, int motorID)
-{
-    QString data_to_send = "reset_motor" +
-            QString::number(motorID+1)
-            + "_steps2mm="
-            + QString::number(colSets[setID]->GetSteps2mm(motorID))
-            + "_setID="
-            + QString::number(setID)
-            + "_______________"
-            ;
-    TalkToBoard(data_to_send);
-}
-
-void Controller::ResetAll(int setID)
-{
-    QString data_to_send = QString("reset_all")
-                            + "_setID="
-                            + QString::number(setID)
-                            + "_______________"
-                            ;
-    TalkToBoard(data_to_send);
-}
-
-void Controller::SetPulses(int setID, int motorID, const QString &width, const QString &period)
-{
-    QString data_to_send = QString("set_pulses:")
-            + "w=" + width
-            + ";T=" + period
-            + "_setID="
-            + QString::number(setID)
-            + "_motorID="
-            + QString::number(motorID)
-            + "_______________"
-            ;
-    PCB->PCB_SendData(data_to_send);
-}
-
-uint16_t Controller::ShowMotorCoordinate(int setID, int motorID)
-{
-    return colSets[setID]->GetPosition(motorID);
-}
-
-void Controller::dataReceived()
+void Controller::DataReceived()
 {
     QByteArray response;
 //    for testing purposes
 //    response = InitResponse();
-    response = PCB->readAll();
+    response = CollMaster->readAll();
 
     // check for sigle coordinate received
     if (response.contains("response_")) {
@@ -188,225 +68,256 @@ void Controller::dataReceived()
         int p1 = response.indexOf(setIdIndicator);
         if (p1 != -1) {
             setID = uint8_t(response.at(p1 + setIdIndicator.length()));
-            if ((setID < 0) && (setID > N_sets)) return;
+            if ((setID < 0) && (setID > N_SETS)) return;
         } else return;
 
-        colSets[setID]->Update(response);
-    } else {
-        // check for trajectory data
-        foreach (const QString &str1, traj->indicators) {
-            int p1 = response.indexOf(str1);
-            int p2 = response.size();
-            if (p1 != -1) {
-                foreach (const QString &str2, traj->indicators) if (str2 != str1) {
-                    int newp2 = response.indexOf(str2);
-                    if ((newp2 != -1) && (newp2 < p2) && (newp2 > p1)) {
-                        p2 = newp2;
-                    }
-                }
-                traj->AddData(str1, response.mid(p1+str1.length()+1, p2-p1-str1.length()-1));
-            }
-        }
-
-        if (traj->AllDataReceived()) {
-            traj->WriteToFile();
-        }
+        collSets[setID]->Update(response);
     }
 }
 
-QByteArray Controller::InitResponse()
+QString Controller::GenerateCoordinate(const QString &coord_mm, int boxID, int collimatorID)
 {
-    QByteArray res = "times";
-    for (int i=0; i<1000; i++) {
-        res.append((char)i);
-    }
-    res.append("usignal");
-    for (int i=0; i<1000; i++) {
-        res.append((char)2*i);
-    }
-    res.append("coords");
-    for (int i=0; i<1000; i++) {
-        res.append((char)3*i);
+    QString copyCoord = coord_mm;
+    int coord = copyCoord.replace(QString(","), QString(".")).toFloat() * 1000 + collSets[boxID]->GetMotorOrigin(collimatorID);
+    QString res = QString::number(coord);
+    while (res.length() < 5) {
+        res.prepend('0');
     }
     return res;
 }
 
-QStringList Controller::GetSerialPorts()
+int Controller::GetBoxSpecificCollimatorID(int boxID, int collimatorID)
 {
-    QStringList COMNamesAvailable;
-    foreach (const QSerialPortInfo &info, QSerialPortInfo::availablePorts()) {
-        COMNamesAvailable << info.portName();
+    switch (boxID) {
+    case BOX_ENTRANCE:
+        switch (collimatorID){
+        case COLL_RIGHT:
+            return 3;
+            break;
+        case COLL_LEFT:
+            return 4;
+            break;
+        case COLL_TOP:
+            return 2;
+            break;
+        case COLL_BOTTOM:
+            return 1;
+            break;
+        }
+    case BOX_EXIT1:
+        switch (collimatorID){
+        case COLL_RIGHT:
+            return 4;
+            break;
+        case COLL_LEFT:
+            return 3;
+            break;
+        case COLL_TOP:
+            return 1;
+            break;
+        case COLL_BOTTOM:
+            return 2;
+            break;
+        }
+    case BOX_EXIT2:
+        switch (collimatorID){
+        case COLL_RIGHT:
+            return 3;
+            break;
+        case COLL_LEFT:
+            return 4;
+            break;
+        case COLL_TOP:
+            return 2;
+            break;
+        case COLL_BOTTOM:
+            return 1;
+            break;
+        }
     }
-    return COMNamesAvailable;
 }
 
-bool Controller::ConnectHV(const QString& name, int baud)
+int Controller::OppositeCollimator(int collimatorID)
 {
-    HighVoltage->setPortName(name);
-    HighVoltage->setBaudRate(baud);
-    HighVoltage->setDataBits(QSerialPort::Data8);
-    HighVoltage->setParity(QSerialPort::NoParity);
-    HighVoltage->setStopBits(QSerialPort::OneStop);
-    HighVoltage->setFlowControl(QSerialPort::NoFlowControl);
+    switch (collimatorID) {
+    case COLL_LEFT:
+        return COLL_RIGHT;
+        break;
+    case COLL_RIGHT:
+        return COLL_LEFT;
+        break;
+    case COLL_TOP:
+        return COLL_BOTTOM;
+        break;
+    case COLL_BOTTOM:
+        return COLL_TOP;
+        break;
+    }
+}
 
-    HighVoltage->open(QIODevice::ReadWrite);
-    if (HVConnented()) {
-        return true;
+int Controller::GetStrongCollimator(int boxID, int collimatorID)
+{
+    switch (boxID) {
+    case BOX_ENTRANCE:
+        switch (collimatorID) {
+        case COLL_LEFT:
+        case COLL_RIGHT:
+            return COLL_RIGHT;
+            break;
+        case COLL_TOP:
+        case COLL_BOTTOM:
+            return COLL_TOP;
+            break;
+        }
+        break;
+
+    case BOX_EXIT1:
+        switch (collimatorID) {
+        case COLL_LEFT:
+        case COLL_RIGHT:
+            return COLL_RIGHT;
+            break;
+        case COLL_TOP:
+        case COLL_BOTTOM:
+            return COLL_TOP;
+            break;
+        }
+        break;
+
+    case BOX_EXIT2:
+        switch (collimatorID) {
+        case COLL_LEFT:
+        case COLL_RIGHT:
+            return COLL_RIGHT;
+            break;
+        case COLL_TOP:
+        case COLL_BOTTOM:
+            return COLL_TOP;
+            break;
+        }
+        break;
+    }
+}
+
+int Controller::GetWeakCollimator(int boxID, int collimatorID)
+{
+    return OppositeCollimator(GetStrongCollimator(boxID, collimatorID));
+}
+
+void Controller::UpdateCoordinate(int boxID, int collimatorID, float coord)
+{
+    if (!waitForResponse) {
+        view->UpdateCoordinate(boxID, collimatorID, coord);
     } else {
-        return false;
+        waitForResponse = false;
     }
 }
 
-bool Controller::HVConnented()
+void Controller::GetCollimatorCoordinate(int boxID, int collimatorID)
 {
-    return HighVoltage->isOpen();
+    QString data_to_send = "getc_motor"
+            + QString::number(collimatorID+1)
+            + "_steps2mm="
+            + QString::number(collSets[boxID]->GetSteps2mm(collimatorID))
+            + "_setID="
+            + QString::number(boxID)
+            + "_______________"
+            ;
+
+    TalkToBoard(data_to_send);
 }
 
-void Controller::DisconnectHV()
+void Controller::SetCollimatorCoordinate(int boxID, int collimatorID, const QString &coord_mm)
 {
-    HighVoltage->close();
+    QString data_to_send = "move_motor"
+            + QString::number(collimatorID+1)
+            + "_tocoord="
+            + GenerateCoordinate(coord_mm, boxID, collimatorID)
+            + "m"
+            + "_steps2mm="
+            + QString::number(collSets[boxID]->GetSteps2mm(collimatorID))
+            + "_setID="
+            + QString::number(boxID)
+//            + "_getTrajectory=1"
+            + "_______________"
+            ;
+    TalkToBoard(data_to_send);
 }
 
-QByteArray Controller::GetHV()
+void Controller::ResetCollimator(int boxID, int collimatorID)
 {
-    QByteArray dataToSend("u2");
-    HighVoltage->clear();
-    dataToSend.append("\r\n");
-    HighVoltage->write(dataToSend);
-    HighVoltage->waitForBytesWritten(3000);
-
-    HighVoltage->waitForReadyRead(3000);
-    return HighVoltage->readAll().simplified().replace(" ", "");
+    QString data_to_send = "reset_motor" +
+            QString::number(collimatorID+1)
+            + "_steps2mm="
+            + QString::number(collSets[boxID]->GetSteps2mm(collimatorID))
+            + "_setID="
+            + QString::number(boxID)
+            + "_______________"
+            ;
+    TalkToBoard(data_to_send);
 }
 
-QByteArray Controller::GetHVCurrent()
+void Controller::ResetAll(int collimatorBox)
 {
-    QByteArray dataToSend("i2");
-    HighVoltage->clear();
-    dataToSend.append("\r\n");
-    HighVoltage->write(dataToSend);
-    HighVoltage->waitForBytesWritten(500);
 
-    HighVoltage->waitForReadyRead(500);
-    return HighVoltage->readAll().simplified().replace(" ", "");
 }
 
-
-void Controller::SetHV(int voltage)
+void Controller::CloseCollimators(int boxID, int collimatorID)
 {
-    QByteArray dataToSend("d2=");
-    dataToSend.append(QString::number(voltage));
-    dataToSend.append("\r\n");
+    int strongCollimator = GetStrongCollimator(boxID, collimatorID);
+    int weakCollimator = GetWeakCollimator(boxID, collimatorID);
 
-    emit WriteToTerminal(dataToSend);
-    HighVoltage->write(dataToSend);
-}
-
-void Controller::SetHVPolarity(QChar p)
-{
-    QByteArray dataToSend("p2=");
-    dataToSend.append(p);
-    dataToSend.append("\r\n");
-
-    SetHV(10);
-    emit WriteToTerminal(dataToSend);
-    HighVoltage->write(dataToSend);
-//    SetHV(0);
-}
-
-void Controller::UpdateHighVoltageData()
-{
-//    qDebug() << GetHV();
-    qDebug() << GetHVCurrent();
-}
-
-bool Controller::IsMagnetConnected()
-{
-    return magnet->isOpen();
-}
-
-bool Controller::ConnectMagnet()
-{
-    magnet->connectToHost(magnetIP, magnetPort);
-    bool res = magnet->waitForConnected(1000);
-
-    return res;
-}
-
-void Controller::SetMagnetIPAddress(const QString &ipaddress)
-{
-    magnetIP = ipaddress;
-}
-
-void Controller::UpdateMagnetData()
-{
-    float u, i;
-    if (IsMagnetConnected()) {
-        // get voltage
-        magnet->write("measure:voltage?\r\n");
-        magnet->waitForBytesWritten();
-
-        magnet->waitForReadyRead();
-        QString resp = magnet->readAll();
-        u = resp.toFloat();
-
-        // get current
-        magnet->write("measure:current?\r\n");
-        magnet->waitForBytesWritten();
-
-        magnet->waitForReadyRead();
-        resp = magnet->readAll();
-        i = resp.toFloat();
-        emit MagnetDataReceived(u, i);
+    // move the strong collimator
+    waitForResponse = true;
+    SetCollimatorCoordinate(boxID, strongCollimator, "11.000");
+    // wait for collimators response
+    while(waitForResponse) {
+        qApp->processEvents();
     }
-}
 
-void Controller::SetMagnetVoltage(float u)
-{
-    if (IsMagnetConnected()) {
-        QString dataToSend = QString("source:voltage ") + QString::number(u) + "\r\n";
-        magnet->write(dataToSend.toUtf8().constData());
-        magnet->waitForBytesWritten();
+    // move the weak collimator
+    waitForResponse = true;
+    SetCollimatorCoordinate(boxID, weakCollimator, "11.000");
+    // wait for collimators response
+    while(waitForResponse) {
+        qApp->processEvents();
     }
-}
 
-void Controller::SetMagnetCurrent(float i)
-{
-    if (IsMagnetConnected()) {
-        QString dataToSend = QString("source:current ") + QString::number(i) + "\r\n";
-        magnet->write(dataToSend.toUtf8().constData());
-        magnet->waitForBytesWritten();
+    // update the strong collimator's position
+    waitForResponse = true;
+    GetCollimatorCoordinate(boxID, strongCollimator);
+    // wait for collimators response
+    while(waitForResponse) {
+        qApp->processEvents();
     }
-}
 
-bool Controller::MagnetOutputStatus()
-{
-    QString resp;
-    bool status = false;
-    if (IsMagnetConnected()) {
-        magnet->write("output?\r\n");
-        magnet->waitForBytesWritten();
+    float strongCollimatorPosition = collSets[boxID]->GetPosition(strongCollimator); // mm
+    float weakCollimatorPosition = collSets[boxID]->GetPosition(weakCollimator); // mm
 
-        magnet->waitForReadyRead();
-        resp = magnet->readAll();
-        if (resp.toInt()) status = true;
+    // calculate maximum opening in collimators pair
+    float maxOpening = strongCollimatorPosition + weakCollimatorPosition;
+    if (collimatorID == COLL_RIGHT || collimatorID == COLL_LEFT) {
+        if (maxOpening > collSets[boxID]->GetHorizontalMaxOpening())
+            collSets[boxID]->SetHorizontalMaxOpening(maxOpening);
+    } else {
+        if (maxOpening > collSets[boxID]->GetVerticalMaxOpening())
+            collSets[boxID]->SetVerticalMaxOpening(maxOpening);
     }
-    return status;
+
+    view->UpdateCoordinate(boxID, strongCollimator, strongCollimatorPosition);
+    view->UpdateCoordinate(boxID, weakCollimator, weakCollimatorPosition);
 }
 
-void Controller::MagnetOutputOn()
+void Controller::SetPWM(int collimatorBox, int collimatorID, QString T)
 {
-    if (IsMagnetConnected()) {
-        magnet->write("output 1\r\n");
-        magnet->waitForBytesWritten();
-    }
+    QString data_to_send = QString("set_pulses:")
+            + "w=120"
+            + ";T=" + T
+            + "_setID="
+            + QString::number(collimatorBox)
+            + "_motorID="
+            + QString::number(collimatorID)
+            + "_______________"
+            ;
+    TalkToBoard(data_to_send);
 }
-
-void Controller::MagnetOutputOff()
-{
-    if (IsMagnetConnected()) {
-        magnet->write("output 0\r\n");
-        magnet->waitForBytesWritten();
-    }
-}
-

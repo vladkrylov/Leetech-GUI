@@ -27,24 +27,24 @@ int CollimatorsSet::GetID()
     return id;
 }
 
-void CollimatorsSet::MotorCoordinateChangedSlot(int motorID, uint16_t newCoordinate)
+void CollimatorsSet::MotorCoordinateChangedSlot(int collimatorID, uint16_t newCoordinate)
 {
-    emit MotorCoordinateChanged(GetID(), motorID, newCoordinate);
+    emit MotorCoordinateChanged(GetID(), collimatorID, newCoordinate/1000.);
 }
 
-uint16_t CollimatorsSet::GetMotorOrigin(int motorID)
+uint16_t CollimatorsSet::GetMotorOrigin(int collimatorID)
 {
-    return motors[motorID]->GetOrigin_mm();
+    return motors[collimatorID]->GetOrigin_mm();
 }
 
-int CollimatorsSet::GetPosition(int motorID)
+float CollimatorsSet::GetPosition(int collimatorID)
 {
-    return motors[motorID]->GetPosition_mm();
+    return motors[collimatorID]->GetPosition_mm()/1000.;
 }
 
-uint8_t CollimatorsSet::GetSteps2mm(int motorID)
+uint8_t CollimatorsSet::GetSteps2mm(int collimatorID)
 {
-    return motors[motorID]->GetSteps2mm();
+    return motors[collimatorID]->GetSteps2mm();
 }
 
 void CollimatorsSet::ResetMotorsData()
@@ -54,9 +54,31 @@ void CollimatorsSet::ResetMotorsData()
     }
 }
 
-void CollimatorsSet::ResetSteps2mm(int motorID)
+void CollimatorsSet::ResetSteps2mm(int collimatorID)
 {
-    motors[motorID]->ResetSteps2mm();
+    motors[collimatorID]->ResetSteps2mm();
+}
+
+void CollimatorsSet::SetHorizontalMaxOpening(float opening)
+{
+    horizontalMaxOpening = opening;
+    emit HorizontalMaxOpeningChanged(GetID(), horizontalMaxOpening);
+}
+
+void CollimatorsSet::SetVerticalMaxOpening(float opening)
+{
+    verticalMaxOpening = opening;
+    emit VerticalMaxOpeningChanged(GetID(), verticalMaxOpening);
+}
+
+float CollimatorsSet::GetHorizontalMaxOpening()
+{
+    return horizontalMaxOpening;
+}
+
+float CollimatorsSet::GetVerticalMaxOpening()
+{
+    return verticalMaxOpening;
 }
 
 void CollimatorsSet::Update(QByteArray response)

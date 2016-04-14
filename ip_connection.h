@@ -7,9 +7,6 @@
 #include <QByteArray>
 #include <QTcpSocket>
 #include <QAbstractSocket>
-#include "tests.h"
-
-class Tests;
 
 class IP_Connection : public QObject
 {
@@ -17,6 +14,17 @@ class IP_Connection : public QObject
 public:
     explicit IP_Connection(QObject *parent = 0);
     ~IP_Connection();
+
+    bool IsConnected();
+
+    void PCB_SendData(QString);
+    QByteArray PCB_ReceiveData();
+    void SetIPAddress(QString);
+    QByteArray readAll();
+
+public slots:
+    bool Connect(QString IPAddress);
+    void Disconnect();
 
 signals:
     void Connected();
@@ -39,17 +47,7 @@ private:
 private slots:
     void sdisconnected();
 
-public:
-    friend Tests;
 
-    bool IsConnected();
-    bool PCB_Connect();
-    void PCB_Disconnect();
-
-    void PCB_SendData(QString);
-    QByteArray PCB_ReceiveData();
-    void SetIPAddress(QString);
-    QByteArray readAll();
 
 };
 
