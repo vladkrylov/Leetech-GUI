@@ -251,6 +251,11 @@ void MainWindow::ConnectUIActions()
     connect(ui->MoveButton, SIGNAL(clicked()), this, SLOT(MoveCollimatorHandler()));
     connect(ui->coordLineEdit, SIGNAL(returnPressed()), this, SLOT(MoveCollimatorHandler()));
     connect(ui->ResetButton, SIGNAL(clicked()), this, SLOT(ResetCollimatorHandler()));
+
+    // connects to always display the information about chosen collimator box
+    connect(ui->entranceRadio, SIGNAL(clicked()), this, SLOT(CollimatorBoxChanged()));
+    connect(ui->exit1Radio, SIGNAL(clicked()), this, SLOT(CollimatorBoxChanged()));
+    connect(ui->exit2Radio, SIGNAL(clicked()), this, SLOT(CollimatorBoxChanged()));
 }
 
 void MainWindow::ConnectCollimatorsRequests()
@@ -416,14 +421,6 @@ void MainWindow::WaitForReady()
             break;
         qApp->processEvents();
     }
-}
-
-void MainWindow::CollimatorBoxChanged()
-{
-//    int boxID = ChooseCollimatorSet();
-//    for (int collimatorID = 0; collimatorID < 4; ++collimatorID) {
-//        emit UpdateCollimator(boxID, collimatorID);
-//    }
 }
 
 void MainWindow::SetWaitingState()
@@ -767,4 +764,9 @@ void MainWindow::on_pushButton_clicked()
     int collimatorID = GetActiveCollimator();
     QString T = ui->PulsePeriodBox->text();
     emit SetPWMPeriod(collimatorBox, collimatorID, T);
+}
+
+void MainWindow::CollimatorBoxChanged()
+{
+    emit UpdateScene(GetActiveCollimatorBox());
 }

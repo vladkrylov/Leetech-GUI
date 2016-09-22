@@ -25,13 +25,16 @@ Controller::Controller(QObject *parent) : QObject(parent)
     connect(view, SIGNAL(UpdateCollimator(int,int)), this, SLOT(GetCollimatorCoordinate(int,int)));
     connect(view, SIGNAL(MoveCollimator(int,int,QString)), this, SLOT(SetCollimatorCoordinate(int,int,QString)));
     connect(view, SIGNAL(SetPWMPeriod(int,int,QString)), this, SLOT(SetPWM(int,int,QString)));
+    connect(view, SIGNAL(UpdateScene(int)), this, SLOT(UpdateView(int)));
 
     connect(CollMaster, SIGNAL(Connected()), view, SLOT(CollimatorsConnected()));
     connect(CollMaster, SIGNAL(Disconnected()), view, SLOT(CollimatorsDisconnected()));
     connect(CollMaster, SIGNAL(dataReceived()), this, SLOT(DataReceived()));
 
-    collSets[BOX_ENTRANCE]->SetHorizontalMaxOpening(10.941);
-    collSets[BOX_ENTRANCE]->SetVerticalMaxOpening(10.992);
+    collSets[BOX_ENTRANCE]->SetHorizontalMaxOpening(21.063);
+    collSets[BOX_ENTRANCE]->SetVerticalMaxOpening(19.795);
+    collSets[BOX_EXIT1]->SetHorizontalMaxOpening(19.877);
+    collSets[BOX_EXIT1]->SetVerticalMaxOpening(20.633);
 
     view->show();
 }
@@ -320,4 +323,17 @@ void Controller::SetPWM(int collimatorBox, int collimatorID, QString T)
             + "_______________"
             ;
     TalkToBoard(data_to_send);
+}
+
+void Controller::UpdateView(int collimatorBox)
+{
+    // 1) display maximum openings
+    view->SetMaxOpeningX(collimatorBox, collSets[collimatorBox]->GetHorizontalMaxOpening());
+    view->SetMaxOpeningY(collimatorBox, collSets[collimatorBox]->GetVerticalMaxOpening());
+    // 2) display current collimators position
+    for (int i=0; i<N_COLLIMATORS; i++) {
+        float position = collSets[collimatorBox]->GetPosition(i);
+        view->UpdateCoordinate(collimatorBox, i, position);
+//        SetCollimatorCoordinate(collimatorBox, i, QString::number(position));
+    }
 }

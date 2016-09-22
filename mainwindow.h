@@ -48,6 +48,7 @@ signals:
     void UpdateCollimator(int collimatorBox, int collimatorID);
     void SetPWMPeriod(int collimatorBox, int collimatorID, QString T);
     void ImReady();
+    void UpdateScene(int collimatorBox);
 
 private:
     typedef enum {
@@ -137,8 +138,6 @@ private:
     void FinishWaitingState();
     void WaitForReady();
 
-    void CollimatorBoxChanged();
-
 private slots:
     void SetWaitingState();
 
@@ -152,6 +151,7 @@ private slots:
     void ResetTopRequested();
     void ResetBottomRequested();
 
+    void UpdateCollimatorHandler();
     void UpdateRightRequested();
     void UpdateLeftRequested();
     void UpdateTopRequested();
@@ -163,8 +163,9 @@ private slots:
     void MoveCollimatorHandler();
     void ResetCollimatorHandler();
     void ResetAllCollimatorHandler();
-    void UpdateCollimatorHandler();
     void SetPWM();
+
+    void CollimatorBoxChanged();
     void on_ConnectButton_clicked();
     void on_ResetAllButton_clicked();
     void on_holeSizeHorizontal_returnPressed();
