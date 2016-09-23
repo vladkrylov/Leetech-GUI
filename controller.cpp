@@ -416,6 +416,7 @@ void Controller::SetXHoleOffset(int collimatorBox, float offset)
     float xLeft = collSets[collimatorBox]->GetPosition(COLL_LEFT);
     float xRight = collSets[collimatorBox]->GetPosition(COLL_RIGHT);
     float maxOpening = collSets[collimatorBox]->GetHorizontalMaxOpening();
+    float oldOffset = (xLeft - xRight) / 2.;
     float holeSizeX = maxOpening - xLeft - xRight;
 
     float xNewLeft = (maxOpening - holeSizeX)/2. + offset;
@@ -425,15 +426,32 @@ void Controller::SetXHoleOffset(int collimatorBox, float offset)
     if (xNewLeft>0 && xNewRight>0
             && xNewLeft<15. && xNewRight<15.)  {
 
+        // to avoid collimators collision the order of movements is important here
+        int firstCollimatorToMove;
+        int secondCollimatorToMove;
+        float firstCoord;
+        float secondCoord;
+        if (offset > oldOffset) {
+            firstCollimatorToMove = COLL_RIGHT;
+            secondCollimatorToMove = COLL_LEFT;
+            firstCoord = xNewRight;
+            secondCoord = xNewLeft;
+        } else {
+            firstCollimatorToMove = COLL_LEFT;
+            secondCollimatorToMove = COLL_RIGHT;
+            firstCoord = xNewLeft;
+            secondCoord = xNewRight;
+        }
+
         waitForResponse = true;
-        SetCollimatorCoordinate(collimatorBox, COLL_LEFT, QString::number(xNewLeft));
+        SetCollimatorCoordinate(collimatorBox, firstCollimatorToMove, QString::number(firstCoord));
         // wait for collimators response
         while(waitForResponse) {
             qApp->processEvents();
         }
 
         waitForResponse = true;
-        SetCollimatorCoordinate(collimatorBox, COLL_RIGHT, QString::number(xNewRight));
+        SetCollimatorCoordinate(collimatorBox, secondCollimatorToMove, QString::number(secondCoord));
         // wait for collimators response
         while(waitForResponse) {
             qApp->processEvents();
@@ -451,6 +469,7 @@ void Controller::SetYHoleOffset(int collimatorBox, float offset)
     float yBottom = collSets[collimatorBox]->GetPosition(COLL_BOTTOM);
     float yTop = collSets[collimatorBox]->GetPosition(COLL_TOP);
     float maxOpening = collSets[collimatorBox]->GetVerticalMaxOpening();
+    float oldOffset = (yBottom - yTop) / 2.;
     float holeSizeY = maxOpening - yBottom - yTop;
 
     float yNewBottom = (maxOpening - holeSizeY)/2. + offset;
@@ -459,15 +478,32 @@ void Controller::SetYHoleOffset(int collimatorBox, float offset)
     if (yNewBottom>0 && yNewTop>0
             && yNewBottom<15. && yNewTop<15.)  {
 
+        // to avoid collimators collision the order of movements is important here
+        int firstCollimatorToMove;
+        int secondCollimatorToMove;
+        float firstCoord;
+        float secondCoord;
+        if (offset > oldOffset) {
+            firstCollimatorToMove = COLL_TOP;
+            secondCollimatorToMove = COLL_BOTTOM;
+            firstCoord = yNewTop;
+            secondCoord = yNewBottom;
+        } else {
+            firstCollimatorToMove = COLL_BOTTOM;
+            secondCollimatorToMove = COLL_TOP;
+            firstCoord = yNewBottom;
+            secondCoord = yNewTop;
+        }
+
         waitForResponse = true;
-        SetCollimatorCoordinate(collimatorBox, COLL_BOTTOM, QString::number(yNewBottom));
+        SetCollimatorCoordinate(collimatorBox, firstCollimatorToMove, QString::number(firstCoord));
         // wait for collimators response
         while(waitForResponse) {
             qApp->processEvents();
         }
 
         waitForResponse = true;
-        SetCollimatorCoordinate(collimatorBox, COLL_TOP, QString::number(yNewTop));
+        SetCollimatorCoordinate(collimatorBox, secondCollimatorToMove, QString::number(secondCoord));
         // wait for collimators response
         while(waitForResponse) {
             qApp->processEvents();
