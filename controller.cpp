@@ -27,6 +27,8 @@ Controller::Controller(QObject *parent) : QObject(parent)
     connect(view, SIGNAL(SetPWMPeriod(int,int,QString)), this, SLOT(SetPWM(int,int,QString)));
     connect(view, SIGNAL(SetXHoleSize(int,float)), this, SLOT(SetXHoleSize(int,float)));
     connect(view, SIGNAL(SetYHoleSize(int,float)), this, SLOT(SetYHoleSize(int,float)));
+    connect(view, SIGNAL(SetXHoleOffset(int,float)), this, SLOT(SetXHoleOffset(int,float)));
+    connect(view, SIGNAL(SetYHoleOffset(int,float)), this, SLOT(SetYHoleOffset(int,float)));
     connect(view, SIGNAL(UpdateScene(int)), this, SLOT(UpdateView(int)));
 
     connect(CollMaster, SIGNAL(Connected()), view, SLOT(CollimatorsConnected()));
@@ -407,4 +409,71 @@ void Controller::SetYHoleSize(int collimatorBox, float holeSize)
     }
 }
 
+void Controller::SetXHoleOffset(int collimatorBox, float offset)
+{
+    if (offset < -15. || offset > 15.) return;
 
+    float xLeft = collSets[collimatorBox]->GetPosition(COLL_LEFT);
+    float xRight = collSets[collimatorBox]->GetPosition(COLL_RIGHT);
+    float maxOpening = collSets[collimatorBox]->GetHorizontalMaxOpening();
+    float holeSizeX = maxOpening - xLeft - xRight;
+
+    float xNewLeft = (maxOpening - holeSizeX)/2. + offset;
+    float xNewRight = (maxOpening - holeSizeX)/2. - offset;
+
+    qDebug() << xNewLeft << xNewRight;
+    if (xNewLeft>0 && xNewRight>0
+            && xNewLeft<15. && xNewRight<15.)  {
+
+        waitForResponse = true;
+        SetCollimatorCoordinate(collimatorBox, COLL_LEFT, QString::number(xNewLeft));
+        // wait for collimators response
+        while(waitForResponse) {
+            qApp->processEvents();
+        }
+
+        waitForResponse = true;
+        SetCollimatorCoordinate(collimatorBox, COLL_RIGHT, QString::number(xNewRight));
+        // wait for collimators response
+        while(waitForResponse) {
+            qApp->processEvents();
+        }
+
+        view->UpdateCoordinate(collimatorBox, COLL_LEFT, collSets[collimatorBox]->GetPosition(COLL_LEFT));
+        view->UpdateCoordinate(collimatorBox, COLL_RIGHT, collSets[collimatorBox]->GetPosition(COLL_RIGHT));
+    }
+}
+
+void Controller::SetYHoleOffset(int collimatorBox, float offset)
+{
+    if (offset < -15. || offset > 15.) return;
+
+    float yBottom = collSets[collimatorBox]->GetPosition(COLL_BOTTOM);
+    float yTop = collSets[collimatorBox]->GetPosition(COLL_TOP);
+    float maxOpening = collSets[collimatorBox]->GetVerticalMaxOpening();
+    float holeSizeY = maxOpening - yBottom - yTop;
+
+    float yNewBottom = (maxOpening - holeSizeY)/2. + offset;
+    float yNewTop = (maxOpening - holeSizeY)/2. - offset;
+
+    if (yNewBottom>0 && yNewTop>0
+            && yNewBottom<15. && yNewTop<15.)  {
+
+        waitForResponse = true;
+        SetCollimatorCoordinate(collimatorBox, COLL_BOTTOM, QString::number(yNewBottom));
+        // wait for collimators response
+        while(waitForResponse) {
+            qApp->processEvents();
+        }
+
+        waitForResponse = true;
+        SetCollimatorCoordinate(collimatorBox, COLL_TOP, QString::number(yNewTop));
+        // wait for collimators response
+        while(waitForResponse) {
+            qApp->processEvents();
+        }
+
+        view->UpdateCoordinate(collimatorBox, COLL_BOTTOM, collSets[collimatorBox]->GetPosition(COLL_BOTTOM));
+        view->UpdateCoordinate(collimatorBox, COLL_TOP, collSets[collimatorBox]->GetPosition(COLL_TOP));
+    }
+}

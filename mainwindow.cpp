@@ -757,14 +757,26 @@ void MainWindow::on_holeSizeVertical_returnPressed()
     emit SetYHoleSize(GetActiveCollimatorBox(), size);
 }
 
+void MainWindow::on_SetXHoleOffsetButton_clicked()
+{
+    on_centerHorizontalOffet_returnPressed();
+}
+
 void MainWindow::on_centerHorizontalOffet_returnPressed()
 {
+    float offset = ui->centerHorizontalOffet->text().toFloat();
+    emit SetXHoleOffset(GetActiveCollimatorBox(), offset);
+}
 
+void MainWindow::on_SetYHoleOffsetButton_clicked()
+{
+    on_centerVerticalOffet_returnPressed();
 }
 
 void MainWindow::on_centerVerticalOffet_returnPressed()
 {
-
+    float offset = ui->centerVerticalOffet->text().toFloat();
+    emit SetYHoleOffset(GetActiveCollimatorBox(), offset);
 }
 
 void MainWindow::on_PulsePeriodBox_valueChanged(const QString &arg1)
@@ -785,6 +797,8 @@ void MainWindow::CollimatorBoxChanged()
 {
     emit UpdateScene(GetActiveCollimatorBox());
 }
+
+
 
 
 

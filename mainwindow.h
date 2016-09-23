@@ -49,6 +49,8 @@ signals:
     void SetPWMPeriod(int collimatorBox, int collimatorID, QString T);
     void SetXHoleSize(int collimatorBox, float size);
     void SetYHoleSize(int collimatorBox, float size);
+    void SetXHoleOffset(int collimatorBox, float offset);
+    void SetYHoleOffset(int collimatorBox, float offset);
 
     void ImReady();
     void UpdateScene(int collimatorBox);
@@ -178,6 +180,9 @@ private slots:
     void on_PulsePeriodBox_valueChanged(const QString &arg1);
     void on_pushButton_clicked();
     void on_SetXHoleSizeButton_clicked();
+    void on_SetYHoleSizeButton_clicked();
+    void on_SetXHoleOffsetButton_clicked();
+    void on_SetYHoleOffsetButton_clicked();
 };
 
 #endif // MAINWINDOW_H
