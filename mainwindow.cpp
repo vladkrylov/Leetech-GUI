@@ -284,7 +284,10 @@ QString MainWindow::Coord2String(float x)
     int digitsAfterPoint = 3;
     int zerosToAppend = 0;
     QString res = QString::number(x);
-    if (x < 0.001) res = "0";
+
+    // avoid wrong convertion to string of exponential form
+    float minVal = 0.001;
+    if ((x < minVal) && (x > -minVal)) res = "0";
 
     int pointIndex = res.indexOf(".");
     if (pointIndex == -1) {
@@ -322,6 +325,7 @@ QString MainWindow::HoleOffsetXString(float x)
 
 QString MainWindow::HoleOffsetYString(float y)
 {
+    qDebug() << y;
     return QString(QChar(0x94, 0x03)) + "Y<sub>0</sub> = " + Coord2String(y) + " mm";
 }
 
