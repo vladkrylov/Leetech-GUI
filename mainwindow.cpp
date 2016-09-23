@@ -10,7 +10,7 @@ const float usPerTimerTick = 0.025;
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
-  , sceneSize(500)
+  , sceneSize(520)
   , animation(NULL)
   , animationTimer(NULL)
 {
@@ -264,6 +264,8 @@ void MainWindow::ConnectCollimatorsRequests()
     connect(this, SIGNAL(MoveCollimator(int,int,QString)), this, SLOT(SetWaitingState()));
     connect(this, SIGNAL(UpdateCollimator(int,int)), this, SLOT(SetWaitingState()));
     connect(this, SIGNAL(CloseCollimators(int,int)), this, SLOT(SetWaitingState()));
+    connect(this, SIGNAL(SetXHoleSize(int,float)), this, SLOT(SetWaitingState()));
+    connect(this, SIGNAL(SetYHoleSize(int,float)), this, SLOT(SetWaitingState()));
 }
 
 int MainWindow::GetActiveCollimatorBox()
@@ -309,7 +311,6 @@ QString MainWindow::Coord2String(float x)
 
 QString MainWindow::HoleDXString(float dx)
 {
-    qDebug() << dx;
     return QString(QChar(0x94, 0x03)) + "X = " + Coord2String(dx) + " mm";
 }
 
@@ -325,7 +326,6 @@ QString MainWindow::HoleOffsetXString(float x)
 
 QString MainWindow::HoleOffsetYString(float y)
 {
-    qDebug() << y;
     return QString(QChar(0x94, 0x03)) + "Y<sub>0</sub> = " + Coord2String(y) + " mm";
 }
 
@@ -735,14 +735,26 @@ void MainWindow::on_ResetAllButton_clicked()
     ResetAllCollimatorHandler();
 }
 
+void MainWindow::on_SetXHoleSizeButton_clicked()
+{
+    on_holeSizeHorizontal_returnPressed();
+}
+
 void MainWindow::on_holeSizeHorizontal_returnPressed()
 {
+    float size = ui->holeSizeHorizontal->text().toFloat();
+    emit SetXHoleSize(GetActiveCollimatorBox(), size);
+}
 
+void MainWindow::on_SetYHoleSizeButton_clicked()
+{
+    on_holeSizeVertical_returnPressed();
 }
 
 void MainWindow::on_holeSizeVertical_returnPressed()
 {
-
+    float size = ui->holeSizeVertical->text().toFloat();
+    emit SetYHoleSize(GetActiveCollimatorBox(), size);
 }
 
 void MainWindow::on_centerHorizontalOffet_returnPressed()
@@ -773,3 +785,7 @@ void MainWindow::CollimatorBoxChanged()
 {
     emit UpdateScene(GetActiveCollimatorBox());
 }
+
+
+
+

@@ -59,6 +59,8 @@ private slots:
     void ResetAll(int collimatorBox);
     void CloseCollimators(int boxID, int collimatorID);
     void SetPWM(int collimatorBox, int collimatorID, QString T);
+    void SetXHoleSize(int collimatorBox, float holeSize);
+    void SetYHoleSize(int collimatorBox, float holeSize);
     void UpdateView(int collimatorBox);
 
 signals:
