@@ -1,6 +1,8 @@
 #ifndef TYPES_H
 #define TYPES_H
 
+#define UNKNOWN -1
+
 typedef enum {
     COLL_BOTTOM,
     COLL_TOP,

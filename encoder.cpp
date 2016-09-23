@@ -8,7 +8,7 @@ Encoder::Encoder(int motorID, QObject *parent) :
     steps2mm = 0;
 
     // TODO - initialization from configuration file
-    position = 0;
+    position = COORD_ERROR;
     origin = 0;
 }
 

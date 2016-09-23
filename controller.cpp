@@ -37,8 +37,8 @@ Controller::Controller(QObject *parent) : QObject(parent)
 
     collSets[BOX_ENTRANCE]->SetHorizontalMaxOpening(21.063);
     collSets[BOX_ENTRANCE]->SetVerticalMaxOpening(19.795);
-    collSets[BOX_EXIT1]->SetHorizontalMaxOpening(19.877);
-    collSets[BOX_EXIT1]->SetVerticalMaxOpening(20.633);
+    collSets[BOX_EXIT1]->SetHorizontalMaxOpening(21.188);
+    collSets[BOX_EXIT1]->SetVerticalMaxOpening(21.640);
 
     view->show();
 }

@@ -17,7 +17,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
     ui->collimatorScene->setMinimumSize(sceneSize+2, sceneSize+2);
 
-    CreateTopMenu();
+//    CreateTopMenu();
 
     ConstructScene();
     ConnectUIActions();
@@ -198,22 +198,22 @@ void MainWindow::ConstructScene()
     positionRightText = new QGraphicsTextItem();
     positionRightText->setFont(*textFont);
     positionRightText->setPos(leftSpacing, positionsTitle2->pos().y() + positionsTitle2->font().pointSize() + lineSpacing + 5);
-    positionRightText->setPlainText(PositionRightString(10.0));
+    positionRightText->setPlainText(PositionRightString(0));
 
     positionLeftText = new QGraphicsTextItem();
     positionLeftText->setFont(*textFont);
     positionLeftText->setPos(leftSpacing, positionRightText->pos().y() + positionsTitle2->font().pointSize() + lineSpacing);
-    positionLeftText->setPlainText(PositionLeftString(10.0));
+    positionLeftText->setPlainText(PositionLeftString(0));
 
     positionTopText = new QGraphicsTextItem();
     positionTopText->setFont(*textFont);
     positionTopText->setPos(leftSpacing, positionLeftText->pos().y() + positionsTitle2->font().pointSize() + lineSpacing);
-    positionTopText->setPlainText(PositionTopString(10.0));
+    positionTopText->setPlainText(PositionTopString(0));
 
     positionBottomText = new QGraphicsTextItem();
     positionBottomText->setFont(*textFont);
     positionBottomText->setPos(leftSpacing, positionTopText->pos().y() + positionsTitle2->font().pointSize() + lineSpacing);
-    positionBottomText->setPlainText(PositionBottomString(10.0));
+    positionBottomText->setPlainText(PositionBottomString(0));
 
     scene->addItem(positionsTitle1);
     scene->addItem(positionsTitle2);
@@ -266,6 +266,8 @@ void MainWindow::ConnectCollimatorsRequests()
     connect(this, SIGNAL(CloseCollimators(int,int)), this, SLOT(SetWaitingState()));
     connect(this, SIGNAL(SetXHoleSize(int,float)), this, SLOT(SetWaitingState()));
     connect(this, SIGNAL(SetYHoleSize(int,float)), this, SLOT(SetWaitingState()));
+    connect(this, SIGNAL(SetXHoleOffset(int,float)), this, SLOT(SetWaitingState()));
+    connect(this, SIGNAL(SetYHoleOffset(int,float)), this, SLOT(SetWaitingState()));
 }
 
 int MainWindow::GetActiveCollimatorBox()
@@ -412,7 +414,7 @@ void MainWindow::NiceMove(CollimatorGraphicsItem *collimator, QPointF to)
 void MainWindow::FinishWaitingState()
 {
     // remove waiting indicator from the scene
-    if (scene->items().contains(proxyGif)) {
+    while (scene->items().contains(proxyGif)) {
         scene->removeItem(proxyGif);
     }
     // change the state
@@ -444,8 +446,12 @@ void MainWindow::Update()
 
 void MainWindow::UpdateCoordinate(int collimatorBox, int collimatorID, float position)
 {
-    if (position < 0 || position > 15.)
+    qDebug() << position;
+    if (position < 0 || position > 15.) {
+        holeDXText->setHtml("Reset required");
+        holeDYText->setHtml("");
         return;
+    }
 
     int originX = 0;
     int originY = 0;
