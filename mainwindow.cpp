@@ -99,12 +99,12 @@ void MainWindow::ConstructScene()
     holeDXText = new QGraphicsTextItem();
     holeDXText->setFont(*textFont);
     holeDXText->setPos(leftSpacing, holeSizeTitle->pos().y() + holeSizeTitle->font().pointSize() + lineSpacing + 5);
-    holeDXText->setHtml(HoleDXString(29.999));
+    holeDXText->setHtml("Reset required");
 
     holeDYText = new QGraphicsTextItem();
     holeDYText->setFont(*textFont);
     holeDYText->setPos(leftSpacing, holeDXText->pos().y() + holeSizeTitle->font().pointSize() + lineSpacing);
-    holeDYText->setHtml(HoleDYString(29.999));
+//    holeDYText->setHtml(HoleDYString(29.999));
 
     scene->addItem(holeSizeTitle);
     scene->addItem(holeDXText);
@@ -280,10 +280,11 @@ int MainWindow::GetActiveCollimatorBox()
 }
 
 QString MainWindow::Coord2String(float x)
-{
+{    
     int digitsAfterPoint = 3;
     int zerosToAppend = 0;
     QString res = QString::number(x);
+    if (x < 0.001) res = "0";
 
     int pointIndex = res.indexOf(".");
     if (pointIndex == -1) {
@@ -305,6 +306,7 @@ QString MainWindow::Coord2String(float x)
 
 QString MainWindow::HoleDXString(float dx)
 {
+    qDebug() << dx;
     return QString(QChar(0x94, 0x03)) + "X = " + Coord2String(dx) + " mm";
 }
 
@@ -494,7 +496,6 @@ void MainWindow::UpdateCoordinate(int collimatorBox, int collimatorID, float pos
     default:
         break;
     }
-    qDebug() << destX << destY;
     FinishWaitingState();
 }
 
@@ -690,9 +691,6 @@ void MainWindow::ResetAllCollimatorHandler()
         emit ResetCollimator(collimatorBox, collimatorID);
         WaitForReady();
     }
-//    int collimatorBox = GetActiveCollimatorBox();
-//    emit ResetAll();
-//    WaitForReady();
 }
 
 void MainWindow::UpdateCollimatorHandler()

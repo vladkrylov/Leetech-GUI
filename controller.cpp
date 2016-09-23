@@ -178,7 +178,7 @@ int Controller::GetStrongCollimator(int boxID, int collimatorID)
         switch (collimatorID) {
         case COLL_LEFT:
         case COLL_RIGHT:
-            return COLL_RIGHT;
+            return COLL_LEFT;
             break;
         case COLL_TOP:
         case COLL_BOTTOM:
