@@ -453,7 +453,7 @@ void MainWindow::UpdateCoordinate(int collimatorBox, int collimatorID, float pos
         originX = scene->sceneRect().width()-1;
         originY = scene->sceneRect().height()/2 + right->boundingRect().height()/2;
 
-        destX = originX - int(position/(maxOpeningX/2) * (scene->sceneRect().width()/2 - right->boundingRect().width()));
+        destX = originX - int(position/(maxOpeningX/2) * (scene->sceneRect().width()/2 - right->boundingRect().width()) + 0.5);
         destY = originY;
         NiceMove(right, QPointF(destX, destY));
         break;
@@ -464,7 +464,7 @@ void MainWindow::UpdateCoordinate(int collimatorBox, int collimatorID, float pos
         originX = 0;
         originY = scene->sceneRect().height()/2 - left->boundingRect().height()/2;
 
-        destX = originX + int(position/(maxOpeningX/2) * (scene->sceneRect().width()/2 - left->boundingRect().width()));
+        destX = originX + int(position/(maxOpeningX/2) * (scene->sceneRect().width()/2 - left->boundingRect().width()) + 0.5);
         destY = originY;
         NiceMove(left, QPointF(destX, destY));
         break;
@@ -476,7 +476,7 @@ void MainWindow::UpdateCoordinate(int collimatorBox, int collimatorID, float pos
         originY = 0;
 
         destX = originX;
-        destY = originY + int(position/(maxOpeningY/2) * (scene->sceneRect().height()/2 - top->boundingRect().width()));
+        destY = originY + int(position/(maxOpeningY/2) * (scene->sceneRect().height()/2 - top->boundingRect().width()) + 0.5);
         NiceMove(top, QPointF(destX, destY));
         break;
 
@@ -487,13 +487,14 @@ void MainWindow::UpdateCoordinate(int collimatorBox, int collimatorID, float pos
         originY = scene->sceneRect().height()-1;
 
         destX = originX;
-        destY = originY - int(position/(maxOpeningY/2) * (scene->sceneRect().height()/2 - bottom->boundingRect().width()));
+        destY = originY - int(position/(maxOpeningY/2) * (scene->sceneRect().height()/2 - bottom->boundingRect().width()) + 0.5);
         NiceMove(bottom, QPointF(destX, destY));
         break;
 
     default:
         break;
     }
+    qDebug() << destX << destY;
     FinishWaitingState();
 }
 

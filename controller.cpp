@@ -334,6 +334,5 @@ void Controller::UpdateView(int collimatorBox)
     for (int i=0; i<N_COLLIMATORS; i++) {
         float position = collSets[collimatorBox]->GetPosition(i);
         view->UpdateCoordinate(collimatorBox, i, position);
-//        SetCollimatorCoordinate(collimatorBox, i, QString::number(position));
     }
 }

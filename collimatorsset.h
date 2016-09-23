@@ -3,6 +3,7 @@
 
 #include <QObject>
 
+#include "types.h"
 #include "encoder.h"
 
 class CollimatorsSet : public QObject
@@ -36,6 +37,7 @@ signals:
 private:
     int id;
     Encoder **motors;
+    int index[N_COLLIMATORS];
     float horizontalMaxOpening;
     float verticalMaxOpening;
     QString GenerateCoordinate(const QString &coord_mm, int collimatorID);

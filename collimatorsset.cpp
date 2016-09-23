@@ -115,3 +115,4 @@ void CollimatorsSet::UpdateAllOrigins(QByteArray response)
 //    }
 }
 
+
