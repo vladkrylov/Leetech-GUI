@@ -434,7 +434,9 @@ void MainWindow::WaitForReady()
 void MainWindow::SetWaitingState()
 {
     // indicate waiting on the scene
-    scene->addItem(proxyGif);
+    if(!(scene->items().contains(proxyGif))) {
+        scene->addItem(proxyGif);
+    }
     // set the state
     applicationState = WAITING_FOR_COLLIMATORS_RESPONSE;
 }

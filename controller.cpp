@@ -35,8 +35,8 @@ Controller::Controller(QObject *parent) : QObject(parent)
     connect(CollMaster, SIGNAL(Disconnected()), view, SLOT(CollimatorsDisconnected()));
     connect(CollMaster, SIGNAL(dataReceived()), this, SLOT(DataReceived()));
 
-    collSets[BOX_ENTRANCE]->SetHorizontalMaxOpening(21.063);
-    collSets[BOX_ENTRANCE]->SetVerticalMaxOpening(19.795);
+    collSets[BOX_ENTRANCE]->SetHorizontalMaxOpening(19.929);
+    collSets[BOX_ENTRANCE]->SetVerticalMaxOpening(20.911);
     collSets[BOX_EXIT1]->SetHorizontalMaxOpening(21.188);
     collSets[BOX_EXIT1]->SetVerticalMaxOpening(21.640);
 
@@ -169,7 +169,7 @@ int Controller::GetStrongCollimator(int boxID, int collimatorID)
         switch (collimatorID) {
         case COLL_LEFT:
         case COLL_RIGHT:
-            return COLL_RIGHT;
+            return COLL_LEFT;
             break;
         case COLL_TOP:
         case COLL_BOTTOM:
