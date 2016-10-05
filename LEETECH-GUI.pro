@@ -39,3 +39,6 @@ OTHER_FILES +=
 
 RESOURCES += \
     resources.qrc
+
+DISTFILES += \
+    res/main.ico

@@ -22,6 +22,9 @@ MainWindow::MainWindow(QWidget *parent) :
     ConstructScene();
     ConnectUIActions();
     ConnectCollimatorsRequests();
+
+    setWindowIcon(QIcon(":/res/main.ico"));
+    setWindowTitle("LEETECH control");
 }
 
 MainWindow::~MainWindow()
